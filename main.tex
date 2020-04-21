@@ -1,0 +1,74 @@
+\input{preamble}
+
+\title{Learning Precedences from Elementary Symbol Features\thanks{Supported by the ERC Consolidator grant AI4REASON no. 649043 under the EU-H2020 programme.}}
+\titlerunning{Learning Precedences from Elementary Symbol Features}
+\author{Filip B\'{a}rtek \and Martin Suda}
+\authorrunning{B\'{a}rtek, Suda}
+\institute{Czech Technical University in Prague, Czech Republic}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\section{Architecture}
+
+\subsection{Prediction}
+
+For a given problem, symbol precedence prediction consists of two steps:
+
+\begin{enumerate}
+	\item Preference matrix prediction
+	\item Precedence construction from preference matrix
+\end{enumerate}
+
+\subsubsection{Preference matrix estimation}
+
+Given a problem, we compute an embedding for each pair of symbols.
+An embedding of a pair of symbols is a concatenation of the embeddings of the two symbols.
+The embedding of a symbol consists of the following features:
+
+\begin{itemize}
+	\item Arity
+	\item Usage count
+	\item Unit usage count
+	\item In goal
+	\item In unit
+	\item Skolem
+\end{itemize}
+
+The preference value regressor predicts a preference value for each symbol pair embedding.
+We poll the preference value regressor for each pair of symbols of the input problem,
+storing the preference values in a preference matrix.
+
+\subsubsection{Precedence construction}
+
+Given a preference matrix, we construct a symbol ordering
+that approximately maximizes cumulative preference
+using a greedy algorithm presented in LtOT.
+
+\subsection{Training}
+
+The training of preference value predictor consists of two stages:
+
+\begin{enumerate}
+	\item Problem-wise target preference matrix estimation
+	\item Preference value regressor fitting
+\end{enumerate}
+
+\subsubsection{Problem-wise target preference matrix estimation}
+
+
+
+\subsubsection{Preference value regressor fitting}
+
+As outlined in section ...,
+the preference value regressor estimates a preference value for each symbol pair embedding.
+It can be trained using any 
+
+\section{Evaluation}
+
+\section{Conclusion}
+
+\end{document}

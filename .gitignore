@@ -1,2 +1,10 @@
+# EasyChair class style
 easychair.zip
 easychair.cls
+
+# TeX products
+*.aux
+*.log
+*.out
+*.pdf
+*.synctex.gz
