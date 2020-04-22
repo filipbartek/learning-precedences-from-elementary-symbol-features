@@ -1,0 +1,32 @@
+\usepackage{glossaries}
+\makeglossaries
+
+\newglossaryentry{problem}
+{
+	name=problem,
+	description={a set of FOL premises and conjectures}
+}
+
+\newglossaryentry{precedence}
+{
+	name=precedence,
+	description={a total order on symbols in a given \gls{problem}}
+}
+
+\newglossaryentry{preference-value}
+{
+	name=preference value,
+	description={a real number that expresses the expected contribution of a symbol being ordered before another symbol}
+}
+
+\newglossaryentry{preference-matrix}
+{
+	name=preference matrix,
+	description={a square matrix populated with \glspl{preference-value} of all the pairs of symbols in a given \gls{problem}}
+}
+
+\newglossaryentry{symbol-order-matrix}
+{
+	name=symbol order matrix,
+	description={a binary square matrix with value 1 for each pair of symbols ordered according to a given \gls{precedence}}
+}

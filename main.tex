@@ -12,6 +12,17 @@
 
 \section{Introduction}
 
+\Gls{preference-value} of an ordered pair of symbols \((P_0, P_1)\) expresses a penalty associated with ordering the symbol \(P_0\) before the symbol \(P_1\).
+Positive value means that ordering \(P_0\) before \(P_1\) is associated with low probability of success.
+Negative value means that ordering \(P_0\) before \(P_1\) is associated with high probability of success.
+Value close to zero means that the order of symbols \(P_0\) and \(P_1\) has no effect on the probability of success.
+
+\Gls{preference-matrix} is a square matrix populated with preference values of all the pairs of symbols.
+
+For a given symbol precedence,
+\gls{symbol-order-matrix} \(C\) is a boolean square matrix of size \(n \times n\) where \(n\) is the number of symbols.
+\(C_{i, j}\) is true if and only if symbol \(P_i\) precedes symbol \(P_j\) in the precedence.
+
 \section{Architecture}
 
 \subsection{Prediction}
@@ -19,7 +30,7 @@
 For a given problem, symbol precedence prediction consists of two steps:
 
 \begin{enumerate}
-	\item Preference matrix prediction
+	\item Preference matrix estimation
 	\item Precedence construction from preference matrix
 \end{enumerate}
 
@@ -59,7 +70,10 @@ The training of preference value predictor consists of two stages:
 
 \subsubsection{Problem-wise target preference matrix estimation}
 
-
+For each problem,
+we train a linear predictor
+that predicts target score from \glspl{symbol-order-matrix}.
+The coefficients of the trained predictor are the target preference values of the symbol pairs for this problem.
 
 \subsubsection{Preference value regressor fitting}
 
@@ -70,5 +84,8 @@ It can be trained using any
 \section{Evaluation}
 
 \section{Conclusion}
+
+\glsaddall
+\printglossaries
 
 \end{document}
