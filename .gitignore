@@ -8,3 +8,9 @@ easychair.cls
 *.out
 *.pdf
 *.synctex.gz
+
+# glossaries
+*.glg
+*.glo
+*.gls
+*.ist
