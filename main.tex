@@ -1,6 +1,6 @@
 \input{preamble}
 
-\title{Learning Precedences from Elementary Symbol Features\thanks{Supported by the ERC Consolidator grant AI4REASON no. 649043 under the EU-H2020 programme and the Czech Science Foundataion project 20-06390Y.}}
+\title{Learning Precedences from Simple Symbol Features\thanks{Supported by the ERC Consolidator grant AI4REASON no. 649043 under the EU-H2020 programme and the Czech Science Foundataion project 20-06390Y.}}
 \titlerunning{Learning Precedences from Elementary Symbol Features}
 \author{Filip B\'{a}rtek \and Martin Suda}
 \authorrunning{B\'{a}rtek, Suda}
@@ -11,7 +11,18 @@
 \maketitle
 
 \begin{abstract}
-The choice of predicate symbol precedence can have a great impact on the success of proof search in saturation-based automated theorem provers. We explore the possibility of machine-learning a predicate symbol precedence proposal system based on elementary predicate symbol features. Training a linear model converges to ordering the symbols by the number of their occurrences.
+A simplification ordering, typically specified by a symbol precedence,
+is one of the key parameters of the superposition calculus, contributing
+to shaping the search space navigated by a saturation-based automated theorem prover.
+Thus the choice of a precedence can have a great impact on the prover's performance.
+In this work, we design a system for proposing favourable predicate symbol precedences.
+The system relies on machine learning to extract the information from
+past runs of a theorem prover over a set of problems and random precedences.
+Moreover, it uses a small set of simple human-engineered symbol features as the sole
+basis for discriminating the symbols. This allows for a direct comparison
+with precedence construction heuristics designed by prover developers.
+% Martin: let's add this when we have the results finalised
+% Training a linear model converges to ordering the symbols by the number of their occurrences.
 \todo[author=Filip]{Update the abstract once the experimental results are finalized.}
 \end{abstract}
 
