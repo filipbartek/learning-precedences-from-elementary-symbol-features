@@ -28,6 +28,8 @@ Training a linear model converges to ordering the symbols by the number of their
 \section{Introduction}
 
 The proof search on a given problem using superposition calculus is parameterized by two orderings:
+\todo[author=Martin,inline]{In the official terminology, there just one ordering. Symbol precedence is just one
+parameter of certain family of orderings.}
 
 \begin{itemize}
 	\item Predicate precedence -- an ordering on predicate symbols of the problem
@@ -58,7 +60,9 @@ For the discussion that follows in this section,
 we assume a fixed \gls{fol} \gls{atp} that uses superposition calculus.
 While the practical experiments described in \autoref{sec:evaluation} use the \gls{atp} Vampire \cite{?},
 the model architecture does not assume a particular \gls{atp}
-and is compatible with any superposition-based\todo[author=Filip]{Is this term admissible?}{} \gls{atp} such as Vampire or E.
+and is compatible with any superposition-based\todo[author=Filip]{Is this term admissible?}\todo[author=Martin,inline]{I think so.
+What we rely on here, is the use of a simplification ordering, such as KBO or LPO parametrized by a symbol precedence.}
+\gls{atp} such as Vampire or E.
 
 Furthermore, we fix the problem-agnostic configuration of the chosen \gls{atp}.
 The configuration may specify for example a literal comparison mode, a saturation algorithm
@@ -67,6 +71,7 @@ We assume that a finite time limit is used because very long proof searches are 
 and we prefer to handle such searches gracefully.
 \todo[author=Filip]{Improve the justification.}
 \todo[inline,author=Filip]{Is the prover guaranteed to converge on any solvable problem irrespective of the precedence? If it is, then we could train on time-unlimited proof searches.}
+\todo[inline,author=Martin]{In theory yes, for a complete strategy (and we are using such), but in practice this could take zillions of years. We would never finish before a deadline ;))}
 
 For sake of simplicity,
 we will describe a system that only proposes predicate precedences.
@@ -90,6 +95,9 @@ We strive to create a system that satisfies the following properties:
 	the system proposes a predicate precedence for this problem
 	that maximizes the expected chance of the problem being solved
 	within the allocated time.
+	
+	\todo[inline,author=Martin]{Maybe simply minimize the expected (abstract) solving time (i.e. measured in the number of iterations of the main loop!).}
+	
 	\item The system is trained on a collection of executions of the chosen prover
 	on a training set of \gls{fol} problems
 	with uniformly random predicate precedences.
@@ -115,7 +123,7 @@ configured to use this precedence:
 We further transform the loss values by the following operations:
 
 \begin{enumerate}
-	\item Log-scale: Improvement by a constant factor is a cross-problem captures the intuition of the same level of improvement across problems.
+	\item Log-scale: Improvement by a constant factor is a cross-problem \todo[inline,author=Martin]{?} captures the intuition of the same level of improvement across problems.
 	\item Standardization: For each problem,
 	we apply an affine transformation so that the loss values have the mean 0 and standard deviation 1.
 	the loss values so that the loss values are comparable across problems.
@@ -126,7 +134,7 @@ and standardize\cite{?} the loss values to make them comparable across problems.
 
 \subsection{Reduction to preference learning}
 
-Let's suppose we have a set of \(m\) problems
+Let's \todo[inline,author=Martin]{Vsechny zkraceniny jsou povazovany za prilis neformalni.} suppose we have a set of \(m\) problems
 and that we run the prover on each of them with \(n\) uniformly random predicate precedences.
 How can we use the resulting data to learn a precedence proposal system?
 
