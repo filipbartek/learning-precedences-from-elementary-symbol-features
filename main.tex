@@ -50,6 +50,8 @@ For a given problem, symbol precedence prediction consists of two steps:
 	\item Precedence construction from preference matrix
 \end{enumerate}
 
+\todo[inline,author=Filip]{Explain why we chose this decomposition.}
+
 \subsubsection{Preference matrix estimation}
 
 Given a problem, we compute an embedding for each pair of symbols.
@@ -69,11 +71,46 @@ The preference value regressor predicts a preference value for each symbol pair 
 We poll the preference value regressor for each pair of symbols of the input problem,
 storing the preference values in a preference matrix.
 
+In the special case of linear regressor, we can omit the construction of preference matrix
+and order the symbols using the weight vector of the regressor,
+as shown below.
+
 \subsubsection{Precedence construction}
 
 Given a preference matrix, we construct a symbol ordering
-that approximately maximizes cumulative preference
+that approximately minimizes cumulative preference value
 using a greedy algorithm presented in LtOT.
+
+More precisely, the algorithm approximately minimizes the following value:
+
+\begin{align*}
+s(\pi) = \sum_{\pi(l) < \pi(r)} s(l, r) - s(r, l)
+\end{align*}
+
+\todo[inline,author=Filip]{Justify lemma: argmin sum s(l,r) - s(r,l) = argmin sum s(l,r)}
+
+\paragraph{Linear regressor}
+
+Note that if \(s\) is constructed using a linear regressor,
+then there is a function \(\bar{s}\) that satisfies the following property:
+
+\begin{align*}
+s(l, r) - s(r, l) = \bar{s}(l) - \bar{s}(r)
+\end{align*}
+
+Then:
+
+\begin{align*}
+s(\pi) = \sum_{\pi(l) < \pi(r)} \bar{s}(l) - \bar{s}(r)
+= \sum_{\pi(l) < \pi(r)} \bar{s}(l) - \sum_{\pi(l) < \pi(r)} \bar{s}(r)
+= \sum_{x} \bar{s}(x) (\bar{\pi}(x) - \pi(x))
+= \sum_{x} \bar{s}(x) (n + 1 - 2 \pi(x))
+\end{align*}
+
+It is easy to see that the \(\pi\) that minimizes \(s(\pi)\) orders the symbols in ascending order by their \(\bar{s}\) values.
+If we know the \(\bar{s}\) value of each symbol without computing the preference matrix,
+we need not compute the preference matrix.
+This happens to be the case with linear regressor.
 
 \subsection{Training}
 
