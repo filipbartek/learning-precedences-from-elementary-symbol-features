@@ -13,7 +13,7 @@
 \begin{abstract}
 A simplification ordering, typically specified by a symbol precedence,
 is one of the key parameters of the superposition calculus, contributing
-to shaping the search space navigated by a saturation-based automated theorem prover.
+to shaping the search space navigated by a saturation-based \acrlong{atp}.
 Thus the choice of a precedence can have a great impact on the prover's performance.
 In this work, we design a system for proposing favourable predicate symbol precedences.
 The system relies on machine learning to extract the information from
@@ -26,6 +26,18 @@ Training a linear model converges to ordering the symbols by the number of their
 \end{abstract}
 
 \section{Introduction}
+
+The proof search on a given problem using superposition calculus is parameterized by two orderings:
+
+\begin{itemize}
+	\item Predicate precedence -- an ordering on predicate symbols of the problem
+	\item Function precedence -- an ordering on function symbols of the problem
+\end{itemize}
+
+In this article we limit ourselves to discussion of predicate symbol precedences for the sake of simplicity.
+We fix function precedences to use the frequency heuristic.
+
+Given a problem, we look for a predicate \gls{precedence} that lead to successful and quick proof search.
 
 \Gls{preference-value} of an ordered pair of symbols \((P_0, P_1)\) expresses a penalty associated with ordering the symbol \(P_0\) before the symbol \(P_1\).
 Positive value means that ordering \(P_0\) before \(P_1\) is associated with low probability of success.
@@ -40,6 +52,128 @@ For a given symbol precedence,
 
 \section{Architecture}
 
+\subsection{Basic assumptions}
+
+For the discussion that follows in this section,
+we assume a fixed \gls{fol} \gls{atp} that uses superposition calculus.
+While the practical experiments described in \autoref{sec:evaluation} use the \gls{atp} Vampire \cite{?},
+the model architecture does not assume a particular \gls{atp}
+and is compatible with any superposition-based\todo[author=Filip]{Is this term admissible?}{} \gls{atp} such as Vampire or E.
+
+Furthermore, we fix the problem-agnostic configuration of the chosen \gls{atp}.
+The configuration may specify for example a literal comparison mode, a saturation algorithm
+and a time limit.
+We assume that a finite time limit is used because very long proof searches are common in practice\cite{?}
+and we prefer to handle such searches gracefully.
+\todo[author=Filip]{Improve the justification.}
+\todo[inline,author=Filip]{Is the prover guaranteed to converge on any solvable problem irrespective of the precedence? If it is, then we could train on time-unlimited proof searches.}
+
+For sake of simplicity,
+we will describe a system that only proposes predicate precedences.
+\todo[inline,author=Filip]{Discuss more.
+Possible generalizations to combination of predicate and function precedences:
+
+- Learn predicate precedence in the context of frequency heuristic for function precedences. (current experiment)
+
+- Learn predicate precedence in the context of random function precedences.
+
+- Iterate: Learn predicate precedence in the context of function precedences from previous training epoch.
+
+- Train predicate and function preference regressor simultaneously with a shared underlying GNN.}
+
+\subsection{Main goals}
+
+We strive to create a system that satisfies the following properties:
+
+\begin{itemize}
+	\item When presented with an arbitrary \gls{fol} problem,
+	the system proposes a predicate precedence for this problem
+	that maximizes the expected chance of the problem being solved
+	within the allocated time.
+	\item The system is trained on a collection of executions of the chosen prover
+	on a training set of \gls{fol} problems
+	with uniformly random predicate precedences.
+\end{itemize}
+
+\subsection{Valuation of precedences}
+
+Based on the assumption that a short proof search is more likely to succeed in a limited time\cite{?},
+we train the system to prefer precedences that lead to a short proof search.
+This allows us to use easy problems for training, facilitating the collection of training data.
+
+We define the loss value of precedence \(\pi\) according to the outcome of the proof search
+configured to use this precedence:
+
+\begin{itemize}
+	\item If the proof search terminates within the allocated time,
+	\(\base_loss(\pi)\) is the number iterations of saturation loop started during the proof search.
+	\item If the proof search times out, \(\base_loss(\pi)\) is the maximum number
+	of saturation loop iterations encountered in successful proof searches on this problem
+	with uniformly random precedences.
+\end{itemize}
+
+We further transform the loss values by the following operations:
+
+\begin{enumerate}
+	\item Log-scale: Improvement by a constant factor is a cross-problem captures the intuition of the same level of improvement across problems.
+	\item Standardization: For each problem,
+	we apply an affine transformation so that the loss values have the mean 0 and standard deviation 1.
+	the loss values so that the loss values are comparable across problems.
+\end{enumerate}
+
+We further log-scale the loss values
+and standardize\cite{?} the loss values to make them comparable across problems.
+
+\subsection{Reduction to preference learning}
+
+Let's suppose we have a set of \(m\) problems
+and that we run the prover on each of them with \(n\) uniformly random predicate precedences.
+How can we use the resulting data to learn a precedence proposal system?
+
+\subsection{Discussion}
+
+Let \(\pi\) be a predicate precedence on a given \gls{fol} problem.
+Let \(\loss(\pi)\) be a real number that corresponds to the performance of the chosen \gls{atp}
+on the given \gls{fol} problem when using the predicate precedence \(\pi\).
+
+Let the \gls{atp} Prover run on problem Problem with a time limit of 10 seconds.
+
+
+For example, \(\loss(\pi)\) may be defined as the number of saturation loop iterations in case the prover
+
+We strive to design and train a system that, when presented with any \gls{fol} problem,
+proposes a predicate precedence for this problem with low expected \(loss\).
+We want to train this system on a collection of executions of an \gls{atp}\footnote{We use the \gls{atp} Vampire in out experiments.} with random precedences on a training set of problems.
+
+We break the task of generating a good precedence down to two stages:
+\todo[author=Filip]{Why do we do that? \citet{Cohen2011} assumes that the pairwise preference is the input.}
+
+\begin{enumerate}
+	\item Estimate a pairwise loss function \(\loss_2\).
+	\item Generate a permutation that maximizes the cumulative preference value.
+\end{enumerate}
+
+Notation:
+
+\(\pi(i)\) is the \(i\)-th symbol under precedence \(\pi\).
+
+\(\inv{\pi}(P)\) is the position of symbol \(P\) in precedence \(\pi\).
+
+We work under the assumption that the overall performance of precedence \(\pi\) decomposes into a sum of contributions of ordered pairs of symbols:
+
+\begin{align*}
+\exists \loss_2 : \predicates \times \predicates \rightarrow \re . \loss(\pi) = \sum_{P, Q: \inv{\pi}(P) < \inv{\pi}(Q)} \loss_2(P, Q)
+\end{align*}
+
+Working under this assumption allows us to use \(\loss_2\) as a proxy for minimizing \(\loss\).
+Note that each of the precedence heuristics implemented in Vampire can be expressed as minimizers of certain \(\loss_2\):
+
+...
+
+
+
+\section{Architecture}
+
 \subsection{Prediction}
 
 For a given problem, symbol precedence prediction consists of two steps:
@@ -48,8 +182,6 @@ For a given problem, symbol precedence prediction consists of two steps:
 	\item Preference matrix estimation
 	\item Precedence construction from preference matrix
 \end{enumerate}
-
-\todo[inline,author=Filip]{Explain why we chose this decomposition.}
 
 \subsubsection{Preference matrix estimation}
 
@@ -70,46 +202,11 @@ The preference value regressor predicts a preference value for each symbol pair 
 We poll the preference value regressor for each pair of symbols of the input problem,
 storing the preference values in a preference matrix.
 
-In the special case of linear regressor, we can omit the construction of preference matrix
-and order the symbols using the weight vector of the regressor,
-as shown below.
-
 \subsubsection{Precedence construction}
 
 Given a preference matrix, we construct a symbol ordering
-that approximately minimizes cumulative preference value
+that approximately maximizes cumulative preference
 using a greedy algorithm presented in LtOT.
-
-More precisely, the algorithm approximately minimizes the following value:
-
-\begin{align*}
-s(\pi) = \sum_{\pi(l) < \pi(r)} s(l, r) - s(r, l)
-\end{align*}
-
-\todo[inline,author=Filip]{Justify lemma: argmin sum s(l,r) - s(r,l) = argmin sum s(l,r)}
-
-\paragraph{Linear regressor}
-
-Note that if \(s\) is constructed using a linear regressor,
-then there is a function \(\bar{s}\) that satisfies the following property:
-
-\begin{align*}
-s(l, r) - s(r, l) = \bar{s}(l) - \bar{s}(r)
-\end{align*}
-
-Then:
-
-\begin{align*}
-s(\pi) = \sum_{\pi(l) < \pi(r)} \bar{s}(l) - \bar{s}(r)
-= \sum_{\pi(l) < \pi(r)} \bar{s}(l) - \sum_{\pi(l) < \pi(r)} \bar{s}(r)
-= \sum_{x} \bar{s}(x) (\bar{\pi}(x) - \pi(x))
-= \sum_{x} \bar{s}(x) (n + 1 - 2 \pi(x))
-\end{align*}
-
-It is easy to see that the \(\pi\) that minimizes \(s(\pi)\) orders the symbols in ascending order by their \(\bar{s}\) values.
-If we know the \(\bar{s}\) value of each symbol without computing the preference matrix,
-we need not compute the preference matrix.
-This happens to be the case with linear regressor.
 
 \subsection{Training}
 
@@ -134,10 +231,14 @@ the preference value regressor estimates a preference value for each symbol pair
 It can be trained using any 
 
 \section{Evaluation}
+\label{sec:evaluation}
 
 \section{Conclusion}
 
 \glsaddall
 \printglossaries
+
+\bibliographystyle{plainnat}
+\bibliography{main}
 
 \end{document}

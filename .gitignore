@@ -14,3 +14,10 @@ easychair.cls
 *.glo
 *.gls
 *.ist
+
+# BibTeX
+*.bbl
+*.bcf
+*.bib.sav
+*.blg
+*.run.xml
