@@ -27,14 +27,12 @@ Training a linear model converges to ordering the symbols by the number of their
 
 \section{Introduction}
 
-The proof search on a given problem using superposition calculus is parameterized by two orderings:
-\todo[author=Martin,inline]{In the official terminology, there just one ordering. Symbol precedence is just one
-parameter of certain family of orderings.}
-
-\begin{itemize}
-	\item Predicate precedence -- an ordering on predicate symbols of the problem
-	\item Function precedence -- an ordering on function symbols of the problem
-\end{itemize}
+The most successful \gls{fol} \glspl{atp} are based on superposition calculus,
+which is parameterized by simplification term ordering.
+Each of the two most commonly used simplification orderings, \gls{kbo} and \gls{lpo},
+is in turn parameterized by a pair of symbol precedences:
+predicate precedence and function precedence.
+Each of these precedences is a permutation of the respective symbols of the problem under consideration.
 
 In this article we limit ourselves to discussion of predicate symbol precedences for the sake of simplicity.
 We fix function precedences to use the frequency heuristic.
