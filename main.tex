@@ -146,11 +146,13 @@ For example, prioritizing inferences on clauses with predicate symbols
 introduced in Tseitin transformation
 may lead to an exponential expansion of the affected clauses.
 
-Let the pairwise preference function \(\pref : \Sigma_P \times \Sigma_P \rightarrow \re\)
-assign a preference value to each pair of predicate symbols:
-a high value of \(\pref(p, q)\) corresponds to a long expected proof search time using a permutation
-that orders \(p\) before \(q\).
+Let the pairwise preference
 \todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a loss or a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
+function \(\pref : \Sigma_P \times \Sigma_P \rightarrow \re\)
+\todo[author=Filip]{Explain the symbols.}
+assign a preference value to each pair of predicate symbols:
+a high value of \(\pref(p, q)\) corresponds to a long expected proof search time
+if a precedence that orders \(p\) before \(q\) is used.
 Furthermore, let the absolute value of \(\pref(p, q)\)
 correspond to the expected magnitude of impact of the mutual order of \(p\) and \(q\).
 Namely, \(\pref(p, q) = 0\) means that the mutual order of \(p\) and \(q\)
@@ -158,15 +160,25 @@ has no impact on the length of the proof search.
 
 We proceed to relax the general task of finding a good precedence
 to the task of finding a good pairwise preference function.
-Once we have such function, we can construct a precedence that approximately minimizes the cumulative preference value:
+Once we have such function,
+we will be interested in finding a precedence \(\pi\) that minimizes the cumulative preference value:
 
 \begin{align*}
 \loss_{proxy}(\pi) = \sum_{p, q: \inv{\pi}(p) < \inv{\pi}(q)} \pref(p, q)
 \end{align*}
+\todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy loss seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
+
+While the problem of minimizing \(\loss_{proxy}(\pi)\) given an aribtrary \(\pref\) is NP-hard,
+a greedy 2-approximation algorithm exists.\cite{Cohen2011}
 
 Note that such preference function may be trained by conventional machine learning techniques.
 
 One possibility is to encode a precedence as an \gls{order-matrix}.
+
+\subsection{Symbol embedding}
+
+The pairwise preference function may be trained by conventional supervised machine learning techniques,
+provided we have an embedding\todo[author=Filip]{Explain.} for each symbol.
 
 \subsection{Discussion}
 
