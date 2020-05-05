@@ -37,7 +37,7 @@ Each of these precedences is a permutation of the respective symbols of the prob
 In this text we limit ourselves to discussion of predicate symbol precedences for the sake of simplicity.
 We fix function precedences to use the frequency heuristic.
 
-Given a problem, we look for a predicate \gls{precedence} that lead to successful and quick proof search.
+Given a problem, we look for a predicate \gls{precedence} that leads to a successful and quick proof search.
 
 \Gls{preference-value} of an ordered pair of symbols \((P_0, P_1)\) expresses a penalty associated with ordering the symbol \(P_0\) before the symbol \(P_1\).
 Positive value means that ordering \(P_0\) before \(P_1\) is associated with low probability of success.
@@ -47,7 +47,7 @@ Value close to zero means that the order of symbols \(P_0\) and \(P_1\) has no e
 \Gls{preference-matrix} is a square matrix populated with preference values of all the pairs of symbols.
 
 For a given symbol precedence,
-\gls{symbol-order-matrix} \(C\) is a boolean square matrix of size \(n \times n\) where \(n\) is the number of symbols.
+\gls{order-matrix} \(C\) is a boolean square matrix of size \(n \times n\) where \(n\) is the number of symbols.
 \(C_{i, j}\) is true if and only if symbol \(P_i\) precedes symbol \(P_j\) in the precedence.
 
 \section{Architecture}
@@ -58,18 +58,16 @@ For the discussion that follows in this section,
 we assume a fixed \gls{fol} \gls{atp} that uses superposition calculus parameterized by symbol precedence.
 While the practical experiments described in \autoref{sec:evaluation} use the \gls{atp} Vampire \cite{?},
 the model architecture does not assume a particular \gls{atp}
-and is compatible with any superposition-based\todo[author=Filip]{Is this term admissible?}\todo[author=Martin,inline]{I think so.
-What we rely on here, is the use of a simplification ordering, such as KBO or LPO parametrized by a symbol precedence.}
-\gls{atp} such as Vampire or E.
+and is compatible with any superposition-based \gls{atp} such as Vampire or E.
 
-Furthermore, we fix the problem-agnostic configuration of the chosen \gls{atp}.
-The configuration may specify for example a literal comparison mode, a saturation algorithm
+Furthermore, we fix the problem-agnostic strategy parameters of the chosen \gls{atp}.
+The parameters may specify for example a literal comparison mode, a saturation algorithm
 and a time limit.
-We assume that a finite time limit is used because very long proof searches are common in practice\cite{?}
-and we prefer to handle such searches gracefully.
-\todo[author=Filip]{Improve the justification.}
-\todo[inline,author=Filip]{Is the prover guaranteed to converge on any solvable problem irrespective of the precedence? If it is, then we could train on time-unlimited proof searches.}
-\todo[inline,author=Martin]{In theory yes, for a complete strategy (and we are using such), but in practice this could take zillions of years. We would never finish before a deadline ;))}
+We specifically assume that a finite time limit is used
+because some proof searches may be too long for practical use\cite{?}
+and we need to handle such searches gracefully.
+% Note that an ATP that is complete is guaranteed to halt on a solvable problem.
+% However, the solving time may vary greatly across the precedences.
 
 For sake of simplicity,
 we will describe a system that only proposes predicate precedences.
@@ -101,40 +99,74 @@ We strive to create a system that satisfies the following properties:
 	with uniformly random predicate precedences.
 \end{itemize}
 
+\todo[inline,author=Filip]{Should we mention the following side goal? "Make it possible to backpropagate gradient to the input features for future GNN training."}
+
 \subsection{Valuation of precedences}
 
 Based on the assumption that a short proof search is more likely to succeed in a limited time\cite{?},
 we train the system to prefer precedences that lead to a short proof search.
 This allows us to use easy problems for training, facilitating the collection of training data.
 
-We define the loss value of precedence \(\pi\) according to the outcome of the proof search
-configured to use this precedence:
+We define the base loss
+\todo[author=Martin]{The term "loss" bears unnecessary ML connotations so this may be confusing.}
+\todo[author=Filip]{Alternatives: cost, penalty, "value", "objective value"}
+value of precedence \(\pi\) on a given problem
+according to the outcome of the proof search configured to use this precedence:
 
 \begin{itemize}
 	\item If the proof search terminates within the allocated time,
-	\(\base_loss(\pi)\) is the number iterations of saturation loop started during the proof search.
+	\(\base_loss(\pi)\) is the number of iterations of the saturation loop
+	started during the proof search.
 	\item If the proof search times out, \(\base_loss(\pi)\) is the maximum number
-	of saturation loop iterations encountered in successful proof searches on this problem
-	with uniformly random precedences.
+	of saturation loop iterations encountered in successful proof searches on this problem.
 \end{itemize}
 
 We further transform the loss values by the following operations:
 
 \begin{enumerate}
-	\item Log-scale: Improvement by a constant factor is a cross-problem \todo[inline,author=Martin]{?} captures the intuition of the same level of improvement across problems.
-	\item Standardization: For each problem,
-	we apply an affine transformation so that the loss values have the mean 0 and standard deviation 1.
-	the loss values so that the loss values are comparable across problems.
+	\item Log-scale: Multiplying the number of saturation iterations by a constant factor
+	should have the same impact on the effective loss value
+	irrespective of the problem and its particular distribution of saturation loop iteration counts.
+	\item Standardization\cite{?}: For each problem,
+	we apply an affine transformation so that the resulting loss values
+	have the mean 0 and standard deviation 1.
+	This ensures that the values are comparable across problems.
 \end{enumerate}
 
-We further log-scale the loss values
-and standardize\cite{?} the loss values to make them comparable across problems.
+Let \(\loss(\pi)\) denote the resulting loss value of permutation \(\pi\)
+after scaling and standardization.
 
 \subsection{Reduction to preference learning}
 
-Let's \todo[inline,author=Martin]{Vsechny zkraceniny jsou povazovany za prilis neformalni.} suppose we have a set of \(m\) problems
-and that we run the prover on each of them with \(n\) uniformly random predicate precedences.
-How can we use the resulting data to learn a precedence proposal system?
+Let \(p \neq q\) be two predicates in a given \gls{problem}.
+Each precedence \(\pi\) orders the predicates in some order --
+either \(\inv{\pi}(p) < \inv{\pi}(q)\) or \(\inv{\pi}(p) > \inv{\pi}(q)\).
+Ordering of some pairs of symbols can have a great impact on the speed of the proof search.
+For example, prioritizing inferences on clauses with predicate symbols
+introduced in Tseitin transformation
+may lead to an exponential expansion of the affected clauses.
+
+Let the pairwise preference function \(\pref : \Sigma_P \times \Sigma_P \rightarrow \re\)
+assign a preference value to each pair of predicate symbols:
+a high value of \(\pref(p, q)\) corresponds to a long expected proof search time using a permutation
+that orders \(p\) before \(q\).
+\todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a loss or a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
+Furthermore, let the absolute value of \(\pref(p, q)\)
+correspond to the expected magnitude of impact of the mutual order of \(p\) and \(q\).
+Namely, \(\pref(p, q) = 0\) means that the mutual order of \(p\) and \(q\)
+has no impact on the length of the proof search.
+
+We proceed to relax the general task of finding a good precedence
+to the task of finding a good pairwise preference function.
+Once we have such function, we can construct a precedence that approximately minimizes the cumulative preference value:
+
+\begin{align*}
+\loss_{proxy}(\pi) = \sum_{p, q: \inv{\pi}(p) < \inv{\pi}(q)} \pref(p, q)
+\end{align*}
+
+Note that such preference function may be trained by conventional machine learning techniques.
+
+One possibility is to encode a precedence as an \gls{order-matrix}.
 
 \subsection{Discussion}
 
@@ -227,7 +259,7 @@ The training of preference value predictor consists of two stages:
 
 For each problem,
 we train a linear predictor
-that predicts target score from \glspl{symbol-order-matrix}.
+that predicts target score from \glspl{order-matrix}.
 The coefficients of the trained predictor are the target preference values of the symbol pairs for this problem.
 
 \subsubsection{Preference value regressor fitting}
