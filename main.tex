@@ -63,14 +63,17 @@ and is compatible with any superposition-based \gls{atp} such as Vampire or E \c
 
 Furthermore, we fix the problem-agnostic strategy parameters of the chosen \gls{atp}.
 The parameters may specify for example a literal comparison mode, a saturation algorithm
+\todo[author=Filip]{Are these examples or their terminology too specific for Vampire? Can we expect the reader to understand them?}
 and a time limit.
 We specifically assume that a finite time limit is used
-because some proof searches may be too long for practical use\cite{?}
+because some proof searches may take too long for practical use\cite{?}
 and we need to handle such searches gracefully.
 % Note that an ATP that is complete is guaranteed to halt on a solvable problem.
 % However, the solving time may vary greatly across the precedences.
 
-For sake of simplicity,
+\todo[inline,author=Filip]{Consider: Mention that we need to call the configured ATP to clausify the problem so that we know all the symbols including Tseitin and Skolem.}
+
+For the sake of simplicity,
 we will describe a system that only proposes predicate precedences.
 \todo[inline,author=Filip]{Discuss more.
 Possible generalizations to combination of predicate and function precedences:
@@ -98,11 +101,16 @@ We strive to create a system that satisfies the following properties:
 	\item The system is trained on a collection of executions of the chosen prover
 	on a training set of \gls{fol} problems
 	with uniformly random predicate precedences.
+	
+	\item The architecture is general enough to be able to learn
+	all the standard precedence heuristics implemented in Vampire.\cite{?}
+	\todo[author=Filip]{Describe in more detail.}
 \end{itemize}
 
 \todo[inline,author=Filip]{Should we mention the following side goal? "Make it possible to backpropagate gradient to the input features for future GNN training."}
 
 \subsection{Valuation of precedences}
+\label{sec:precedence-valuation}
 
 Based on the assumption that a short proof search is more likely to succeed in a limited time\cite{?},
 we train the system to prefer precedences that lead to a short proof search.
@@ -170,19 +178,69 @@ we will be interested in finding a precedence \(\pi\) that minimizes the cumulat
 \end{align*}
 \todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy loss seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
 
-While the problem of minimizing \(\loss_{proxy}(\pi)\) given an aribtrary \(\pref\) is NP-hard,
+While the problem of minimizing \(\loss_{proxy}(\pi)\) given an arbitrary \(\pref\) is NP-hard,
 a greedy 2-approximation algorithm exists.\cite{Cohen2011}
 
 Note that such preference function may be trained by conventional machine learning techniques.
 
 One possibility is to encode a precedence as an \gls{order-matrix}.
 
-\subsection{Symbol embedding}
+\subsection{Preference learning as supervised machine learning}
 
-The pairwise preference function may be trained by conventional supervised machine learning techniques,
-provided we have an embedding\todo[author=Filip]{Explain.} for each symbol.
+In order to cast the problem of finding an appropriate \(\pref\) function
+as a supervised machine learning task,
+we need to be able to represent each pair of predicate symbols by a feature vector
+and to know preference values for pairs of symbols in the training set.
 
-\subsection{Discussion}
+\subsubsection{Target preference values}
+
+For each problem in the training set, we construct a preference matrix that contains a preference
+value estimate for each pair of symbols in the problem.
+We populate the matrix by the weights of a linear model trained on the following data:
+
+\begin{itemize}
+	\item Input: \Gls{order-matrix} of a precedence \(\pi\)
+	\todo[author=Filip]{Explain in more detail what order matrix is.}
+	\item Target: \(\loss(\pi)\) --
+	a standardized result of an \gls{atp} run on \(\pi\) as defined in \autoref{sec:precedence-valuation}
+\end{itemize}
+
+This way we ensure that the preference matrix has a high value for a symbol pair \(l, r\)
+if the precedences that order \(l\) before \(r\) have a high expected loss.
+
+We use a Lasso regression \cite{?} to train the model.
+Advantages of using Lasso as opposed to regular linear regression:
+
+\begin{itemize}
+	\item Lasso implements regularization so it generalizes to unseen data better.
+	\item Lasso prefers sparse weight vectors so it is more likely to declare a pair of symbols.
+\end{itemize}
+
+We use cross-validation as implemented in sklearn.linear\_model.LassoCV \cite{?}
+to set the regularization parameter.
+Note that each problem may use a different value of the regularization parameter.
+
+\subsubsection{Symbol pair embedding}
+
+We represent each predicate symbol by a feature vector that consists of the following features:
+
+\begin{itemize}
+	\item Arity
+	\item Usage count
+	\item Unit usage count
+	\item In goal
+	\item In unit
+\end{itemize}\todo[author=Filip]{Explain the meaning of each of these features.}
+
+This choice is motivated by the fact that the values of all of these symbol properties
+are readily available in the \gls{atp} Vampire
+and that they suffice as a basis for all of the common symbol precedence heuristics.
+\todo[author=Filip]{Claify more.}
+
+We represent a pair of symbols \(l, r\) by the concatenation of their feature vectors.
+\todo[inline,author=Filip]{Shall we remove problem embedding from the experiment for simplicity?}
+
+\subsection{Filip's notes}
 
 Let \(\pi\) be a predicate precedence on a given \gls{fol} problem.
 Let \(\loss(\pi)\) be a real number that corresponds to the performance of the chosen \gls{atp}
