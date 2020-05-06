@@ -21,9 +21,81 @@ past runs of a theorem prover over a set of problems and random precedences.
 Moreover, it uses a small set of simple human-engineered symbol features as the sole
 basis for discriminating the symbols. This allows for a direct comparison
 with precedence construction heuristics designed by prover developers.
-\todo[author=Martin,inline]{Let's add this when we have the results finalized:
+\todo[author=Martin]{Let's add this when we have the results finalized:
 Training a linear model converges to ordering the symbols by the number of their occurrences.}
 \end{abstract}
+
+\section{Introduction}
+
+Modern saturation-based Automated Theorem Provers (ATPs) such as E \cite{SCV:CADE-2019} and Vampire \cite{Kovacs2013}
+use the superposition calculus \cite{Nieuwenhuis2001} as their underlying inference system.
+Superposition is built around the paramodulation inference \cite{Robinson1983} crucially
+constrained by simplification ordering on terms and literals, which is supplied as a parameter of the calculus.
+Each of the two classes of simplification orderings used in practice,
+i.e., the Knuth-Bendix Ordering (KBO) \cite{Knuth1983}
+and the Lexicographic Path Ordering (LPO) \cite{Kamin1980},
+are mainly determined by a pair of \emph{symbol precedences}, permutations of the sets of predicate and function symbols,
+respectively.\footnote{
+KBO is further parameterized by symbol weights, but our reference implementation in Vampire~\cite{Kovacs2013} 
+uses for efficiency reasons only weights equal to one \cite{DBLP:conf/cade/KovacsMV11} and so we do not consider this parameter here.}
+
+While the superposition calculus is known \cite{DBLP:journals/logcom/BachmairG94} to be refutationally complete for any simplification ordering, the choice of the precedences may have a significant impact on how long it takes to solve a given problem.
+In a well-known example, prioritizing in the precedence the predicates introduced during the Tseitin transformation of an input formula \cite{Tseitin1983} exposes the corresponding literals to resolution inference during early stages of the proof search,
+with the effect of essentially undoing the transformation and thus threatening with an exponential blow-up
+the transformation is designed to prevent \cite{Reger2016}.
+%
+ATPs typically offer a few heuristic schemes for generating the symbol precedences.
+For example, the successful \texttt{invfreq} scheme in E \cite{E-manual} orders the symbols by the number of occurrences in the input problem,
+prioritizing symbols that occur the least often for early inferences.
+Experiments with random precedences have shown that the existing schemes often fail to come close to the optimum precedence \cite{RegerSuda2017}, revealing there is a large potential for further improvements.
+
+In this work, we design a system that, when presented with a First-Order Logic (FOL) problem,
+proposes a symbol precedence that will likely lead to solving the problem quickly.
+The system relies on the techniques of supervised machine learning and extracts
+such theorem-proving knowledge from successful (and unsuccessful) runs of 
+the Vampire theorem prover~\cite{Kovacs2013} when run over a variety of FOL problems equipped
+with randomly sampled symbol precedences. 
+We assume that by learning to solve already solvable problems quickly,
+the acquired knowledge will generalize and help solving problems previously out of reach.
+% This general assumption is shared with other projects for automatically learning theorem
+% proving strategies from previous experience, such as the MaLeS system \cite{DBLP:journals/jar/KuhlweinU15}.
+As a first step in a more ambitions project,
+we focus here on representing the symbols in a problem by a fixed set of simple human-engineered features
+(such as the number the occurrences used by \texttt{invfreq} scheme mentioned above)\footnote{Automatic
+feature extraction using neural-networks is planned for future work.}
+and, to simplify the experimental setup, we restrict our attention to learning precedences for predicate symbols only.\footnote{
+Our theoretical considerations, however, apply equally to learning function symbol precedences.}
+
+Learning to predict good precedences poses several interesting challenges that we address in this work.
+First, it is not immediately clear how to characterise a precedence, a permutation of a finite set of symbols,
+by a real-valued feature vector to serve as an input for a learning algorithm. 
+Additionally, to be able to generalise across problems
+we need to do it in a way which does not presuppose a fixed signature size. 
+There is also a complication, when sampling different problems,
+that some problems may be easy to solve for almost every precedence and others hard.
+In theorem proving, running times typically vary considerably.
+Finally, even with a regression model ready to predict the prover's performance 
+under a particular precedence $\pi$, we still need solve the task of finding 
+the ideally optimal precedence $\pi^*$ according to this model.
+
+% Final paragraph, with forward reference, explaines how we tackle the challenges and where it is explained
+% 1) preference values
+% 2) normalization
+% 3) learning to order things
+
+% ze n! je super large -> almost infinite source of data (for non-trivial n)
+
+% ----
+
+% Zastrc nekam dozadu na pozdeji
+
+% - we use abstract time as the basic measure 
+% (why not actual time to solve a problem? Unstable, abstract time is machine independent and still correlates well)
+
+% - zmin konkretni stratgie, kterou pouzivame a variujeme v ni pouze predikatovou precendenci
+% (vcetne toho, ze funknci precedenci fixujeme na frequency)
+
+\newpage
 
 \section{Introduction}
 
