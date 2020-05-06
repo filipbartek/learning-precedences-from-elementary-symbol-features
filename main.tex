@@ -208,15 +208,17 @@ We populate the matrix by the weights of a linear model trained on the following
 This way we ensure that the preference matrix has a high value for a symbol pair \(l, r\)
 if the precedences that order \(l\) before \(r\) have a high expected loss.
 
-We use a Lasso regression \cite{?} to train the model.
-Advantages of using Lasso as opposed to regular linear regression:
+We use a lasso regression \cite{?} to train the model.
+Advantages of using Lasso as opposed to standard linear regression\cite{?}:
 
 \begin{itemize}
 	\item Lasso implements regularization so it generalizes to unseen data better.
-	\item Lasso prefers sparse weight vectors so it is more likely to declare a pair of symbols.
+	\item Lasso prefers zero-valued weights so it is more likely to declare that the mutual order of a pair of symbols does not matter.
+	\todo[author=Filip]{I think we should use RidgeCV or ElasticNetCV instead because they minimize L2 norm, while lasso only minimizes L1 norm.}
 \end{itemize}
 
-We use cross-validation as implemented in sklearn.linear\_model.LassoCV \cite{?}
+To avoid overfitting on the training precedence set,
+we use cross-validation as implemented in sklearn.linear\_model.LassoCV \cite{?}
 to set the regularization parameter.
 Note that each problem may use a different value of the regularization parameter.
 
@@ -239,6 +241,10 @@ and that they suffice as a basis for all of the common symbol precedence heurist
 
 We represent a pair of symbols \(l, r\) by the concatenation of their feature vectors.
 \todo[inline,author=Filip]{Shall we remove problem embedding from the experiment for simplicity?}
+
+\subsection{Sample weighting}
+
+\todo[inline,author=Filip]{Finish.}
 
 \subsection{Filip's notes}
 
