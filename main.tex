@@ -50,15 +50,16 @@ For a given symbol precedence,
 \gls{order-matrix} \(C\) is a boolean square matrix of size \(n \times n\) where \(n\) is the number of symbols.
 \(C_{i, j}\) is true if and only if symbol \(P_i\) precedes symbol \(P_j\) in the precedence.
 
+
 \section{Architecture}
 
 \subsection{Basic assumptions}
 
 For the discussion that follows in this section,
 we assume a fixed \gls{fol} \gls{atp} that uses superposition calculus parameterized by symbol precedence.
-While the practical experiments described in \autoref{sec:evaluation} use the \gls{atp} Vampire \cite{?},
+While the practical experiments described in \autoref{sec:evaluation} use the \gls{atp} Vampire \cite{Kovacs2013},
 the model architecture does not assume a particular \gls{atp}
-and is compatible with any superposition-based \gls{atp} such as Vampire or E.
+and is compatible with any superposition-based \gls{atp} such as Vampire or E \cite{SCV:CADE-2019}. 
 
 Furthermore, we fix the problem-agnostic strategy parameters of the chosen \gls{atp}.
 The parameters may specify for example a literal comparison mode, a saturation algorithm
@@ -119,6 +120,7 @@ according to the outcome of the proof search configured to use this precedence:
 	started during the proof search.
 	\item If the proof search times out, \(\base_loss(\pi)\) is the maximum number
 	of saturation loop iterations encountered in successful proof searches on this problem.
+	\todo[author=Martin,inline]{Not even times 2?}
 \end{itemize}
 
 We further transform the loss values by the following operations:
