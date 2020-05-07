@@ -143,7 +143,9 @@ and \(\functions\) is the set of all function symbols in the problem.
 
 For the discussion that follows in this section,
 we assume a fixed \gls{fol} \gls{atp} that uses superposition calculus parameterized by symbol precedence.
+\todo[author=Filip]{Consider different approach: "For the discussion that follows, we assume that Vampire is used. We keep the discussion general enough to accommodate any precedence-parameterized ATP." and use "Vampire" instead of "ATP" in sections that follow.}
 While the practical experiments described in \autoref{sec:evaluation} use the \gls{atp} \gls{vampire} \cite{Kovacs2013},
+\todo[author=Filip]{Remove if we end up omitting practical experiments.}
 the model architecture does not assume a particular \gls{atp}
 and is compatible with any superposition-based \gls{atp} such as \gls{vampire} or E \cite{SCV:CADE-2019}.
 
@@ -181,6 +183,7 @@ We strive to create a system that satisfies the following properties:
 	the system proposes a predicate precedence for this problem
 	that maximizes the expected chance of the problem being solved
 	within the allocated time.
+	\todo[author=Filip]{What distribution of problems do we optimize for?}
 	
 	\todo[inline,author=Martin]{Maybe simply minimize the expected (abstract) solving time (i.e. measured in the number of iterations of the main loop!).}
 	
@@ -223,6 +226,7 @@ We further transform the loss values by the following operations:
 	\item Logarithmic scaling: Multiplying the number of saturation iterations by a constant factor
 	should have the same impact on the effective loss value
 	irrespective of the problem and its particular distribution of saturation loop iteration counts.
+	\todo[author=Filip]{We have observed that the order of number of iterations differs across problems -- some problems run tens of iterations in 10 seconds, while other problems run thousands of iterations. Shall we mention this?}
 	\item Standardization\cite{?}: For each problem,
 	we apply an affine transformation so that the resulting loss values
 	have the mean 0 and standard deviation 1.
@@ -282,6 +286,7 @@ and to know preference values for pairs of symbols in the training set.
 
 For each problem in the training set, we construct a preference matrix that contains a preference
 value estimate for each pair of symbols in the problem.
+\todo[inline,author=Filip]{Why do we do this? Why don't we just take the standardized precedence loss as the target value? My intuition is that this way we get less variance in the target values. Our approach also possibly enables (or improves) sample weighting by absolute value of loss. I think we originally chose to use lasso because on a fixed problem lasso outperforms "MeanRegression" -- lasso generalizes better. But we could alternatively rely on regularization in the outer regression! We would probably need more samples to train the outer regression, but the model simplicity and saving time to train the inner regressors may be worth it.}
 We populate the matrix by the weights of a linear model trained on data
 collected from a number of \gls{atp} runs on random precedences.
 Each training sample has the following structure:
@@ -338,7 +343,7 @@ We represent a pair of symbols \(l, r\) by the concatenation of their feature ve
 \section{Evaluation}
 \label{sec:evaluation}
 
-\todo[inline]{Finish.}
+\todo[inline]{Finish. Shall we describe experimental results? Or how we plan to evaluate the architecture? Or how we plan to tweak hyperparameters?}
 
 \section{Conclusion}
 
