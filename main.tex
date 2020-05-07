@@ -122,6 +122,20 @@ For a given symbol precedence,
 \gls{order-matrix} \(C\) is a boolean square matrix of size \(n \times n\) where \(n\) is the number of symbols.
 \(C_{i, j}\) is true if and only if symbol \(P_i\) precedes symbol \(P_j\) in the precedence.
 
+\subsection{Notation}
+
+If \(\pi\) is a symbol precedence, that is a permutation of symbols:
+
+\begin{itemize}
+	\item \(\pi(i)\) is the \(i\)-th symbol in precedence \(\pi\).
+	\item \(\inv{\pi}(p)\) is the position of symbol \(p\) in precedence \(\pi\).
+	\todo[author=Filip]{Should we specify that we use 1-based indexing? Should we use 0-based indexing instead?}
+\end{itemize}
+
+For example, if \(\pi = (q, p, r)\), then \(\pi(2) = p\) and \(\inv{\pi}(p) = 2\).
+
+For a given problem \(\predicates\) is the set of all predicate symbols in the problem
+and \(\functions\) is the set of all function symbols in the problem.
 
 \section{Architecture}
 
@@ -246,29 +260,31 @@ Once we have such function,
 we will be interested in finding a precedence \(\pi\) that minimizes the cumulative preference value:
 
 \begin{align*}
-\loss_{proxy}(\pi) = \sum_{p, q: \inv{\pi}(p) < \inv{\pi}(q)} \pref(p, q)
+\proxy_loss(\pi) = \sum_{p, q: \inv{\pi}(p) < \inv{\pi}(q)} \pref(p, q)
 \end{align*}
 \todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy loss seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
 
-While the problem of minimizing \(\loss_{proxy}(\pi)\) given an arbitrary \(\pref\) is NP-hard,
+While the problem of minimizing \(\proxy_loss(\pi)\) given an arbitrary \(\pref\) is NP-hard,
 a greedy 2-approximation algorithm exists.\cite{Cohen2011}
 
-Note that such preference function may be trained by conventional machine learning techniques.
-
-One possibility is to encode a precedence as an \gls{order-matrix}.
+Note that each of the precedence heuristics implemented in Vampire minimizes \(\proxy_loss\)
+for a particular \(\pref\).
+\todo[author=Filip]{Discuss in more detail.}
+\todo[inline,author=Filip]{Do we really cover all Vampire heuristics? How about \texttt{occurrence}, \texttt{scramble}, \texttt{weighted\_frequency}, \texttt{reverse\_weighted\_frequency}? What about \texttt{--symbol\_precedence\_boost}?}
 
 \subsection{Preference learning as supervised machine learning}
 
 In order to cast the problem of finding an appropriate \(\pref\) function
 as a supervised machine learning task,
-we need to be able to represent each pair of predicate symbols by a feature vector
 and to know preference values for pairs of symbols in the training set.
 
 \subsubsection{Target preference values}
 
 For each problem in the training set, we construct a preference matrix that contains a preference
 value estimate for each pair of symbols in the problem.
-We populate the matrix by the weights of a linear model trained on the following data:
+We populate the matrix by the weights of a linear model trained on data
+collected from a number of \gls{atp} runs on random precedences.
+Each training sample has the following structure:
 
 \begin{itemize}
 	\item Input: \Gls{order-matrix} of a precedence \(\pi\)
@@ -280,8 +296,8 @@ We populate the matrix by the weights of a linear model trained on the following
 This way we ensure that the preference matrix has a high value for a symbol pair \(l, r\)
 if the precedences that order \(l\) before \(r\) have a high expected loss.
 
-We use a lasso regression \cite{?} to train the model.
-Advantages of using Lasso as opposed to standard linear regression\cite{?}:
+We use lasso regression \cite{?} to train the model.
+Advantages of using lasso as opposed to standard linear regression\cite{?}:
 
 \begin{itemize}
 	\item Lasso implements regularization so it generalizes to unseen data better.
@@ -289,7 +305,7 @@ Advantages of using Lasso as opposed to standard linear regression\cite{?}:
 	\todo[author=Filip]{I think we should use RidgeCV or ElasticNetCV instead because they minimize L2 norm, while lasso only minimizes L1 norm.}
 \end{itemize}
 
-To avoid overfitting on the training precedence set,
+To ensure good generalization,
 we use cross-validation as implemented in sklearn.linear\_model.LassoCV \cite{?}
 to set the regularization parameter.
 Note that each problem may use a different value of the regularization parameter.
@@ -313,116 +329,20 @@ and that they suffice as a basis for all of the common symbol precedence heurist
 \todo[author=Filip]{Claify more.}
 
 We represent a pair of symbols \(l, r\) by the concatenation of their feature vectors.
-\todo[inline,author=Filip]{Shall we remove problem embedding from the experiment for simplicity?}
+\todo[inline,author=Filip]{Shall we remove problem embedding from the experiment for simplicity? I have omitted problem embedding in this text.}
 
 \subsection{Sample weighting}
 
-\todo[inline,author=Filip]{Finish.}
-
-\subsection{Filip's notes}
-
-Let \(\pi\) be a predicate precedence on a given \gls{fol} problem.
-Let \(\loss(\pi)\) be a real number that corresponds to the performance of the chosen \gls{atp}
-on the given \gls{fol} problem when using the predicate precedence \(\pi\).
-
-Let the \gls{atp} Prover run on problem Problem with a time limit of 10 seconds.
-
-
-For example, \(\loss(\pi)\) may be defined as the number of saturation loop iterations in case the prover
-
-We strive to design and train a system that, when presented with any \gls{fol} problem,
-proposes a predicate precedence for this problem with low expected \(loss\).
-We want to train this system on a collection of executions of an \gls{atp}\footnote{We use the \gls{atp} Vampire in out experiments.} with random precedences on a training set of problems.
-
-We break the task of generating a good precedence down to two stages:
-\todo[author=Filip]{Why do we do that? \citet{Cohen2011} assumes that the pairwise preference is the input.}
-
-\begin{enumerate}
-	\item Estimate a pairwise loss function \(\loss_2\).
-	\item Generate a permutation that maximizes the cumulative preference value.
-\end{enumerate}
-
-Notation:
-
-\(\pi(i)\) is the \(i\)-th symbol under precedence \(\pi\).
-
-\(\inv{\pi}(P)\) is the position of symbol \(P\) in precedence \(\pi\).
-
-We work under the assumption that the overall performance of precedence \(\pi\) decomposes into a sum of contributions of ordered pairs of symbols:
-
-\begin{align*}
-\exists \loss_2 : \predicates \times \predicates \rightarrow \re . \loss(\pi) = \sum_{P, Q: \inv{\pi}(P) < \inv{\pi}(Q)} \loss_2(P, Q)
-\end{align*}
-
-Working under this assumption allows us to use \(\loss_2\) as a proxy for minimizing \(\loss\).
-Note that each of the precedence heuristics implemented in Vampire can be expressed as minimizers of certain \(\loss_2\):
-
-...
-
-
-
-\section{Architecture}
-
-\subsection{Prediction}
-
-For a given problem, symbol precedence prediction consists of two steps:
-
-\begin{enumerate}
-	\item Preference matrix estimation
-	\item Precedence construction from preference matrix
-\end{enumerate}
-
-\subsubsection{Preference matrix estimation}
-
-Given a problem, we compute an embedding for each pair of symbols.
-An embedding of a pair of symbols is a concatenation of the embeddings of the two symbols.
-The embedding of a symbol consists of the following features:
-
-\begin{itemize}
-	\item Arity
-	\item Usage count
-	\item Unit usage count
-	\item In goal
-	\item In unit
-	\item Skolem
-\end{itemize}
-
-The preference value regressor predicts a preference value for each symbol pair embedding.
-We poll the preference value regressor for each pair of symbols of the input problem,
-storing the preference values in a preference matrix.
-
-\subsubsection{Precedence construction}
-
-Given a preference matrix, we construct a symbol ordering
-that approximately maximizes cumulative preference
-using a greedy algorithm presented in LtOT.
-
-\subsection{Training}
-
-The training of preference value predictor consists of two stages:
-
-\begin{enumerate}
-	\item Problem-wise target preference matrix estimation
-	\item Preference value regressor fitting
-\end{enumerate}
-
-\subsubsection{Problem-wise target preference matrix estimation}
-
-For each problem,
-we train a linear predictor
-that predicts target score from \glspl{order-matrix}.
-The coefficients of the trained predictor are the target preference values of the symbol pairs for this problem.
-
-\subsubsection{Preference value regressor fitting}
-
-As outlined in section ...,
-the preference value regressor estimates a preference value for each symbol pair embedding.
-It can be trained using any 
+\todo[inline,author=Filip]{My choice to use sample weighting was based on measurements. If we exclude measurements, we should probably exclude sample weighting as well unless we come up with a good theoretical justification.}
 
 \section{Evaluation}
 \label{sec:evaluation}
 
+\todo[inline]{Finish.}
+
 \section{Conclusion}
+
+\todo[inline]{Finish.}
 
 \glsaddall
 \printglossaries
