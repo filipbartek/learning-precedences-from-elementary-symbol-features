@@ -307,7 +307,9 @@ we will be interested in finding a precedence \(\pi_P\) that minimizes the cumul
 
 \begin{align*}
 \CostProxy(\pi_P) = \sum_{p, q: \inv{\pi_P}(p) < \inv{\pi_P}(q)} \pref(p, q)
+= \sum_{i, j} \OrderMatrix(\pi_P)_{i, j} \cdot \pref(p_i, p_j)
 \end{align*}
+\todo[author=Filip]{Is it not too confusing to have two expressions?}
 \todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy cost seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
 
 While the problem of minimizing \(\CostProxy(\pi_P)\) given an arbitrary \(\pref\) is NP-hard,
