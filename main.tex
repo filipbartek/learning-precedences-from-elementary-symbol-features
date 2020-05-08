@@ -97,11 +97,65 @@ the ideally optimal precedence $\pi^*$ according to this model.
 
 \newpage
 
-\section{Preliminaries / Notation / Background}
+\section{Terminology}
 
-% We assume the reader is familiar with this and that
+We assume that the reader is familiar with basic concepts used in \gls{fol} theorem proving
+such as \gls{fol} problem, problem signature, predicate symbol, function symbol, clause and \gls{cnf}.
+Furthermore we assume familiarity with basics of the inner workings of saturation-based \glspl{atp},
+including clausification and saturation loop.
 
 % Regression algorithms; (Maybe not here yet: we do it in Python - scikitlearn, numpy, \ldots)
+
+\paragraph{Problem}
+We define problem \(P\) as a tuple \((\predicates, \functions, \clauses)\),
+where \(\predicates = (p_1, p_2, \ldots, p_n)\) is a list of predicate symbols,
+\(\functions\) is a list of function symbols
+and \(\clauses\) is a set of quantifier-free clauses built on top of \(\predicates\) and \(\functions\).
+We assume that the problem is the result of clausification of a general \gls{fol} problem
+and we have the knowledge of which of the symbols were introduced during clausification
+(Tseitin transformation \cite{?} and Skolemization \cite{?}).
+
+For a \gls{atp} to solve \(P\) by refutation amounts to inferring a contradiction from \(\clauses\)
+and solving \(P\) by saturation amounts to saturating the inference space
+\todo[author=Filip]{Is this term ok?}
+without having inferred a contradiction.
+In both of these cases we assume the \gls{atp} exposes the number of saturation loop iterations started
+during the proof search.
+
+\paragraph{Precedence}
+Given a problem \(P = (\predicates, \functions, \clauses)\)
+where \(\predicates = (p_1, p_2, \ldots, p_n)\),
+predicate precedence \(\pi_P\) is a permutation of the indices
+of the predicate symbols in \(\predicates\):
+
+\begin{itemize}
+	\item \(\pi_P(i)\) is the index of the \(i\)-th symbol in precedence \(\pi_P\).
+	\item \(\inv{\pi_P}(j)\) is the position of symbol \(p_j\) in precedence \(\pi_P\).
+\end{itemize}
+
+We assume that the proof search is conducted using superposition calculus
+parameterized namely by a predicate precedence.
+
+\paragraph{\Gls{order-matrix}}
+Given a permutation \(\pi\) of length \(n\),
+the \gls{order-matrix} \(O(\pi)\) is a binary matrix of size \(n \times n\)
+defined in the following manner:
+
+\begin{align*}
+O(\pi)_{i, j} = \indicator{\inv{\pi}(i) < \inv{\pi}(j)}
+\end{align*}
+
+For a predicate precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) indicates that
+the precedence \(\pi_P\) orders predicate \(p_i\) before predicate \(p_j\).
+
+\paragraph{Flattened matrix}
+Given a matrix \(M\) of size \(n \times n\),
+\(\flatten{M}\) is the vector of length \(n^2\) obtained by flattening \(M\):
+
+\begin{align*}
+\flatten{M}_{(i - 1) n + j} = M_{i, j}
+\end{align*}
+\todo[author=Filip]{Should we include universal quantification for i, j?}
 
 \newpage
 
@@ -126,25 +180,6 @@ Negative value means that ordering \(P_0\) before \(P_1\) is associated with hig
 Value close to zero means that the order of symbols \(P_0\) and \(P_1\) has no effect on the probability of success.
 
 \Gls{preference-matrix} is a square matrix populated with preference values of all the pairs of symbols.
-
-For a given symbol precedence,
-\gls{order-matrix} \(C\) is a boolean square matrix of size \(n \times n\) where \(n\) is the number of symbols.
-\(C_{i, j}\) is true if and only if symbol \(P_i\) precedes symbol \(P_j\) in the precedence.
-
-\subsection{Notation}
-
-If \(\pi\) is a symbol precedence, that is a permutation of symbols:
-
-\begin{itemize}
-	\item \(\pi(i)\) is the \(i\)-th symbol in precedence \(\pi\).
-	\item \(\inv{\pi}(p)\) is the position of symbol \(p\) in precedence \(\pi\).
-	\todo[author=Filip]{Should we specify that we use 1-based indexing? Should we use 0-based indexing instead?}
-\end{itemize}
-
-For example, if \(\pi = (q, p, r)\), then \(\pi(2) = p\) and \(\inv{\pi}(p) = 2\).
-
-For a given problem \(\predicates\) is the set of all predicate symbols in the problem
-and \(\functions\) is the set of all function symbols in the problem.
 
 \section{Architecture}
 
