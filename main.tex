@@ -335,8 +335,8 @@ collected from a number of \gls{atp} runs on random precedences.
 Each training sample has the following structure:
 
 \begin{itemize}
-	\item Input: Flattened \gls{order-matrix} of a precedence \(\pi_P\)
-	\todo[author=Filip]{Explain in more detail what order matrix is.}
+	\item Input: \(\flatten{\OrderMatrix(\pi_P)}\) --
+	flattened \gls{order-matrix} of a precedence \(\pi_P\)
 	\item Target: \(\CostStd(\pi_P)\) --
 	a standardized result of an \gls{atp} run on \(\pi_P\) as defined in \autoref{sec:precedence-valuation}
 \end{itemize}
