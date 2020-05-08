@@ -382,6 +382,26 @@ and that they suffice as a basis for all of the common symbol precedence heurist
 We represent a pair of symbols \(l, r\) by the concatenation of their feature vectors.
 \todo[inline,author=Filip]{Shall we remove problem embedding from the experiment for simplicity? I have omitted problem embedding in this text.}
 
+\subsubsection{Generalized preference regressor}
+
+Generalized preference regressor is trained on samples of the following structure:
+
+\begin{itemize}
+	\item Input: Embedding of a symbol pair \(p, q\) in problem \(P\)
+	\item Target: \(\pref(p, q)\) -- an element of the preference matrix we learned for problem \(P\)
+\end{itemize}
+
+We sample problem \(P\) from the training problem set with uniform probability,
+and then sample symbols \(p, q\) with uniform probability.
+
+\subsection{Precedence construction}
+
+When presented a new problem, we construct a predicate precedence by
+first evaluating the generalized preference regressor for all pairs of predicates,
+and then using greedy algorithm to construct the precedence using these predicted preference values.
+
+In this manner we find a \(\pi_P\) that approximately minimizes \(\CostProxy(\pi_P)\).
+
 \subsection{Sample weighting}
 
 \todo[inline,author=Filip]{My choice to use sample weighting was based on measurements. If we exclude measurements, we should probably exclude sample weighting as well unless we come up with a good theoretical justification.}
