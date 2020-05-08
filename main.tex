@@ -219,9 +219,9 @@ according to the outcome of the proof search configured to use this precedence:
 
 \begin{itemize}
 	\item If the proof search successfully terminates within the allocated time,
-	\(\CostBase(\pi)\) is the number of iterations of the saturation loop
+	\(\CostBase(\pi_P)\) is the number of iterations of the saturation loop
 	started during the proof search.
-	\item If the proof search times out, \(\CostBase(\pi)\) is the maximum number
+	\item If the proof search times out, \(\CostBase(\pi_P)\) is the maximum number
 	of saturation loop iterations encountered in successful proof searches on this problem.
 	\todo[author=Martin,inline]{Not even times 2?}
 \end{itemize}
@@ -239,14 +239,14 @@ We further transform the cost values by the following operations:
 	This ensures that the values are comparable across problems.
 \end{enumerate}
 
-Let \(\CostStd(\pi)\) denote the resulting cost value of permutation \(\pi\)
+Let \(\CostStd(\pi_P)\) denote the resulting cost value of permutation \(\pi_P\)
 after scaling and standardization.
 
 \subsection{Reduction to preference learning}
 
-Let \(p \neq q\) be two predicates in a given \gls{problem}.
-Each precedence \(\pi\) orders the predicates in some order --
-either \(\inv{\pi}(p) < \inv{\pi}(q)\) or \(\inv{\pi}(p) > \inv{\pi}(q)\).
+Let \(p \neq q\) be two predicates in a given \gls{problem} \(P\).
+Each precedence \(\pi_P\) orders the predicates in some order --
+either \(\inv{\pi_P}(p) < \inv{\pi_P}(q)\) or \(\inv{\pi_P}(p) > \inv{\pi_P}(q)\).
 Ordering of some pairs of symbols can have a great impact on the speed of the proof search.
 For example, prioritizing inferences on clauses with predicate symbols
 introduced in Tseitin transformation
@@ -267,14 +267,14 @@ has no impact on the length of the proof search.
 We proceed to relax the general task of finding a good precedence
 to the task of finding a good pairwise preference function.
 Once we have such function,
-we will be interested in finding a precedence \(\pi\) that minimizes the cumulative preference value:
+we will be interested in finding a precedence \(\pi_P\) that minimizes the cumulative preference value:
 
 \begin{align*}
-\CostProxy(\pi) = \sum_{p, q: \inv{\pi}(p) < \inv{\pi}(q)} \pref(p, q)
+\CostProxy(\pi_P) = \sum_{p, q: \inv{\pi_P}(p) < \inv{\pi_P}(q)} \pref(p, q)
 \end{align*}
 \todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy cost seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
 
-While the problem of minimizing \(\CostProxy(\pi)\) given an arbitrary \(\pref\) is NP-hard,
+While the problem of minimizing \(\CostProxy(\pi_P)\) given an arbitrary \(\pref\) is NP-hard,
 a greedy 2-approximation algorithm exists.\cite{Cohen2011}
 \todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?}
 
@@ -299,10 +299,10 @@ collected from a number of \gls{atp} runs on random precedences.
 Each training sample has the following structure:
 
 \begin{itemize}
-	\item Input: Flattened \gls{order-matrix} of a precedence \(\pi\)
+	\item Input: Flattened \gls{order-matrix} of a precedence \(\pi_P\)
 	\todo[author=Filip]{Explain in more detail what order matrix is.}
-	\item Target: \(\CostStd(\pi)\) --
-	a standardized result of an \gls{atp} run on \(\pi\) as defined in \autoref{sec:precedence-valuation}
+	\item Target: \(\CostStd(\pi_P)\) --
+	a standardized result of an \gls{atp} run on \(\pi_P\) as defined in \autoref{sec:precedence-valuation}
 \end{itemize}
 
 This way we ensure that the preference matrix has a high value for a symbol pair \(l, r\)
