@@ -138,11 +138,11 @@ parameterized namely by a predicate precedence.
 
 \paragraph{\Gls{order-matrix}}
 Given a permutation \(\pi\) of length \(n\),
-the \gls{order-matrix} \(O(\pi)\) is a binary matrix of size \(n \times n\)
+the \gls{order-matrix} \(\OrderMatrix(\pi)\) is a binary matrix of size \(n \times n\)
 defined in the following manner:
 
 \begin{align*}
-O(\pi)_{i, j} = \indicator{\inv{\pi}(i) < \inv{\pi}(j)}
+\OrderMatrix(\pi)_{i, j} = \indicator{\inv{\pi}(i) < \inv{\pi}(j)}
 \end{align*}
 
 For a predicate precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) indicates that
