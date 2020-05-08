@@ -213,35 +213,33 @@ Based on the assumption that a short proof search is more likely to succeed in a
 we train the system to prefer precedences that lead to a short proof search.
 This allows us to use easy problems for training, facilitating the collection of training data.
 
-We define the base loss
-\todo[author=Martin]{The term "loss" bears unnecessary ML connotations so this may be confusing.}
-\todo[author=Filip]{Alternatives: cost, penalty, "value", "objective value"}
-value of precedence \(\pi\) on a given problem
+We define the base cost
+value \(\CostBase(P, \pi_P)\) of precedence \(\pi_P\) on problem \(P\)
 according to the outcome of the proof search configured to use this precedence:
 
 \begin{itemize}
 	\item If the proof search terminates within the allocated time,
-	\(\base_loss(\pi)\) is the number of iterations of the saturation loop
+	\(\CostBase(\pi)\) is the number of iterations of the saturation loop
 	started during the proof search.
-	\item If the proof search times out, \(\base_loss(\pi)\) is the maximum number
+	\item If the proof search times out, \(\CostBase(\pi)\) is the maximum number
 	of saturation loop iterations encountered in successful proof searches on this problem.
 	\todo[author=Martin,inline]{Not even times 2?}
 \end{itemize}
 
-We further transform the loss values by the following operations:
+We further transform the cost values by the following operations:
 
 \begin{enumerate}
 	\item Logarithmic scaling: Multiplying the number of saturation iterations by a constant factor
-	should have the same impact on the effective loss value
+	should have the same impact on the effective cost value
 	irrespective of the problem and its particular distribution of saturation loop iteration counts.
 	\todo[author=Filip]{We have observed that the order of number of iterations differs across problems -- some problems run tens of iterations in 10 seconds, while other problems run thousands of iterations. Shall we mention this?}
 	\item Standardization\cite{?}: For each problem,
-	we apply an affine transformation so that the resulting loss values
+	we apply an affine transformation so that the resulting cost values
 	have the mean 0 and standard deviation 1.
 	This ensures that the values are comparable across problems.
 \end{enumerate}
 
-Let \(\loss(\pi)\) denote the resulting loss value of permutation \(\pi\)
+Let \(\CostStd(\pi)\) denote the resulting cost value of permutation \(\pi\)
 after scaling and standardization.
 
 \subsection{Reduction to preference learning}
@@ -255,7 +253,7 @@ introduced in Tseitin transformation
 may lead to an exponential expansion of the affected clauses.
 
 Let the pairwise preference
-\todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a loss or a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
+\todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
 function \(\pref : \Sigma_P \times \Sigma_P \rightarrow \re\)
 \todo[author=Filip]{Explain the symbols.}
 assign a preference value to each pair of predicate symbols:
@@ -272,15 +270,15 @@ Once we have such function,
 we will be interested in finding a precedence \(\pi\) that minimizes the cumulative preference value:
 
 \begin{align*}
-\proxy_loss(\pi) = \sum_{p, q: \inv{\pi}(p) < \inv{\pi}(q)} \pref(p, q)
+\CostProxy(\pi) = \sum_{p, q: \inv{\pi}(p) < \inv{\pi}(q)} \pref(p, q)
 \end{align*}
-\todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy loss seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
+\todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy cost seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
 
-While the problem of minimizing \(\proxy_loss(\pi)\) given an arbitrary \(\pref\) is NP-hard,
+While the problem of minimizing \(\CostProxy(\pi)\) given an arbitrary \(\pref\) is NP-hard,
 a greedy 2-approximation algorithm exists.\cite{Cohen2011}
 \todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?}
 
-Note that each of the precedence heuristics implemented in Vampire minimizes \(\proxy_loss\)
+Note that each of the precedence heuristics implemented in Vampire minimizes \(\CostProxy\)
 for a particular \(\pref\).
 \todo[author=Filip]{Discuss in more detail.}
 \todo[inline,author=Filip]{Do we really cover all Vampire heuristics? How about \texttt{occurrence}, \texttt{scramble}, \texttt{weighted\_frequency}, \texttt{reverse\_weighted\_frequency}? What about \texttt{--symbol\_precedence\_boost}?}
@@ -295,7 +293,7 @@ and to know preference values for pairs of symbols in the training set.
 
 For each problem in the training set, we construct a preference matrix that contains a preference
 value estimate for each pair of symbols in the problem.
-\todo[inline,author=Filip]{Why do we do this? Why don't we just take the standardized precedence loss as the target value? My intuition is that this way we get less variance in the target values. Our approach also possibly enables (or improves) sample weighting by absolute value of loss. I think we originally chose to use lasso because on a fixed problem lasso outperforms "MeanRegression" -- lasso generalizes better. But we could alternatively rely on regularization in the outer regression! We would probably need more samples to train the outer regression, but the model simplicity and saving time to train the inner regressors may be worth it.}
+\todo[inline,author=Filip]{Why do we do this? Why don't we just take \(\CostStd\) as the target value? My intuition is that this way we get less variance in the target values. Our approach also possibly enables (or improves) sample weighting by absolute value of \(\pref\). I think we originally chose to use lasso because on a fixed problem lasso outperforms "MeanRegression" -- lasso generalizes better. But we could alternatively rely on regularization in the outer regression! We would probably need more samples to train the outer regression, but the model simplicity and saving time to train the inner regressors may be worth it.}
 We populate the matrix by the weights of a linear model trained on data
 collected from a number of \gls{atp} runs on random precedences.
 Each training sample has the following structure:
@@ -303,12 +301,12 @@ Each training sample has the following structure:
 \begin{itemize}
 	\item Input: \Gls{order-matrix} of a precedence \(\pi\)
 	\todo[author=Filip]{Explain in more detail what order matrix is.}
-	\item Target: \(\loss(\pi)\) --
+	\item Target: \(\CostStd(\pi)\) --
 	a standardized result of an \gls{atp} run on \(\pi\) as defined in \autoref{sec:precedence-valuation}
 \end{itemize}
 
 This way we ensure that the preference matrix has a high value for a symbol pair \(l, r\)
-if the precedences that order \(l\) before \(r\) have a high expected loss.
+if the precedences that order \(l\) before \(r\) have a high expected cost.
 
 We use lasso regression \cite{?} to train the model.
 Advantages of using lasso as opposed to standard linear regression\cite{?}:
