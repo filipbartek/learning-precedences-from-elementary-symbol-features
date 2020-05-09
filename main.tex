@@ -425,7 +425,72 @@ In this manner we find a \(\pi_P\) that approximately minimizes \(\CostProxy(\pi
 \section{Evaluation}
 \label{sec:evaluation}
 
-\todo[inline]{Finish. Shall we describe experimental results? Or how we plan to evaluate the architecture? Or how we plan to tweak hyperparameters?}
+\subsection{Setup}
+
+For evaluation of the system presented in \autoref{sec:architecture},
+we use TPTP v7.2.0 \cite{?}, a collection of problems.
+From TPTP we select test set \(\ProblemsTest\) of 15751 problems with the following properties:
+
+\begin{itemize}
+	\item \gls{fol} or \gls{cnf} problem
+	\item At most 1024 predicate symbols
+\end{itemize}
+% problems/predicate-small-1024.txt
+
+We restrict training to sample problems from a set
+\(\ProblemsTrain \subset \ProblemsTest\) of 201 problems
+with the following properties:
+
+\begin{itemize}
+	\item At least 12 out of 24 random precedences solve the problem successfully.
+	\item The distribution of saturation iteration counts on 24 random precedences
+	shows variation of at least 1.
+\end{itemize}
+% problems/predicate-easy-variation.txt
+
+We train the system on 100 problems uniformly sampled from \(\ProblemsTrain\)
+and test the system on 1000 problems uniformly sampled from \(\ProblemsTest\)
+excluding the problems sampled for training.
+
+On each training problem we run the \gls{atp} Vampire with 1000 uniformly random predicate precedences
+and with the following options:
+
+\begin{lstlisting}[language=sh]
+--literal_comparison_mode predicate
+--symbol_precedence frequency
+--saturation_algorithm discount
+--age_weight_ratio 10
+--avatar off
+--time_limit 10
+--memory_limit 8192
+\end{lstlisting}
+
+Note that we use a customized version of Vampire to extract a symbol table from each problem.
+We call it with the same parameters, adding \texttt{--mode clausify}.
+
+After we fit a preference matrix to each of the training problems,
+we create a batch of 1000000 symbol pairs with target values
+to train the main generalized preference regressor.
+
+\subsection{Results}
+
+\subsubsection{Performance}
+
+\begin{tabular}{lrrr}
+	Case & Success rate & Better than frequency & Worse than frequency \\
+	\hline
+	Best of 10 random precedences & 0.513 & 0.029 & 0.006 \\
+	Frequency heuristic & 0.490 & 0.000 & 0.000 \\
+	GradientBoostingRegressor & 0.484 & 0.022 & 0.028 \\
+	ElasticNetCV & 0.478 & 0.005 & 0.017 \\
+	ElasticNetCV (no weighting) & 0.466 & 0.008 & 0.032 \\
+	Random & 0.449 & 0.010 & 0.051 \\
+\end{tabular}
+% Source: sftp://cluster.ciirc.cvut.cz/home/bartefil/git/vampire-ml/map-reduce/predicate-100-1000/2020-05-08_20-49-14/reduce/fit_cv_results.csv
+
+\subsubsection{Feature weights}
+
+\todo[inline,author=Filip]{Shall we include a feature weight vector of ElasticNetCV?}
 
 \section{Conclusion}
 
