@@ -393,8 +393,26 @@ Generalized preference regressor is trained on samples of the following structur
 	\item Target: \(\pref(p, q)\) -- an element of the preference matrix we learned for problem \(P\)
 \end{itemize}
 
-We sample problem \(P\) from the training problem set with uniform probability,
-and then sample symbols \(p, q\) with uniform probability.
+\subsubsection{Sample weighting}
+
+We sample problem \(P\) from the training problem set with uniform probability.
+\todo[author=Filip]{Actually we immediately exclude problems whose preference matrix is all-zero.}
+
+Thanks to how \(\pref\) is constructed (see \autoref{sec:target-preference-values}),
+preference values close to 0 are associated with symbol pairs whose mutual order has little effect
+on the outcome of the proof search.
+To focus the training on the symbol pairs whose order matters,
+we weight the samples by the absolute target value.
+Experiments show that training with ElasticNet without sample weighting
+collapses to assigning zero coefficients to all features,
+preventing any predictive capacity.
+\todo[author=Filip]{Is it ok to mention an experimental result in this section like this?}
+
+% Result data file: sftp://cluster.ciirc.cvut.cz/home/bartefil/git/vampire-ml/map-reduce/predicate-100-1000/2020-05-08_20-49-14/reduce/fit_cv_results.csv
+% Rows where params is {} or {weighted: False} show impact of sample weighting (both problem and symbol pair).
+% Disabling weighting leads to collapse of fitted coefficients, as demonstrated in feature_weights.csv.
+
+\todo[inline,author=Filip]{Will we use problem weighting after all? It is more difficult to justify...}
 
 \subsection{Precedence construction}
 
@@ -403,10 +421,6 @@ first evaluating the generalized preference regressor for all pairs of predicate
 and then using greedy algorithm to construct the precedence using these predicted preference values.
 
 In this manner we find a \(\pi_P\) that approximately minimizes \(\CostProxy(\pi_P)\).
-
-\subsection{Sample weighting}
-
-\todo[inline,author=Filip]{My choice to use sample weighting was based on measurements. If we exclude measurements, we should probably exclude sample weighting as well unless we come up with a good theoretical justification.}
 
 \section{Evaluation}
 \label{sec:evaluation}
