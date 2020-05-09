@@ -144,6 +144,7 @@ defined in the following manner:
 \begin{align*}
 \OrderMatrix(\pi)_{i, j} = \indicator{\inv{\pi}(i) < \inv{\pi}(j)}
 \end{align*}
+\todo[author=Filip]{Explain indicator.}
 
 For a predicate precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) indicates that
 the precedence \(\pi_P\) orders predicate \(p_i\) before predicate \(p_j\).
@@ -467,10 +468,13 @@ and with the following options:
 
 Note that we use a customized version of Vampire to extract a symbol table from each problem.
 We call it with the same parameters, adding \texttt{--mode clausify}.
+\todo[author=Filip]{Add a link to our custom version of Vampire.}
 
 After we fit a preference matrix to each of the training problems,
 we create a batch of 1000000 symbol pairs with target values
 to train the main generalized preference regressor.
+
+\todo[inline,author=Filip]{Add a link to the repo with the experiment code.}
 
 \subsection{Results}
 
@@ -487,6 +491,8 @@ to train the main generalized preference regressor.
 	Random & 0.449 & 0.010 & 0.051 \\
 \end{tabular}
 % Source: sftp://cluster.ciirc.cvut.cz/home/bartefil/git/vampire-ml/map-reduce/predicate-100-1000/2020-05-08_20-49-14/reduce/fit_cv_results.csv
+
+\todo[inline,author=Filip]{Describe the results.}
 
 \subsubsection{Feature weights}
 
