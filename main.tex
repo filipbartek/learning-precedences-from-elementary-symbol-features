@@ -27,13 +27,13 @@ Training a linear model converges to ordering the symbols by the number of their
 
 \section{Introduction}
 
-Modern saturation-based Automated Theorem Provers (ATPs) such as E \cite{SCV:CADE-2019} and Vampire \cite{Kovacs2013}
+Modern saturation-based \glspl{atp} such as E \cite{SCV:CADE-2019} and \gls{vampire} \cite{Kovacs2013}
 use the superposition calculus \cite{Nieuwenhuis2001} as their underlying inference system.
 Superposition is built around the paramodulation inference \cite{Robinson1983} crucially
 constrained by simplification ordering on terms and literals, which is supplied as a parameter of the calculus.
 Each of the two classes of simplification orderings used in practice,
-i.e., the Knuth-Bendix Ordering (KBO) \cite{Knuth1983}
-and the Lexicographic Path Ordering (LPO) \cite{Kamin1980},
+i.e., the \gls{kbo}
+and the \gls{lpo},
 are mainly determined by a pair of \emph{symbol precedences}, permutations of the sets of predicate and function symbols,
 respectively.\footnote{
 KBO is further parameterized by symbol weights, but our reference implementation in Vampire~\cite{Kovacs2013} 
