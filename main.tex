@@ -293,7 +293,9 @@ We further transform the cost values by the following operations:
 	approximately log-normal.
 	To make further scaling by standardization reasonable,
 	we first transform the base costs by considering their logarithms.
-	\item Standardization\cite{?}: For each problem,
+	\item Standardization\cite{?}:
+	\todo[author=Filip]{We can use the more general term "normalization" instead. Our goal is to normalize the values and standardization is the means we choose.}
+	For each problem,
 	we apply an affine transformation so that the resulting cost values
 	have the mean 0 and standard deviation 1.
 	This ensures that the values are comparable across problems.
