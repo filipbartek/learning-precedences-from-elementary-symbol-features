@@ -15,12 +15,13 @@ A simplification ordering, typically specified by a symbol precedence,
 is one of the key parameters of the superposition calculus, contributing
 to shaping the search space navigated by a saturation-based \acrlong{atp}.
 Thus the choice of a precedence can have a great impact on the prover's performance.
-In this work, we design a system for proposing favourable predicate symbol precedences.
-The system relies on machine learning to extract the information from
-past runs of a theorem prover over a set of problems and random precedences.
+In this work, we design a system for proposing symbol precedences
+that should lead to solving a problem quickly.
+The system relies on machine learning to extract this information from
+past successful and unsuccessful runs of a theorem prover over a set of problems and random precedences.
 Moreover, it uses a small set of simple human-engineered symbol features as the sole
 basis for discriminating the symbols. This allows for a direct comparison
-with precedence construction heuristics designed by prover developers.
+with precedence generation schemes designed by prover developers.
 \todo[author=Martin]{Let's add this when we have the results finalized:
 Training a linear model converges to ordering the symbols by the number of their occurrences.}
 \end{abstract}
@@ -31,15 +32,15 @@ Modern saturation-based \glspl{atp} such as E \cite{SCV:CADE-2019} and \gls{vamp
 use the superposition calculus \cite{Nieuwenhuis2001} as their underlying inference system.
 Superposition is built around the paramodulation inference \cite{Robinson1983} crucially
 constrained by simplification ordering on terms and literals, which is supplied as a parameter of the calculus.
-Each of the two classes of simplification orderings used in practice,
-i.e., the \gls{kbo}
-and the \gls{lpo},
-are mainly determined by a pair of \emph{symbol precedences}, permutations of the sets of predicate and function symbols,
-respectively.\footnote{
+Both of the two main classes of simplification orderings used in practice,
+i.e., the \acrlong{kbo} \cite{Knuth1983}
+and the \acrlong{lpo} \cite{Kamin1980},
+are mainly determined by a %pair of 
+\emph{symbol precedence}, a (partial) ordering on the signature symbols.\footnote{
 KBO is further parameterized by symbol weights, but our reference implementation in Vampire~\cite{Kovacs2013} 
 uses for efficiency reasons only weights equal to one \cite{DBLP:conf/cade/KovacsMV11} and so we do not consider this parameter here.}
 
-While the superposition calculus is known \cite{DBLP:journals/logcom/BachmairG94} to be refutationally complete for any simplification ordering, the choice of the precedences may have a significant impact on how long it takes to solve a given problem.
+While the superposition calculus is known \cite{DBLP:journals/logcom/BachmairG94} to be refutationally complete for any simplification ordering, the choice of the precedence may have a significant impact on how long it takes to solve a given problem.
 In a well-known example, prioritizing in the precedence the predicates introduced during the Tseitin transformation of an input formula \cite{Tseitin1983} exposes the corresponding literals to resolution inference during early stages of the proof search,
 with the effect of essentially undoing the transformation and thus threatening with an exponential blow-up
 the transformation is designed to prevent \cite{Reger2016}.
