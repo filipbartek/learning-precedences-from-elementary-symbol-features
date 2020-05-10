@@ -360,7 +360,7 @@ For each problem in the training set, we construct a preference matrix that cont
 value estimate for each pair of symbols in the problem.
 \todo[inline,author=Filip]{Why do we do this? Why don't we just take \(\CostStd\) as the target value? My intuition is that this way we get less variance in the target values. Our approach also possibly enables (or improves) sample weighting by absolute value of \(\pref\). I think we originally chose to use lasso because on a fixed problem lasso outperforms "MeanRegression" -- lasso generalizes better. But we could alternatively rely on regularization in the outer regression! We would probably need more samples to train the outer regression, but the model simplicity and saving time to train the inner regressors may be worth it.}
 We populate the matrix by the weights of a linear model trained on data
-collected from a number of \gls{atp} runs on random precedences.
+collected from a number of \gls{atp} runs on uniformly random precedences.
 Each training sample has the following structure:
 
 \begin{itemize}
