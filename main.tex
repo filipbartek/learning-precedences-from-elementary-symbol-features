@@ -108,34 +108,50 @@ including clausification and saturation loop.
 % Regression algorithms; (Maybe not here yet: we do it in Python - scikitlearn, numpy, \ldots)
 
 \paragraph{Problem}
-We define problem \(P\) as a tuple \((\predicates, \functions, \clauses)\),
-where \(\predicates = (p_1, p_2, \ldots, p_n)\) is a list of predicate symbols,
-\(\functions\) is a list of function symbols
-and \(\clauses\) is a set of quantifier-free clauses built on top of \(\predicates\) and \(\functions\).
-We assume that the problem is the result of clausification of a general \gls{fol} problem
-and we have the knowledge of which of the symbols were introduced during clausification
-(Tseitin transformation \cite{?} and Skolemization \cite{?}).
+A \emph{(first-order) problem} is a pair \(P = (\Sigma, \clauses)\),
+where \(\Sigma = (s_1, s_2, \ldots, s_n)\) is a list of (predicate and function) symbols called the \emph{signature},
+% \(\functions\) is a list of function symbols,
+and \(\clauses\) is a set of first-order % quantifier-free 
+clauses built over the symbols of \(\Sigma\).
 
-For a \gls{atp} to solve \(P\) by refutation amounts to inferring a contradiction from \(\clauses\)
-and solving \(P\) by saturation amounts to saturating the inference space
-\todo[author=Filip]{Is this term ok?}
-without having inferred a contradiction.
-In both of these cases we assume the \gls{atp} exposes the number of saturation loop iterations started
-during the proof search.
+The problem is either given directly by the user or 
+could be the result of clausifying a general \gls{fol} formula \(\varphi\),
+in which case we know which of the symbols were introduced during the clausification
+(namely during Tseitin transformation and skolemization; see e.g. \cite{DBLP:books/el/RV01/NonnengartW01}).
 
 \paragraph{Precedence}
-Given a problem \(P = (\predicates, \functions, \clauses)\)
-where \(\predicates = (p_1, p_2, \ldots, p_n)\),
-predicate precedence \(\pi_P\) is a permutation of the indices
-of the predicate symbols in \(\predicates\):
+Given a problem \(P = (\Sigma, \clauses)\) with \(\Sigma = (s_1, s_2, \ldots, s_n)\),
+a precedence \(\pi_P\) is a permutation, i.e.~a bijective mapping, of the set of indices \(\{1,\ldots,n\}\).
+A precedence \(\pi_P\) \emph{determines} a (total) ordering on \(\Sigma\) as follows:
+\(s_{\pi_P(1)} < s_{\pi_P(2)} < \ldots < s_{\pi_P(n)}.\)
 
+\paragraph{Simplification Orderings} are orderings on terms used to parametrise the superposition calculus \cite{Nieuwenhuis2001}
+employed by modern saturation-based theorem provers. The two classes of simplification orderings mostly used in practice,
+the \acrlongpl{kbo} \cite{Knuth1983} and the \acrlongpl{lpo} \cite{Kamin1980}, are both defined in terms 
+of a user-supplied (possibly partial) ordering $<$ %(typically also called the precedence) 
+on the given problem's signature \(\Sigma\).
+In this work, we assume that a theorem prover uses a simplification ordering from one of these two classes
+relying on the ordering on \(\Sigma\) determined by a precedence \(\pi_P\) to construct such a simplification ordering.
+
+\paragraph{Performance measure} A saturation-based \gls{atp} \emph{solves} a problem \(P = (\Sigma,\clauses)\)
+(under a particular strategy which also determines a symbol precedence \(\pi_P\))  by either
 \begin{itemize}
-	\item \(\pi_P(i)\) is the index of the \(i\)-th symbol in precedence \(\pi_P\).
-	\item \(\inv{\pi_P}(j)\) is the position of symbol \(p_j\) in precedence \(\pi_P\).
+\item
+	deriving from \(\clauses\) a contradiction in the form of the empty clause,
+	in which case \(P\) is shown \emph{unsatisfiable}, or
+\item
+	finitely saturating the set of clauses \(\clauses\) without deriving the contradiction,
+	in which case \(P\) is shown \emph{satisfiable}.\footnote{We assume a \emph{refutationally complete} strategy.}	
 \end{itemize}
+In both cases, we take the number of iterations of the emplyed saturation algorithm (see, e.g., \cite{DBLP:journals/jsc/RiazanovV03} for an overview) as a measure of effort that the \gls{atp} took to solve the problem.
+We will refer to this measure as the \emph{abstract solving time} and denote it \(\mathit{ast}(P,\pi_P)\).
 
-We assume that the proof search is conducted using superposition calculus
-parameterized namely by a predicate precedence.
+In practice, an \gls{atp} can also run out of resources, typically out of the allocated time.
+In that case, the abstract solving time is \emph{undefined}: \(\mathit{ast}(P,\pi_P) = \bot\).
+
+
+
+\newpage
 
 \paragraph{\Gls{order-matrix}}
 Given a permutation \(\pi\) of length \(n\),
