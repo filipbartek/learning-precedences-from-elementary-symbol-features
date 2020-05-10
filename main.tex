@@ -98,7 +98,9 @@ the ideally optimal precedence $\pi^*$ according to this model.
 
 \newpage
 
-\section{Terminology}
+\section{Preliminaries}
+
+\subsection{Terminology}
 
 We assume that the reader is familiar with basic concepts used in \gls{fol} theorem proving
 such as \gls{fol} problem, problem signature, predicate symbol, function symbol, clause and \gls{cnf}.
@@ -284,10 +286,13 @@ according to the outcome of the proof search configured to use this precedence:
 We further transform the cost values by the following operations:
 
 \begin{enumerate}
-	\item Logarithmic scaling: Multiplying the number of saturation iterations by a constant factor
-	should have the same impact on the effective cost value
-	irrespective of the problem and its particular distribution of saturation loop iteration counts.
-	\todo[author=Filip]{We have observed that the order of number of iterations differs across problems -- some problems run tens of iterations in 10 seconds, while other problems run thousands of iterations. Shall we mention this?}
+	\item Logarithmic scaling:
+	For each solvable problem, running proof search with uniformly random predicate precedences
+	reveals a distribution of numbers of saturation iterations.
+	Examining these distributions for various problems suggests that they are usually
+	approximately log-normal.
+	To make further scaling by standardization reasonable,
+	we first transform the base costs by considering their logarithms.
 	\item Standardization\cite{?}: For each problem,
 	we apply an affine transformation so that the resulting cost values
 	have the mean 0 and standard deviation 1.
