@@ -208,30 +208,6 @@ we will describe a system that only proposes predicate precedences, ignoring fun
 
 \newpage
 
-\section{Introduction [by Filip]}
-\todo[inline,author=Filip]{Join this section with the first Introduction section.}
-
-The most successful \gls{fol} \glspl{atp} are based on superposition calculus,
-which is parameterized by simplification term ordering.
-Each of the two most commonly used simplification orderings, \gls{kbo} and \gls{lpo},
-is in turn parameterized by a pair of symbol precedences:
-predicate precedence and function precedence.
-Each of these precedences is a permutation of the respective symbols of the problem under consideration.
-
-In this text we limit ourselves to discussion of predicate symbol precedences for the sake of simplicity.
-We fix function precedences to use the frequency heuristic.
-
-Given a problem, we look for a predicate \gls{precedence} that leads to a successful and quick proof search.
-
-\Gls{preference-value} of an ordered pair of symbols \((P_0, P_1)\) expresses a penalty associated with ordering the symbol \(P_0\) before the symbol \(P_1\).
-Positive value means that ordering \(P_0\) before \(P_1\) is associated with low probability of success.
-Negative value means that ordering \(P_0\) before \(P_1\) is associated with high probability of success.
-Value close to zero means that the order of symbols \(P_0\) and \(P_1\) has no effect on the probability of success.
-
-\Gls{preference-matrix} is a square matrix populated with preference values of all the pairs of symbols.
-
-\newpage
-
 \section{Architecture}
 \label{sec:architecture}
 
