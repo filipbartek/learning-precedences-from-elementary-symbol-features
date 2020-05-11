@@ -183,9 +183,9 @@ for every \(i,j\in\{1,\ldots,n\}\).
 For the discussion that follows,
 we assume a fixed %\gls{fol} 
 \gls{atp} that uses the superposition calculus with a simplification ordering parameterized by a symbol precedence.
-\todo[author=Filip]{Consider different approach: "For the discussion that follows,
-we assume that Vampire is used. We keep the discussion general enough to accommodate any precedence-parameterized ATP."
-and use "Vampire" instead of "ATP" in sections that follow.}
+%\todo[author=Filip]{Consider different approach: "For the discussion that follows,
+%we assume that Vampire is used. We keep the discussion general enough to accommodate any precedence-parameterized ATP."
+%and use "Vampire" instead of "ATP" in sections that follow.}
 While the practical experiments described in \autoref{sec:evaluation} use the \gls{atp} \gls{vampire} \cite{Kovacs2013},
 % \todo[author=Filip]{Remove if we end up omitting practical experiments.}
 the model architecture does not assume a particular \gls{atp}
@@ -315,13 +315,13 @@ We strive to create a system that satisfies the following properties:
 
 \todo[inline,author=Filip]{Should we mention the following side goal? "Make it possible to backpropagate gradient to the input features for future GNN training."}
 
-\subsection{Valuation of precedences}
+\subsection{Values of precedences}
 \label{sec:precedence-valuation}
 
-Based on the assumption that a short proof search is more likely to succeed in a limited time\cite{?},
-we train the system to prefer precedences that lead to a short proof search.
-This allows us to use easy problems for training, facilitating the collection of training data.
-\todo[author=Filip]{Do we really want to do this? The experiment with uniformly random training problems shows better results than training on easy problems.}
+% Based on the assumption that a short proof search is more likely to succeed in a limited time\cite{?},
+% we train the system to prefer precedences that lead to a short proof search.
+% This allows us to use easy problems for training, facilitating the collection of training data.
+% \todo[author=Filip]{Do we really want to do this? The experiment with uniformly random training problems shows better results than training on easy problems.}
 
 We define the base cost
 value \(\CostBase(P, \pi_P)\) of precedence \(\pi_P\) on problem \(P\)
@@ -334,50 +334,48 @@ according to the outcome of the proof search configured to use this precedence:
 	\item If the proof search fails (meaning that \(\AbstractTime(P, \pi_P) = \bot\)),
 	then \(\CostBase(\pi_P)\) is the maximum number
 	of saturation loop iterations encountered in successful training proof searches on this problem:
-	\(\CostBase(\pi_P) = \max_{\pi_P' \in \Pi_1(P)} \AbstractTime(P, \pi_P')\),
-	where \(\Pi_1(P)\) is the set of all training precedences on problem \(P\)
+	\(\CostBase(\pi_P) = \max_{\pi_P' \in \Pi^+_P} \AbstractTime(P, \pi_P')\),
+	where \(\Pi^+_P\) is the set of all training precedences on problem \(P\)
 	that yield a successful proof search.
-	\todo[author=Martin,inline]{Not even times 2?}
+	% \todo[author=Martin,inline]{Not even times 2?}
 \end{itemize}
-
 We further normalize the cost values by the following operations:
-
 \begin{enumerate}
 	\item Logarithmic scaling:
 	For each solvable problem, running proof search with uniformly random predicate precedences
-	\todo[author=Filip]{As far as I remember, I have only examined the distributions with random predicate precedences. Here we would like to reason about general symbol precedences though.}
+	% \todo[author=Filip]{As far as I remember, I have only examined the distributions with random predicate precedences. Here we would like to reason about general symbol precedences though.}
 	reveals a distribution of abstract solving times on successful executions.
 	Examining these distributions for various problems suggests that they are usually
 	approximately log-normal.
-	\todo[author=Filip]{Justify better.}
+	%\todo[author=Filip]{Justify better.}
 	To make further scaling by standardization reasonable,
-	\todo[author=Filip]{What exactly do we mean by "reasonable"?}
-	we first transform the base costs by applying a logarithm.
-	\item Standardization\cite{?}:
-	\todo[author=Filip]{We can use the more general term "normalization" instead. Our goal is to normalize the values and standardization is the means we choose.}
+	% \todo[author=Filip]{What exactly do we mean by "reasonable"?}
+	we first transform the base costs by taking their logarithm.
+	\item Standardization: %\cite{?}:
+	%\todo[author=Filip]{We can use the more general term "normalization" instead.
+	% Our goal is to normalize the values and standardization is the means we choose.}
 	For each problem,
 	we apply an affine transformation so that the resulting cost values
 	have the mean 0 and standard deviation 1.
 	This ensures that the values are comparable across problems.
-	\todo[author=Filip]{Make less handwavy.}
+	% \todo[author=Filip]{Make less handwavy.}
 \end{enumerate}
-
 Let \(\CostStd(\pi_P)\) denote the resulting cost value of permutation \(\pi_P\)
-after scaling and standardization.
+after the scaling and standardization.
 
 \subsection{Reduction to preference learning}
 
-Let \(s_i \neq s_j\) be two symbols in a given \gls{problem} \(P\).
-Each precedence \(\pi_P\) orders these symbols in some order --
-either \(\inv{\pi_P}(i) < \inv{\pi_P}(j)\) or \(\inv{\pi_P}(i) > \inv{\pi_P}(j)\).
-Ordering of some pairs of symbols can have a great impact on the speed of the proof search.
-For example, prioritizing inferences on clauses with predicate symbols
-introduced in Tseitin transformation
-may lead to an exponential expansion of the affected clauses.
-\todo[author=Filip]{Consider omitting this justification because we have mentioned it in section Introduction.}
+%    Let \(s_i \neq s_j\) be two symbols in a given \gls{problem} \(P\).
+%    Each precedence \(\pi_P\) orders these symbols in some order --
+%    either \(\inv{\pi_P}(i) < \inv{\pi_P}(j)\) or \(\inv{\pi_P}(i) > \inv{\pi_P}(j)\).
+%    Ordering of some pairs of symbols can have a great impact on the speed of the proof search.
+%    For example, prioritizing inferences on clauses with predicate symbols
+%    introduced in Tseitin transformation
+%    may lead to an exponential expansion of the affected clauses.
+%    \todo[author=Filip]{Consider omitting this justification because we have mentioned it in section Introduction.}
 
 Let a \gls{pairwise-preference-function}
-\todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
+% \todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
 \(\pref_P : \Sigma \times \Sigma \rightarrow \re\)
 assign a value to each pair of symbols in problem \(P = (\Sigma, \clauses)\).
 We define the \emph{proxy cost of precedence \(\pi_P\) under preference \(\pref_P\)}
@@ -388,8 +386,8 @@ ordered by \(\pi_P\) such that \(s_i\) comes before \(s_j\):
 \CostProxy(\pi_P, \pref_P) = \sum_{i, j: \inv{\pi_P}(i) < \inv{\pi_P}(j)} \pref_P(s_i, s_j)
 = \sum_{i, j} \OrderMatrix(\pi_P)_{i, j} \cdot \pref_P(s_i, s_j)
 \end{align*}
-\todo[author=Filip]{Is it not too confusing to have two expressions?}
-\todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy cost seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
+% \todo[author=Filip]{Is it not too confusing to have two expressions?}
+% \todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy cost seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
 
 We define \emph{estimation error}
 % Source: https://cw.fel.cvut.cz/b191/_media/courses/be4m33ssu/erm2_ws2019.pdf
@@ -405,7 +403,9 @@ we could attempt to use it to construct a good symbol precedence
 by minimizing the corresponding proxy cost.
 While the problem of finding a \(\pi_P\) that minimizes \(\CostProxy(\pi_P, \pref_P)\)
 for a fixed \(\pref_P\) is in general NP-hard, a greedy 2-approximation algorithm exists. \cite{Cohen2011}
-\todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?}
+\todo[author=Martin]{Kdyz bude cas, trochu rozepsat, aby lidi taky meli radost, ze existuje LtOT.}
+\todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
+Martin: tak napisme, ze jinak musime projit $n!$ moznosti...}
 
 In the sections that follow we will describe how to find a general function \(\pref\)
 that approximates a good \(\pref_P\) for a class of problems.
@@ -414,7 +414,7 @@ that approximates a good \(\pref_P\) for a class of problems.
 
 In order to cast the problem of finding an appropriate \(\pref\) function
 as a supervised machine learning task,
-and to know preference values for pairs of symbols in the training set.
+and to know preference values for pairs of symbols in the training set \ldots \todo{Martin: dokoncit vetu}
 
 \subsubsection{Target preference values}
 \label{sec:target-preference-values}
@@ -462,6 +462,11 @@ We represent each predicate symbol by a feature vector that consists of the foll
 	\item Unit usage count
 	\item In goal
 	\item In unit
+	
+	\item \todo[inline]{jeste skolemovitost / tseitinovitost} \_introduced
+	
+	\todo{Kouknout, jestli tam vubec nejake tseitiny jsou (jestli ne, je to chyba)}
+	
 \end{itemize}\todo[author=Filip]{Explain the meaning of each of these features.}
 \todo[author=Filip]{Add the feature "skolem" to accommodate function symbols.}
 
@@ -472,6 +477,8 @@ and that they suffice as a basis for all of the common symbol precedence heurist
 
 We represent a pair of symbols \(l, r\) by the concatenation of their feature vectors.
 \todo[inline,author=Filip]{Shall we remove problem embedding from the experiment for simplicity? I have omitted problem embedding in this text.}
+
+\todo{Martin: idealne pustit znovu bez problem embeddingu, at se o nem nemusime zminovat.}
 
 \subsubsection{Generalized preference regressor}
 
@@ -487,6 +494,9 @@ minimizes \(\CostProxy\) for a particular \(\pref\).
 \todo[inline,author=Filip]{Fix this statement so that it makes sense.}
 \todo[inline,author=Filip]{Discuss in more detail.}
 \todo[inline,author=Filip]{Do we really cover all Vampire heuristics? How about \texttt{occurrence}, \texttt{scramble}, \texttt{weighted\_frequency}, \texttt{reverse\_weighted\_frequency}? What about \texttt{--symbol\_precedence\_boost}?}
+
+\todo{Martin "each of the precedence heuristics" je zbytecne obecny. 
+Staci nam poznamenat, ze pres Usage count ``umime'' frequency. Takze by mela jit naucit, nebo neco lepsiho.}
 
 \subsubsection{Sample weighting}
 
