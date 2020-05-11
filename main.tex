@@ -92,8 +92,10 @@ the ideally optimal precedence $\pi^*$ according to this model.
 
 We assume that the reader is familiar with basic concepts used in \gls{fol} theorem proving
 such as \gls{fol} problem, problem signature, predicate symbol, function symbol, clause and \gls{cnf}.
+\todo[author=Filip]{Do we really need to assume this familiarity? We explain the meaning of "problem" below.}
 Furthermore we assume familiarity with basics of the inner workings of saturation-based \glspl{atp},
 including clausification and saturation loop.
+\todo[author=Filip]{Cite some textbook.}
 
 % Regression algorithms; (Maybe not here yet: we do it in Python - scikitlearn, numpy, \ldots)
 
@@ -102,25 +104,27 @@ A \emph{(first-order) problem} is a pair \(P = (\Sigma, \clauses)\),
 where \(\Sigma = (s_1, s_2, \ldots, s_n)\) is a list of (predicate and function) symbols called the \emph{signature},
 and \(\clauses\) is a set of first-order
 clauses built over the symbols of \(\Sigma\).
+% This is where we assume familiarity with FOL.
 
 The problem is either given directly by the user or 
 could be the result of clausifying a general \gls{fol} formula \(\varphi\),
 in which case we know which of the symbols were introduced during the clausification
 (namely during Tseitin transformation and skolemization; see e.g. \citet{DBLP:books/el/RV01/NonnengartW01}).
+\todo[author=Filip]{Mention that we also know which clauses form the conjecture. We use this in the feature \texttt{inGoal}.}
 
 \paragraph{Precedence}
 Given a problem \(P = (\Sigma, \clauses)\) with \(\Sigma = (s_1, s_2, \ldots, s_n)\),
 a precedence \(\pi_P\) is a permutation, i.e.~a bijective mapping, of the set of indices \(\{1,\ldots,n\}\).
-A precedence \(\pi_P\) \emph{determines} a (total) ordering on \(\Sigma\) as follows:
+A precedence \(\pi_P\) \emph{determines}\todo[author=Filip]{Why the emphasis on "determines"?}{} a (total) ordering on \(\Sigma\) as follows:
 \(s_{\pi_P(1)} < s_{\pi_P(2)} < \ldots < s_{\pi_P(n)}.\)
-\todo[author=Filip]{Why the emphasis on "determines"?}
 
-\paragraph{Simplification Orderings} are orderings on terms used to parametrise the superposition calculus \cite{Nieuwenhuis2001}
-employed by modern saturation-based theorem provers. The two classes of simplification orderings mostly used in practice,
+\paragraph{Simplification Orderings} are orderings on terms used to parameterize the superposition calculus \cite{Nieuwenhuis2001}
+employed by modern saturation-based theorem provers. The two classes of simplification orderings most commonly used in practice,
+\todo[author=Filip]{Why do we believe they are most commonly used in practice? Can we cite some source?}
 the \acrlongpl{kbo} \cite{Knuth1983} and the \acrlongpl{lpo} \cite{Kamin1980}, are both defined in terms 
 of a user-supplied (possibly partial) ordering $<$ %(typically also called the precedence) 
 on the given problem's signature \(\Sigma\).
-In this work, we assume that a theorem prover uses a simplification ordering from one of these two classes
+In this work, we assume that the theorem prover\todo[author=Filip]{Which theorem prover?}{} uses a simplification ordering from one of these two classes
 relying on the ordering on \(\Sigma\) determined by a precedence \(\pi_P\) to construct such a simplification ordering.
 
 \paragraph{Performance measure} A saturation-based \gls{atp} \emph{solves} a problem \(P = (\Sigma,\clauses)\)
@@ -134,11 +138,14 @@ relying on the ordering on \(\Sigma\) determined by a precedence \(\pi_P\) to co
 	in which case \(P\) is shown \emph{satisfiable}.\footnote{We assume a \emph{refutationally complete} strategy.}	
 \end{itemize}
 In both cases, we take the number of iterations of the employed saturation algorithm (see, e.g., \citet{DBLP:journals/jsc/RiazanovV03} for an overview) as a measure of effort that the \gls{atp} took to solve the problem.
-We will refer to this measure as the \emph{abstract solving time} and denote it \(\mathit{ast}(P,\pi_P)\).\footnote{
-The advantage of using abstract solving time is that it does not depend on the hardware used for the computation.}
+We will refer to this measure as the \emph{\gls{abstract-solving-time}} and denote it \(\AbstractTime(P,\pi_P)\).\footnote{The advantage of using abstract solving time is that it does not depend on the hardware used for the computation.}
 
 In practice, an \gls{atp} can also run out of resources, typically out of the allocated time.
-In that case, the abstract solving time is \emph{undefined}: \(\mathit{ast}(P,\pi_P) = \bot\).
+In that case, the abstract solving time is \emph{undefined}: \(\AbstractTime(P,\pi_P) = \bot\).
+
+While it may happen that running an \gls{atp} with the same problem and symbol precedence two times
+yields a different result each time (namely succeeding one time and failing another time),
+such cases are rare and we ensure they do not interfere with the learning process by caching the results.
 
 \newpage
 
@@ -155,8 +162,8 @@ We use \(\indicator{P}\) to denote the Iverson bracket \cite{Iverson1962} applie
 evaluating to 1 if \(P\) is true, and 0 otherwise.
 % In \citet{Iverson1962}, the expression is called "relational statement".
 
-Namely for a predicate precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) if
-the precedence \(\pi_P\) orders predicate \(p_i\) before predicate \(p_j\),
+Namely for a symbol precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) if
+the precedence \(\pi_P\) orders the symbol \(s_i\) before the symbol \(s_j\),
 and \(O(\pi_P)_{i, j} = 0\) otherwise.
 
 \paragraph{Flattened matrix}
@@ -192,19 +199,6 @@ and we need to handle such searches gracefully.
 % However, the solving time may vary greatly across the precedences.
 
 \todo[inline,author=Filip]{Consider: Mention that we need to call the configured ATP to clausify the problem so that we know all the symbols including Tseitin and Skolem.}
-
-For the sake of simplicity,
-we will describe a system that only proposes predicate precedences, ignoring function precedences.
-\todo[inline,author=Filip]{Discuss more.
-	Possible generalizations to combination of predicate and function precedences:
-	
-	- Learn predicate precedence in the context of frequency heuristic for function precedences. (current experiment)
-	
-	- Learn predicate precedence in the context of random function precedences.
-	
-	- Iterate: Learn predicate precedence in the context of function precedences from previous training epoch.
-	
-	- Train predicate and function preference regressor simultaneously with a shared underlying GNN.}
 
 \newpage
 
@@ -299,19 +293,18 @@ We strive to create a system that satisfies the following properties:
 
 \begin{itemize}
 	\item When presented with an arbitrary \gls{fol} problem,
-	the system proposes a predicate precedence for this problem
+	the system proposes a symbol precedence for this problem
 	that maximizes the expected chance of the problem being solved
 	within the allocated time.
 	\todo[author=Filip]{What distribution of problems do we optimize for?}
-	
 	\todo[inline,author=Martin]{Maybe simply minimize the expected (abstract) solving time (i.e. measured in the number of iterations of the main loop!).}
 	
-	\item The system is trained on a collection of executions of the chosen prover
+	\item The system is trained on a collection of executions of an \gls{atp}
 	on a training set of \gls{fol} problems
-	with uniformly random predicate precedences.
+	with uniformly random symbol precedences for each training problem.
 	
 	\item The architecture is general enough to be able to learn
-	all the standard precedence heuristics implemented in Vampire.\cite{?}
+	all of the standard precedence heuristics implemented in Vampire.\cite{?}
 	\todo[author=Filip]{Describe in more detail. We care specifically about the model capacity, not the learning convergence.}
 \end{itemize}
 
@@ -323,17 +316,22 @@ We strive to create a system that satisfies the following properties:
 Based on the assumption that a short proof search is more likely to succeed in a limited time\cite{?},
 we train the system to prefer precedences that lead to a short proof search.
 This allows us to use easy problems for training, facilitating the collection of training data.
+\todo[author=Filip]{Do we really want to do this? The experiment with uniformly random training problems shows better results than training on easy problems.}
 
 We define the base cost
 value \(\CostBase(P, \pi_P)\) of precedence \(\pi_P\) on problem \(P\)
 according to the outcome of the proof search configured to use this precedence:
 
 \begin{itemize}
-	\item If the proof search successfully terminates within the allocated time,
+	\item If the proof terminates successfully,
 	\(\CostBase(\pi_P)\) is the number of iterations of the saturation loop
-	started during the proof search.
-	\item If the proof search times out, \(\CostBase(\pi_P)\) is the maximum number
-	of saturation loop iterations encountered in successful proof searches on this problem.
+	started during the proof search: \(\CostBase(\pi_P) = \AbstractTime(P, \pi_P)\).
+	\item If the proof search fails (meaning that \(\AbstractTime(P, \pi_P) = \bot\)),
+	then \(\CostBase(\pi_P)\) is the maximum number
+	of saturation loop iterations encountered in successful training proof searches on this problem:
+	\(\CostBase(\pi_P) = \max_{\pi_P' \in \Pi_1(P)} \AbstractTime(P, \pi_P')\),
+	where \(\Pi_1(P)\) is the set of all training precedences on problem \(P\)
+	that yield a successful proof search.
 	\todo[author=Martin,inline]{Not even times 2?}
 \end{itemize}
 
@@ -342,17 +340,21 @@ We further normalize the cost values by the following operations:
 \begin{enumerate}
 	\item Logarithmic scaling:
 	For each solvable problem, running proof search with uniformly random predicate precedences
-	reveals a distribution of numbers of saturation iterations.
+	\todo[author=Filip]{As far as I remember, I have only examined the distributions with random predicate precedences. Here we would like to reason about general symbol precedences though.}
+	reveals a distribution of abstract solving times on successful executions.
 	Examining these distributions for various problems suggests that they are usually
 	approximately log-normal.
+	\todo[author=Filip]{Justify better.}
 	To make further scaling by standardization reasonable,
-	we first transform the base costs by considering their logarithms.
+	\todo[author=Filip]{What exactly do we mean by "reasonable"?}
+	we first transform the base costs by applying a logarithm.
 	\item Standardization\cite{?}:
 	\todo[author=Filip]{We can use the more general term "normalization" instead. Our goal is to normalize the values and standardization is the means we choose.}
 	For each problem,
 	we apply an affine transformation so that the resulting cost values
 	have the mean 0 and standard deviation 1.
 	This ensures that the values are comparable across problems.
+	\todo[author=Filip]{Make less handwavy.}
 \end{enumerate}
 
 Let \(\CostStd(\pi_P)\) denote the resulting cost value of permutation \(\pi_P\)
@@ -360,24 +362,52 @@ after scaling and standardization.
 
 \subsection{Reduction to preference learning}
 
-Let \(p \neq q\) be two predicates in a given \gls{problem} \(P\).
-Each precedence \(\pi_P\) orders the predicates in some order --
-either \(\inv{\pi_P}(p) < \inv{\pi_P}(q)\) or \(\inv{\pi_P}(p) > \inv{\pi_P}(q)\).
+Let \(s_i \neq s_j\) be two symbols in a given \gls{problem} \(P\).
+Each precedence \(\pi_P\) orders these symbols in some order --
+either \(\inv{\pi_P}(i) < \inv{\pi_P}(j)\) or \(\inv{\pi_P}(i) > \inv{\pi_P}(j)\).
 Ordering of some pairs of symbols can have a great impact on the speed of the proof search.
 For example, prioritizing inferences on clauses with predicate symbols
 introduced in Tseitin transformation
 may lead to an exponential expansion of the affected clauses.
+\todo[author=Filip]{Consider omitting this justification because we have mentioned it in section Introduction.}
 
-Let the pairwise preference
+Let a \gls{pairwise-preference-function}
 \todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
-function \(\pref : \predicates \times \predicates \rightarrow \re\)
-\todo[author=Filip]{Explain the symbols.}
-assign a preference value to each pair of predicate symbols:
-a high value of \(\pref(p, q)\) corresponds to a long expected proof search time
-if a precedence that orders \(p\) before \(q\) is used.
-Furthermore, let the absolute value of \(\pref(p, q)\)
-correspond to the expected magnitude of impact of the mutual order of \(p\) and \(q\).
-Namely, \(\pref(p, q) = 0\) means that the mutual order of \(p\) and \(q\)
+\(\pref_P : \Sigma \times \Sigma \rightarrow \re\)
+assign a value to each pair of symbols in problem \(P = (\Sigma, \clauses)\).
+We define \emph{proxy cost of precedence \(\pi_P\) under preference \(\pref_P\)}
+to be the sum of the preference values of all symbol pairs \(s_i, s_j\)
+ordered by \(\pi_P\) such that \(s_i\) comes before \(s_j\):
+
+\begin{align*}
+\CostProxy(\pi_P, \pref_P) = \sum_{i, j: \inv{\pi_P}(i) < \inv{\pi_P}(j)} \pref_P(s_i, s_j)
+= \sum_{i, j} \OrderMatrix(\pi_P)_{i, j} \cdot \pref_P(s_i, s_j)
+\end{align*}
+
+We consider the preference function \(\pref_P\) perfect if
+minimizing the corresponding proxy cost yields a precedence that minimizes the standardized cost:
+
+\begin{align*}
+\CostStd \left ( \argmin_{\pi_P} \CostProxy(\pi_P, \pref_P) \right ) = \min_{\pi_P} \CostStd(\pi_P)
+\end{align*}
+
+We define loss of preference function \(\pref_P\) on problem \(P\) in the following way:
+
+\begin{align*}
+\mathit{loss}(\pref_P, P) = \CostStd \left ( \argmin_{\pi_P} \CostProxy(\pi_P, \pref_P) \right ) - \min_{\pi_P} \CostStd(\pi_P)
+\end{align*}
+
+\todo[author=Filip,inline]{Continue writing here. Replace the rest of this section.}
+
+Let the \gls{pairwise-preference-function}
+\todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
+\(\pref_P : \Sigma \times \Sigma \rightarrow \re\)
+assign a preference value to each pair of symbols in problem \(P = (\Sigma, \clauses)\):
+a high value of \(\pref_P(s, t)\) corresponds to a long expected proof search time
+if a precedence that orders \(s\) before \(t\) is used.
+Furthermore, let the absolute value of \(\pref_P(s, t)\)
+correspond to the expected magnitude of impact of the mutual order of \(s\) and \(t\).
+Namely, \(\pref_P(s, t) = 0\) means that the mutual order of \(s\) and \(t\)
 has no impact on the length of the proof search.
 
 We proceed to relax the general task of finding a good precedence
@@ -386,13 +416,13 @@ Once we have such function,
 we will be interested in finding a precedence \(\pi_P\) that minimizes the cumulative preference value:
 
 \begin{align*}
-\CostProxy(\pi_P) = \sum_{p, q: \inv{\pi_P}(p) < \inv{\pi_P}(q)} \pref(p, q)
-= \sum_{i, j} \OrderMatrix(\pi_P)_{i, j} \cdot \pref(p_i, p_j)
+\CostProxy(\pi_P) = \sum_{i, j: \inv{\pi_P}(i) < \inv{\pi_P}(j)} \pref_P(s_i, s_j)
+= \sum_{i, j} \OrderMatrix(\pi_P)_{i, j} \cdot \pref_P(s_i, s_j)
 \end{align*}
 \todo[author=Filip]{Is it not too confusing to have two expressions?}
 \todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy cost seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
 
-While the problem of minimizing \(\CostProxy(\pi_P)\) given an arbitrary \(\pref\) is NP-hard,
+While the problem of minimizing \(\CostProxy(\pi_P)\) given an arbitrary \(\pref_P\) is NP-hard,
 a greedy 2-approximation algorithm exists.\cite{Cohen2011}
 \todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?}
 
@@ -454,6 +484,7 @@ We represent each predicate symbol by a feature vector that consists of the foll
 	\item In goal
 	\item In unit
 \end{itemize}\todo[author=Filip]{Explain the meaning of each of these features.}
+\todo[author=Filip]{Add the feature "skolem" to accommodate function symbols.}
 
 This choice is motivated by the fact that the values of all of these symbol properties
 are readily available in the \gls{atp} Vampire
@@ -505,6 +536,23 @@ In this manner we find a \(\pi_P\) that approximately minimizes \(\CostProxy(\pi
 \label{sec:evaluation}
 
 \subsection{Setup}
+
+Since none the ordering strategies under consideration (LPO and KBO)
+uses the symbol precedence to compare a predicate symbol with a function symbol,
+we can break the symbol precedence down into a predicate precedence and a function precedence.
+For the sake of simplicity,
+our practical experiments only propose predicate precedences.
+Function symbols are ordered by the frequency heuristic.
+\todo[inline,author=Filip]{Discuss more.
+	Possible generalizations to combination of predicate and function precedences:
+	
+	- Learn predicate precedence in the context of frequency heuristic for function precedences. (current experiment)
+	
+	- Learn predicate precedence in the context of random function precedences.
+	
+	- Iterate: Learn predicate precedence in the context of function precedences from previous training epoch.
+	
+	- Train predicate and function preference regressor simultaneously with a shared underlying GNN.}
 
 For evaluation of the system presented in \autoref{sec:architecture},
 we use TPTP v7.2.0 \cite{?}, a collection of problems.
