@@ -90,12 +90,14 @@ the ideally optimal precedence $\pi^*$ according to this model.
 
 \subsection{Terminology}
 
-We assume that the reader is familiar with basic concepts used in \gls{fol} theorem proving
-such as \gls{fol} problem, problem signature, predicate symbol, function symbol, clause and \gls{cnf}.
-\todo[author=Filip]{Do we really need to assume this familiarity? We explain the meaning of "problem" below.}
-Furthermore we assume familiarity with basics of the inner workings of saturation-based \glspl{atp},
-including clausification and saturation loop.
-\todo[author=Filip]{Cite some textbook.}
+We assume that the reader is familiar with basic concepts used in \gls{fol} theorem proving.
+We use this section to recall and formalize the key notions relevant for our work.
+
+% such as \gls{fol} problem, problem signature, predicate symbol, function symbol, clause and \gls{cnf}.
+% \todo[author=Filip]{Do we really need to assume this familiarity? We explain the meaning of "problem" below.}
+% Furthermore we assume familiarity with basics of the inner workings of saturation-based \glspl{atp},
+% including clausification and saturation loop.
+% \todo[author=Filip]{Cite some textbook.}
 
 % Regression algorithms; (Maybe not here yet: we do it in Python - scikitlearn, numpy, \ldots)
 
@@ -109,8 +111,9 @@ clauses built over the symbols of \(\Sigma\).
 The problem is either given directly by the user or 
 could be the result of clausifying a general \gls{fol} formula \(\varphi\),
 in which case we know which of the symbols were introduced during the clausification
-(namely during Tseitin transformation and skolemization; see e.g. \citet{DBLP:books/el/RV01/NonnengartW01}).
-\todo[author=Filip]{Mention that we also know which clauses form the conjecture. We use this in the feature \texttt{inGoal}.}
+(namely during Tseitin transformation and skolemization; see e.g. \citet{DBLP:books/el/RV01/NonnengartW01})
+and which occurred in the conjecture (if it was present).
+% \todo[author=Filip]{Mention that we also know which clauses form the conjecture. We use this in the feature \texttt{inGoal}.}
 
 \paragraph{Precedence}
 Given a problem \(P = (\Sigma, \clauses)\) with \(\Sigma = (s_1, s_2, \ldots, s_n)\),
@@ -150,55 +153,59 @@ such cases are rare and we ensure they do not interfere with the learning proces
 \newpage
 
 \paragraph{\Gls{order-matrix}}
-Given a permutation \(\pi\) of length \(n\),
+Given a permutation \(\pi\) of the set of indices \(\{1,\ldots,n\}\),
 the \gls{order-matrix} \(\OrderMatrix(\pi)\) is a binary matrix of size \(n \times n\)
 defined in the following manner:
-
 \begin{align*}
-\OrderMatrix(\pi)_{i, j} = \indicator{\inv{\pi}(i) < \inv{\pi}(j)}
+\OrderMatrix(\pi)_{i, j} = \indicator{\inv{\pi}(i) < \inv{\pi}(j)},
 \end{align*}
-
-We use \(\indicator{P}\) to denote the Iverson bracket \cite{Iverson1962} applied to proposition \(P\),
+where we use \(\indicator{P}\) to denote the Iverson bracket \cite{Iverson1962} applied to proposition \(P\),
 evaluating to 1 if \(P\) is true, and 0 otherwise.
 % In \citet{Iverson1962}, the expression is called "relational statement".
-
-Namely for a symbol precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) if
+%
+In other words, for a symbol precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) if
 the precedence \(\pi_P\) orders the symbol \(s_i\) before the symbol \(s_j\),
 and \(O(\pi_P)_{i, j} = 0\) otherwise.
 
 \paragraph{Flattened matrix}
 Given a matrix \(M\) of size \(n \times n\),
 \(\flatten{M}\) is the vector of length \(n^2\) obtained by flattening \(M\):
-
 \begin{align*}
 \flatten{M}_{(i - 1) n + j} = M_{i, j}
 \end{align*}
-\todo[author=Filip]{Should we include universal quantification for i, j?}
+for every \(i,j\in\{1,\ldots,n\}\).
 
-\todo[inline,author=Martin]{What is linear regression? Define and cite.}
-\todo[inline,author=Martin]{Define sufficient apparatus to be able to prove that if we use linear regression for the general preference prediction, than we can construct optimum precedence in linear time from the coefficients. Write down the proof.}
+% \todo[inline,author=Martin]{What is linear regression? Define and cite.}
+% \todo[inline,author=Martin]{Define sufficient apparatus to be able to prove that if we use linear regression for the general preference prediction, than we can construct optimum precedence in linear time from the coefficients. Write down the proof.}
 
 \subsection{Basic assumptions}
 
 For the discussion that follows,
-we assume a fixed \gls{fol} \gls{atp} that uses superposition calculus parameterized by symbol precedence.
-\todo[author=Filip]{Consider different approach: "For the discussion that follows, we assume that Vampire is used. We keep the discussion general enough to accommodate any precedence-parameterized ATP." and use "Vampire" instead of "ATP" in sections that follow.}
+we assume a fixed %\gls{fol} 
+\gls{atp} that uses the superposition calculus with a simplification ordering parameterized by a symbol precedence.
+\todo[author=Filip]{Consider different approach: "For the discussion that follows,
+we assume that Vampire is used. We keep the discussion general enough to accommodate any precedence-parameterized ATP."
+and use "Vampire" instead of "ATP" in sections that follow.}
 While the practical experiments described in \autoref{sec:evaluation} use the \gls{atp} \gls{vampire} \cite{Kovacs2013},
-\todo[author=Filip]{Remove if we end up omitting practical experiments.}
+% \todo[author=Filip]{Remove if we end up omitting practical experiments.}
 the model architecture does not assume a particular \gls{atp}
 and is compatible with any superposition-based \gls{atp} such as \gls{vampire} or E \cite{SCV:CADE-2019}.
+% 
+Within the prover a particular saturation strategy is fixed including a time limit.
+If the prover runs out of time before solving a problem, we obtain \(\AbstractTime(P,\pi_P) = \bot\).
 
-Furthermore, we fix the problem-agnostic strategy parameters of the chosen \gls{atp}.
-The parameters may specify for example a literal comparison mode, a saturation algorithm
-\todo[author=Filip]{Are these examples or their terminology too specific for Vampire? Can we expect the reader to understand them?}
-and a time limit.
-We specifically assume that a finite time limit is used
-because some proof searches may take too long for practical use\cite{?}
-and we need to handle such searches gracefully.
+
+%The parameters may specify for example a literal comparison mode, a saturation algorithm
+%\todo[author=Filip]{Are these examples or their terminology too specific for Vampire? Can we expect the reader to understand them?}
+
+% We specifically assume that a finite time limit is used
+% because some proof searches may take too long for practical use\cite{?}
+% and we need to handle such searches gracefully.
 % Note that an ATP that is complete is guaranteed to halt on a solvable problem.
 % However, the solving time may vary greatly across the precedences.
 
-\todo[inline,author=Filip]{Consider: Mention that we need to call the configured ATP to clausify the problem so that we know all the symbols including Tseitin and Skolem.}
+% \todo[inline,author=Filip]{Consider: Mention that we need to call the configured ATP to clausify 
+% the problem so that we know all the symbols including Tseitin and Skolem.}
 
 \newpage
 
@@ -225,9 +232,7 @@ What is common to basically all manually designed schemes, is that they pick a c
 (here it is symbol the frequency, i.e.~the number of occurrences of the symbol in the given problem)
 and obtain a precedence by \emph{sorting} the symbols using that property.
 
-
 \newpage
-
 
 % each problem has it's own signature, so the precedences is a problems specific beast and ...
 % 
