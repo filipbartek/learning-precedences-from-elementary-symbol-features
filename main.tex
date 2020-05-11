@@ -375,7 +375,7 @@ Let a \gls{pairwise-preference-function}
 \todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
 \(\pref_P : \Sigma \times \Sigma \rightarrow \re\)
 assign a value to each pair of symbols in problem \(P = (\Sigma, \clauses)\).
-We define \emph{proxy cost of precedence \(\pi_P\) under preference \(\pref_P\)}
+We define the \emph{proxy cost of precedence \(\pi_P\) under preference \(\pref_P\)}
 to be the sum of the preference values of all symbol pairs \(s_i, s_j\)
 ordered by \(\pi_P\) such that \(s_i\) comes before \(s_j\):
 
@@ -383,53 +383,27 @@ ordered by \(\pi_P\) such that \(s_i\) comes before \(s_j\):
 \CostProxy(\pi_P, \pref_P) = \sum_{i, j: \inv{\pi_P}(i) < \inv{\pi_P}(j)} \pref_P(s_i, s_j)
 = \sum_{i, j} \OrderMatrix(\pi_P)_{i, j} \cdot \pref_P(s_i, s_j)
 \end{align*}
-
-We consider the preference function \(\pref_P\) perfect if
-minimizing the corresponding proxy cost yields a precedence that minimizes the standardized cost:
-
-\begin{align*}
-\CostStd \left ( \argmin_{\pi_P} \CostProxy(\pi_P, \pref_P) \right ) = \min_{\pi_P} \CostStd(\pi_P)
-\end{align*}
-
-We define loss of preference function \(\pref_P\) on problem \(P\) in the following way:
-
-\begin{align*}
-\mathit{loss}(\pref_P, P) = \CostStd \left ( \argmin_{\pi_P} \CostProxy(\pi_P, \pref_P) \right ) - \min_{\pi_P} \CostStd(\pi_P)
-\end{align*}
-
-\todo[author=Filip,inline]{Continue writing here. Replace the rest of this section.}
-
-Let the \gls{pairwise-preference-function}
-\todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
-\(\pref_P : \Sigma \times \Sigma \rightarrow \re\)
-assign a preference value to each pair of symbols in problem \(P = (\Sigma, \clauses)\):
-a high value of \(\pref_P(s, t)\) corresponds to a long expected proof search time
-if a precedence that orders \(s\) before \(t\) is used.
-Furthermore, let the absolute value of \(\pref_P(s, t)\)
-correspond to the expected magnitude of impact of the mutual order of \(s\) and \(t\).
-Namely, \(\pref_P(s, t) = 0\) means that the mutual order of \(s\) and \(t\)
-has no impact on the length of the proof search.
-
-We proceed to relax the general task of finding a good precedence
-to the task of finding a good pairwise preference function.
-Once we have such function,
-we will be interested in finding a precedence \(\pi_P\) that minimizes the cumulative preference value:
-
-\begin{align*}
-\CostProxy(\pi_P) = \sum_{i, j: \inv{\pi_P}(i) < \inv{\pi_P}(j)} \pref_P(s_i, s_j)
-= \sum_{i, j} \OrderMatrix(\pi_P)_{i, j} \cdot \pref_P(s_i, s_j)
-\end{align*}
 \todo[author=Filip]{Is it not too confusing to have two expressions?}
 \todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy cost seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
 
-While the problem of minimizing \(\CostProxy(\pi_P)\) given an arbitrary \(\pref_P\) is NP-hard,
-a greedy 2-approximation algorithm exists.\cite{Cohen2011}
+We define \emph{estimation error}
+% Source: https://cw.fel.cvut.cz/b191/_media/courses/be4m33ssu/erm2_ws2019.pdf
+of preference function \(\pref_P\) to be a measure
+of how well \(\pref_P\) functions as a proxy for finding an optimum precedence:
+
+\begin{align*}
+E(\pref_P) = \CostStd \left ( \argmin_{\pi_P} \CostProxy(\pi_P, \pref_P) \right ) - \min_{\pi_P} \CostStd(\pi_P)
+\end{align*}
+
+If we had access to a preference function with low estimation error,
+we could attempt to use it to construct a good symbol precedence
+by minimizing the corresponding proxy cost.
+While the problem of finding a \(\pi_P\) that minimizes \(\CostProxy(\pi_P, \pref_P)\)
+for a fixed \(\pref_P\) is in general NP-hard, a greedy 2-approximation algorithm exists. \cite{Cohen2011}
 \todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?}
 
-Note that each of the precedence heuristics implemented in Vampire minimizes \(\CostProxy\)
-for a particular \(\pref\).
-\todo[author=Filip]{Discuss in more detail.}
-\todo[inline,author=Filip]{Do we really cover all Vampire heuristics? How about \texttt{occurrence}, \texttt{scramble}, \texttt{weighted\_frequency}, \texttt{reverse\_weighted\_frequency}? What about \texttt{--symbol\_precedence\_boost}?}
+In the sections that follow we will describe how to find a general function \(\pref\)
+that approximates a good \(\pref_P\) for a class of problems.
 
 \subsection{Preference learning as supervised machine learning}
 
@@ -502,6 +476,12 @@ Generalized preference regressor is trained on samples of the following structur
 	\item Input: Embedding of a symbol pair \(p, q\) in problem \(P\)
 	\item Target: \(\pref(p, q)\) -- an element of the preference matrix we learned for problem \(P\)
 \end{itemize}
+
+Note here that each of the precedence heuristics implemented in Vampire
+minimizes \(\CostProxy\) for a particular \(\pref\).
+\todo[inline,author=Filip]{Fix this statement so that it makes sense.}
+\todo[inline,author=Filip]{Discuss in more detail.}
+\todo[inline,author=Filip]{Do we really cover all Vampire heuristics? How about \texttt{occurrence}, \texttt{scramble}, \texttt{weighted\_frequency}, \texttt{reverse\_weighted\_frequency}? What about \texttt{--symbol\_precedence\_boost}?}
 
 \subsubsection{Sample weighting}
 
