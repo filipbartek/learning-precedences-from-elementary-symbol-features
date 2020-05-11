@@ -150,10 +150,14 @@ defined in the following manner:
 \begin{align*}
 \OrderMatrix(\pi)_{i, j} = \indicator{\inv{\pi}(i) < \inv{\pi}(j)}
 \end{align*}
-\todo[author=Filip]{Explain indicator.}
 
-For a predicate precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) indicates that
-the precedence \(\pi_P\) orders predicate \(p_i\) before predicate \(p_j\).
+We use \(\indicator{P}\) to denote the Iverson bracket \cite{Iverson1962} applied to proposition \(P\),
+evaluating to 1 if \(P\) is true, and 0 otherwise.
+% In \citet{Iverson1962}, the expression is called "relational statement".
+
+Namely for a predicate precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) if
+the precedence \(\pi_P\) orders predicate \(p_i\) before predicate \(p_j\),
+and \(O(\pi_P)_{i, j} = 0\) otherwise.
 
 \paragraph{Flattened matrix}
 Given a matrix \(M\) of size \(n \times n\),
