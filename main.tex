@@ -133,7 +133,7 @@ relying on the ordering on \(\Sigma\) determined by a precedence \(\pi_P\) to co
 	finitely saturating the set of clauses \(\clauses\) without deriving the contradiction,
 	in which case \(P\) is shown \emph{satisfiable}.\footnote{We assume a \emph{refutationally complete} strategy.}	
 \end{itemize}
-In both cases, we take the number of iterations of the emplyed saturation algorithm (see, e.g., \cite{DBLP:journals/jsc/RiazanovV03} for an overview) as a measure of effort that the \gls{atp} took to solve the problem.
+In both cases, we take the number of iterations of the employed saturation algorithm (see, e.g., \citet{DBLP:journals/jsc/RiazanovV03} for an overview) as a measure of effort that the \gls{atp} took to solve the problem.
 We will refer to this measure as the \emph{abstract solving time} and denote it \(\mathit{ast}(P,\pi_P)\).\footnote{
 The advantage of using abstract solving time is that it does not depend on the used hardware.}
 
@@ -237,7 +237,7 @@ Given a problem \(P = (\Sigma,\clauses)\) with \(|\Sigma|=n\), we consider a pre
 if it leads to a low \(\mathit{ast}(P,\pi_P)\) among the $n!$ possible precedences for \(P\).
 % ze n! je super large -> almost infinite source of data (for non-trivial n)
 Note that for problems with a signature with more than a few symbols, repeatedly running the prover 
-with random precedences represent an effectively infinite source of training data. 
+with random precedences represents an effectively infinite source of training data.
 
 Ideally, we would like to learn general theorem proving knowledge, not too dependent on $\mathcal{P}$,
 which could be later explained and compared to precedence generation schemes manually designed 
@@ -306,8 +306,8 @@ We might want our system to also learn a certain property of symbols and use sor
 % - we use abstract time as the basic measure
 % (why not actual time to solve a problem? Unstable, abstract time is machine independent and still correlates well)
 
-% - zmin konkretni stratgie, kterou pouzivame a variu-eme v ni pouze predikatovou precendenci
-% (vcetne toho, ze funknci precedenci fixujeme na frequency)
+% - zmin konkretni stratgii, kterou pouzivame a variujeme v ni pouze predikatovou precendenci
+% (vcetne toho, ze funkcni precedenci fixujeme na frequency)
 
 
 
