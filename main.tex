@@ -84,18 +84,6 @@ the ideally optimal precedence $\pi^*$ according to this model.
 % 2) normalization
 % 3) learning to order things
 
-% ze n! je super large -> almost infinite source of data (for non-trivial n)
-
-% ----
-
-% Zastrc nekam dozadu na pozdeji
-
-% - we use abstract time as the basic measure
-% (why not actual time to solve a problem? Unstable, abstract time is machine independent and still correlates well)
-
-% - zmin konkretni stratgie, kterou pouzivame a variujeme v ni pouze predikatovou precendenci
-% (vcetne toho, ze funknci precedenci fixujeme na frequency)
-
 \newpage
 
 \section{Preliminaries}
@@ -136,7 +124,7 @@ In this work, we assume that a theorem prover uses a simplification ordering fro
 relying on the ordering on \(\Sigma\) determined by a precedence \(\pi_P\) to construct such a simplification ordering.
 
 \paragraph{Performance measure} A saturation-based \gls{atp} \emph{solves} a problem \(P = (\Sigma,\clauses)\)
-(under a particular strategy which also determines a symbol precedence \(\pi_P\))  by either
+(under a particular fixed strategy and a determined symbol precedence \(\pi_P\))  by either
 \begin{itemize}
 \item
 	deriving from \(\clauses\) a contradiction in the form of the empty clause,
@@ -146,7 +134,8 @@ relying on the ordering on \(\Sigma\) determined by a precedence \(\pi_P\) to co
 	in which case \(P\) is shown \emph{satisfiable}.\footnote{We assume a \emph{refutationally complete} strategy.}	
 \end{itemize}
 In both cases, we take the number of iterations of the emplyed saturation algorithm (see, e.g., \cite{DBLP:journals/jsc/RiazanovV03} for an overview) as a measure of effort that the \gls{atp} took to solve the problem.
-We will refer to this measure as the \emph{abstract solving time} and denote it \(\mathit{ast}(P,\pi_P)\).
+We will refer to this measure as the \emph{abstract solving time} and denote it \(\mathit{ast}(P,\pi_P)\).\footnote{
+The advantage of using abstract solving time is that it does not depend on the used hardware.}
 
 In practice, an \gls{atp} can also run out of resources, typically out of the allocated time.
 In that case, the abstract solving time is \emph{undefined}: \(\mathit{ast}(P,\pi_P) = \bot\).
@@ -237,8 +226,92 @@ Value close to zero means that the order of symbols \(P_0\) and \(P_1\) has no e
 
 \Gls{preference-matrix} is a square matrix populated with preference values of all the pairs of symbols.
 
+\newpage
+
 \section{Architecture}
 \label{sec:architecture}
+
+The aim of this work is to design a system that learns to suggest good symbol precedences to an ATP 
+from observations of the ATP's performance on a class $\mathcal{P}$ of problems with randomly sampled precedences. 
+Given a problem \(P = (\Sigma,\clauses)\) with \(|\Sigma|=n\), we consider a precedence \(\pi_P\) good 
+if it leads to a low \(\mathit{ast}(P,\pi_P)\) among the $n!$ possible precedences for \(P\).
+% ze n! je super large -> almost infinite source of data (for non-trivial n)
+Note that for problems with a signature with more than a few symbols, repeatedly running the prover 
+with random precedences represent an effectively infinite source of training data. 
+
+Ideally, we would like to learn general theorem proving knowledge, not too dependent on $\mathcal{P}$,
+which could be later explained and compared to precedence generation schemes manually designed 
+by the prover developers. Let us quickly recall one such scheme, already mentioned in the introduction,
+called \texttt{invfreq} in E \cite{SCV:CADE-2019}. The prover's manual \cite{E-manual} explains:
+\begin{quote}
+Sort symbols by frequency (frequently occurring symbols are smaller).
+\end{quote}
+What is common to basically all manually designed schemes, is that they pick a certain scalar property of symbols 
+% information retrieval terminology
+(here it is symbol the frequency, i.e.~the number of occurrences of the symbol in the given problem)
+and obtain a precedence by \emph{sorting} the symbols using that property.
+
+
+\newpage
+
+
+% each problem has it's own signature, so the precedences is a problems specific beast and ...
+% 
+
+
+
+
+
+
+
+
+
+We might want our system to also learn a certain property of symbols and use sorting to generate and suggest a precedence. However, 
+
+
+
+
+% computational complexity considerations
+
+
+
+
+% Challenges to define the flow
+
+% 1) - characterise a precedence, a permutation of a finite set of symbols, by a real-valued feature vector
+% 2) - across problems we need to do it in a way which does not presuppose a fixed signature size
+
+% learning pairwise preferences
+
+% 3) - some problems may be easy to solve for almost every precedence and others hard.
+% In theorem proving, running times typically vary considerably.
+
+%) standardization (log scale & centering)
+
+%4) - regression model ready to predict the prover's performance 
+% under a particular precedence $\pi$, we still need solve the task of finding 
+% the ideally optimal precedence $\pi^*$ according to this model.
+
+% ---> learning to order things (greedy), 
+% hillclimb - from greedy, from random (try many times)
+
+
+
+
+
+% ----
+
+% Zastrc nekam dozadu na pozdeji
+
+% - we use abstract time as the basic measure
+% (why not actual time to solve a problem? Unstable, abstract time is machine independent and still correlates well)
+
+% - zmin konkretni stratgie, kterou pouzivame a variu-eme v ni pouze predikatovou precendenci
+% (vcetne toho, ze funknci precedenci fixujeme na frequency)
+
+
+
+\newpage
 
 \subsection{Main goals}
 
