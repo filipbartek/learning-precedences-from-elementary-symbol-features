@@ -102,10 +102,10 @@ We use this section to recall and formalize the key notions relevant for our wor
 % Regression algorithms; (Maybe not here yet: we do it in Python - scikitlearn, numpy, \ldots)
 
 \paragraph{Problem}
-A \emph{(first-order) problem} is a pair \(P = (\Sigma, \clauses)\),
-where \(\Sigma = (s_1, s_2, \ldots, s_n)\) is a list of (predicate and function) symbols called the \emph{signature},
+A \emph{(first-order) problem} is a pair \(P = (\symbols, \clauses)\),
+where \(\symbols = (s_1, s_2, \ldots, s_n)\) is a list of (predicate and function) symbols called the \emph{signature},
 and \(\clauses\) is a set of first-order
-clauses built over the symbols of \(\Sigma\).
+clauses built over the symbols of \(\symbols\).
 % This is where we assume familiarity with FOL.
 
 The problem is either given directly by the user or 
@@ -116,9 +116,9 @@ and which occurred in the conjecture (if it was present).
 % \todo[author=Filip]{Mention that we also know which clauses form the conjecture. We use this in the feature \texttt{inGoal}.}
 
 \paragraph{Precedence}
-Given a problem \(P = (\Sigma, \clauses)\) with \(\Sigma = (s_1, s_2, \ldots, s_n)\),
+Given a problem \(P = (\symbols, \clauses)\) with \(\symbols = (s_1, s_2, \ldots, s_n)\),
 a precedence \(\pi_P\) is a permutation, i.e.~a bijective mapping, of the set of indices \(\{1,\ldots,n\}\).
-A precedence \(\pi_P\) \emph{determines} a (total) ordering on \(\Sigma\) as follows:
+A precedence \(\pi_P\) \emph{determines} a (total) ordering on \(\symbols\) as follows:
 % The word "determines" is emphasized because it is being defined.
 \(s_{\pi_P(1)} < s_{\pi_P(2)} < \ldots < s_{\pi_P(n)}.\)
 
@@ -127,11 +127,11 @@ employed by modern saturation-based theorem provers. The two classes of simplifi
 % \todo[author=Filip]{Why do we believe they are most commonly used in practice? Can we cite some source?}
 the \acrlongpl{kbo} \cite{Knuth1983} and the \acrlongpl{lpo} \cite{Kamin1980}, are both defined in terms 
 of a user-supplied (possibly partial) ordering $<$ %(typically also called the precedence) 
-on the given problem's signature \(\Sigma\).
+on the given problem's signature \(\symbols\).
 In this work, we assume that the theorem prover\todo[author=Filip]{Which theorem prover?}{} uses a simplification ordering from one of these two classes
-relying on the ordering on \(\Sigma\) determined by a precedence \(\pi_P\) to construct such a simplification ordering.
+relying on the ordering on \(\symbols\) determined by a precedence \(\pi_P\) to construct such a simplification ordering.
 
-\paragraph{Performance measure} A saturation-based \gls{atp} \emph{solves} a problem \(P = (\Sigma,\clauses)\)
+\paragraph{Performance measure} A saturation-based \gls{atp} \emph{solves} a problem \(P = (\symbols,\clauses)\)
 (under a particular fixed strategy and a determined symbol precedence \(\pi_P\))  by either
 \begin{itemize}
 \item
@@ -214,7 +214,7 @@ If the prover runs out of time before solving a problem, we obtain \(\AbstractTi
 
 The aim of this work is to design a system that learns to suggest good symbol precedences to an ATP 
 from observations of the ATP's performance on a class $\mathcal{P}$ of problems with randomly sampled precedences. 
-Given a problem \(P = (\Sigma,\clauses)\) with \(|\Sigma|=n\), we consider a precedence \(\pi_P\) good 
+Given a problem \(P = (\symbols,\clauses)\) with \(|\symbols|=n\), we consider a precedence \(\pi_P\) good
 if it leads to a low \(\mathit{ast}(P,\pi_P)\) among the $n!$ possible precedences for \(P\).
 % ze n! je super large -> almost infinite source of data (for non-trivial n)
 Note that for problems with a signature with more than a few symbols, repeatedly running the prover 
@@ -376,8 +376,8 @@ after the scaling and standardization.
 
 Let a \gls{pairwise-preference-function}
 % \todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
-\(\pref_P : \Sigma \times \Sigma \rightarrow \re\)
-assign a value to each pair of symbols in problem \(P = (\Sigma, \clauses)\).
+\(\pref_P : \symbols \times \symbols \rightarrow \re\)
+assign a value to each pair of symbols in problem \(P = (\symbols, \clauses)\).
 We define the \emph{proxy cost of precedence \(\pi_P\) under preference \(\pref_P\)}
 to be the sum of the preference values of all symbol pairs \(s_i, s_j\)
 ordered by \(\pi_P\) such that \(s_i\) comes before \(s_j\):
