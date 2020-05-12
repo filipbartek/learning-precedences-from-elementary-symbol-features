@@ -22,8 +22,8 @@ past successful and unsuccessful runs of a theorem prover over a set of problems
 Moreover, it uses a small set of simple human-engineered symbol features as the sole
 basis for discriminating the symbols. This allows for a direct comparison
 with precedence generation schemes designed by prover developers.
-\todo[author=Martin]{Let's add this when we have the results finalized:
-Training a linear model converges to ordering the symbols by the number of their occurrences.}
+% \todo[author=Martin]{Let's add this when we have the results finalized:
+% Training a linear model converges to ordering the symbols by the number of their occurrences.}
 \end{abstract}
 
 \section{Introduction}
@@ -79,12 +79,12 @@ Finally, even with a regression model ready to predict the prover's performance
 under a particular precedence $\pi$, we still need solve the task of finding 
 the ideally optimal precedence $\pi^*$ according to this model.
 
+\todo[inline]{Martin, write one more paragraph here.}
+
 % Final paragraph, with forward reference, explains how we tackle the challenges and where it is explained
 % 1) preference values
 % 2) normalization
 % 3) learning to order things
-
-\newpage
 
 \section{Preliminaries}
 
@@ -128,7 +128,7 @@ employed by modern saturation-based theorem provers. The two classes of simplifi
 the \acrlongpl{kbo} \cite{Knuth1983} and the \acrlongpl{lpo} \cite{Kamin1980}, are both defined in terms 
 of a user-supplied (possibly partial) ordering $<$ %(typically also called the precedence) 
 on the given problem's signature \(\symbols\).
-In this work, we assume that the theorem prover\todo[author=Filip]{Which theorem prover?}{} uses a simplification ordering from one of these two classes
+In this work, we assume that the theorem prover uses a simplification ordering from one of these two classes
 relying on the ordering on \(\symbols\) determined by a precedence \(\pi_P\) to construct such a simplification ordering.
 
 \paragraph{Performance measure} A saturation-based \gls{atp} \emph{solves} a problem \(P = (\symbols,\clauses)\)
@@ -151,7 +151,6 @@ While it may happen that running an \gls{atp} with the same problem and symbol p
 yields a different result each time (namely succeeding one time and failing another time),
 such cases are rare and we ensure they do not interfere with the learning process by caching the results.
 
-\newpage
 
 \paragraph{\Gls{order-matrix}}
 Given a permutation \(\pi\) of the set of indices \(\{1,\ldots,n\}\),
@@ -194,7 +193,6 @@ and is compatible with any superposition-based \gls{atp} such as \gls{vampire} o
 Within the prover a particular saturation strategy is fixed including a time limit.
 If the prover runs out of time before solving a problem, we obtain \(\AbstractTime(P,\pi_P) = \bot\).
 
-
 %The parameters may specify for example a literal comparison mode, a saturation algorithm
 %\todo[author=Filip]{Are these examples or their terminology too specific for Vampire? Can we expect the reader to understand them?}
 
@@ -207,8 +205,6 @@ If the prover runs out of time before solving a problem, we obtain \(\AbstractTi
 % \todo[inline,author=Filip]{Consider: Mention that we need to call the configured ATP to clausify 
 % the problem so that we know all the symbols including Tseitin and Skolem.}
 
-\newpage
-
 \section{Architecture}
 \label{sec:architecture}
 
@@ -218,7 +214,6 @@ The aim of this work is to design a system that learns to suggest good symbol pr
 from observations of the ATP's performance on a class \(\mathcal{P}\) of problems with randomly sampled precedences. 
 Given a problem \(P = (\symbols,\clauses)\) with \(|\symbols|=n\), we consider a precedence \(\pi_P\) good
 if it leads to a low \(\AbstractTime(P,\pi_P)\)
-% \todo[author=Filip]{I replaced the placeholder "x" with ast(). Is this what you had in mind, Martin?}
 among the $n!$ possible precedences for \(P\).
 % ze n! je super large -> almost infinite source of data (for non-trivial n)
 Note that for problems with a signature with more than a few symbols, repeatedly running the prover 
@@ -262,16 +257,25 @@ is that symbols themselves only appear in the context of a particular problem.\f
 On certain benchmarks, such as those coming from translations of mathematical libraries \cite{KaliszykU13b},
 symbols maintain identity and meaning across individual problems. However, since our goal in this work
 is to learn general theorem proving knowledge, we do not use the assumption of aligned signatures.}
-This is the reason why we (have to) use a representation of symbols by their \emph{features}
-when aggregating the learned preferences across different problems (cf. \autoref{sect:embeddings}).
+That is why we (have to) use a representation of symbols by their \emph{features} (cf.~\autoref{sect:embeddings})
+when aggregating the learned preferences across different problems.
+This is in more details explained in \autoref{sect:general}.
+
+We also strive to ensure that the preference values across problems have possibly the same magnitude.
+Note that \(\AbstractTime(P,\pi_P)\) may vary a lot for a fixed problem \(P\) but all the more so across
+problems. To obtain commensurable values we normalise (see \autoref{sec:precedence-valuation}) the prover performance data 
+on a per problem basis before learning the preferences. Normalization also deals with 
+supplying a concrete value to those runs which did not finish, i.e.~have \(\AbstractTime(P,\pi_P) = \bot\).
+
+For the follow-up steps we assume that preferences learned from such normalised data relate to one another
+across problems in a meaningful way.
+
+\paragraph{Second-level regression}
 
 
+\paragraph{Reconstruction}
 
-
-% commensurable values
-
-
-
+\paragraph{``Learning to order things''}
 
 
 
@@ -322,6 +326,8 @@ when aggregating the learned preferences across different problems (cf. \autoref
 
 \newpage
 
+\iffalse
+
 \subsection{Main goals}
 \todo[inline,author=Filip]{Remove this section if most of its content has been included in other sections. This section seems unwieldy.}
 
@@ -345,6 +351,8 @@ We strive to create a system that satisfies the following properties:
 \end{itemize}
 
 \todo[inline,author=Filip]{Should we mention the following side goal? "Make it possible to backpropagate gradient to the input features for future GNN training."}
+
+\fi
 
 \subsection{Values of precedences}
 \label{sec:precedence-valuation}
@@ -432,9 +440,12 @@ by linear regression.
 
 We use the Lasso regression algorithm \cite{Tibshirani1996} instead of standard linear regression
 to improve generalization.
-\todo[author=Filip]{I think we should use RidgeCV or ElasticNetCV instead because they minimize L2 norm, while lasso only minimizes L1 norm.}
-We use cross-validation to set the value of the regularization hyperparameter.\footnote{See the model \texttt{LassoCV} in the machine learning library scikit-learn. \cite{scikit-learn}}
-\todo[author=Filip]{Don't we need to use the same value of regularization parameter in order for the preference matrix values to be comparable across problems?}
+%\todo[author=Filip]{I think we should use RidgeCV or ElasticNetCV instead because they minimize L2 norm, while lasso only minimizes L1 norm.
+%Martin: also worth trying out experimentally.}
+We use cross-validation to set the value of the regularization hyperparameter.\footnote{See the model \texttt{LassoCV} in the machine learning library scikit-learn \cite{scikit-learn}.}
+%\todo[author=Filip]{Don't we need to use the same value of regularization parameter in order 
+%for the preference matrix values to be comparable across problems?
+%Martin: A good point. Something to experiment with in the future.}
 Another reason to use the Lasso algorithm is that it performs regularization
 by imposing a penalty on coefficients with large absolute value,
 effectively shrinking the coefficients that correspond to symbol pairs
@@ -445,10 +456,14 @@ as a measure of importance of a given symbol pair.
 In the following sections we assume that the preference matrix \(W_P\) we find by linear regression
 yields \(\CostProxy\) that approximates \(\CostStd\) well.
 
-\todo[inline,author=Filip]{Discuss: We assume that the overall cost is a sum of contributions of symbol pairs. This assumption may be too strong but we proceed with it anyway.}
+% \todo[inline,author=Filip]{Discuss: We assume that the overall cost is a sum of contributions of symbol pairs. This assumption may be too strong but we proceed with it anyway. Martin: already mentioned informally in the overview.}
 
+<<<<<<< HEAD
 \subsection{General preference matrix learning}
 \label{sec:general-preference}
+=======
+\subsection{General preference matrix learning}  \label{sect:general}
+>>>>>>> neco
 
 We proceed to cast the task of finding a good preference matrix \(W_P\)
 for an arbitrary problem as a regression on feature vector representations of symbol pairs.
@@ -479,7 +494,7 @@ indicator of being produced during skolemization. % skolem
 This choice of symbol features is motivated by the fact that they
 are readily available in the \gls{atp} \gls{vampire}
 and that they suffice as a basis for common precedence generation schemes,
-namely the \texttt{invfreq} scheme.
+such as the \texttt{invfreq} scheme.
 
 We represent a pair of symbols by the concatenation of their feature vectors.
 \todo[inline,author=Filip]{Make sure that problem embedding is omitted from symbol pair embedding in the experiment.}
@@ -494,22 +509,23 @@ The general preference regressor is trained on samples of the following structur
 \end{itemize}
 
 We sample problem \(P\) from the training problem set with uniform probability.
-\todo[author=Filip]{Actually we immediately exclude problems whose preference matrix is all-zero.}
+%\todo[author=Filip]{Actually we immediately exclude problems whose preference matrix is all-zero.
+%Martin: I think it is fine not to say this and still do it that way.}
 
 Thanks to how \(W_P\) is constructed (see \autoref{sect:preferences}),
 preference values close to 0 are associated with symbol pairs whose mutual order has little effect
 on the outcome of the proof search.
 To focus the training on the symbol pairs whose order does matter,
-we weight the samples by the absolute target value.
-
-Experiments show that using sample weighting
+we weight the samples by the absolute value of the target.
+%
+Preliminary experiments have shown that using sample weighting
 improves the performance of the resulting model.
 
 % Result data file: sftp://cluster.ciirc.cvut.cz/home/bartefil/git/vampire-ml/map-reduce/predicate-100-1000/2020-05-08_20-49-14/reduce/fit_cv_results.csv
 % Rows where params is {} or {weighted: False} show impact of sample weighting (both problem and symbol pair).
 % Disabling weighting leads to collapse of fitted coefficients, as demonstrated in feature_weights.csv.
 
-\todo[inline,author=Filip]{Will we use problem weighting after all? It is more difficult to justify...}
+% \todo[inline,author=Filip]{Will we use problem weighting after all? It is more difficult to justify...}
 
 \subsection{Precedence construction}
 
