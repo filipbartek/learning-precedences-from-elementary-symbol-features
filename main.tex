@@ -237,7 +237,7 @@ and obtain a precedence by \emph{sorting} the symbols using that property.
 
 We might want our system to also learn a certain property of symbols and use sorting to generate and suggest a precedence. 
 However, it is not clear how to ``extract'' such property from the observed data, since we only have 
-access to learning values for full precedences. Our idea for ``decomposing'' these values into pieces 
+access to the target values for full precedences. Our idea for ``decomposing'' these values into pieces 
 that somehow relate to individual symbols (and can thus be ``transferred'' across problems) is to take a detour using symbol pairs:
 we assume that the performance of the ATP on \(P\) given \(\pi_P\), i.e.~our measure $\AbstractTime(P,\pi_P)$, can be predicted 
 from a sum of individual contributions corresponding to facts of the form 
@@ -261,81 +261,44 @@ symbols maintain identity and meaning across individual problems. However, since
 is to learn general theorem proving knowledge, we do not use the assumption of aligned signatures.}
 That is why we (have to) use a representation of symbols by their \emph{features} (cf.~\autoref{sect:embeddings})
 when aggregating the learned preferences across different problems.
-This is in more details explained in \autoref{sect:general}.
+This is in more details explained further below and, formally, in \autoref{sect:general}.
 
 We also strive to ensure that the preference values across problems have possibly the same magnitude.
 Note that \(\AbstractTime(P,\pi_P)\) may vary a lot for a fixed problem \(P\) but all the more so across
-problems. To obtain commensurable values we normalise (see \autoref{sec:precedence-valuation}) the prover performance data 
+problems. To obtain commensurable values, we normalise (see \autoref{sec:precedence-valuation}) the prover performance data 
 on a per problem basis before learning the preferences. Normalization also deals with 
 supplying a concrete value to those runs which did not finish, i.e.~have \(\AbstractTime(P,\pi_P) = \bot\).
 
 For the follow-up steps we assume that preferences learned from such normalised data relate to one another
 across problems in a meaningful way.
 
-\paragraph{Second-level regression}
+\paragraph{``Second-order'' regression}
 Once the symbols are abstracted by their feature vectors, we can collect symbol preferences from all the tested problems
 and turn this collection into another regression task. 
-Note that at this moment, the preferences which were obtained as coefficient of linear regression
-themselves become a regression target. In a certain sense, 
+Note that at this moment, the preferences, which were obtained as the coefficients learned by linear regression,
+themselves become the regression target. Thus, in a certain sense, we now do second-order learning.
+It should be stressed that while the learning of the preferences \emph{requires} a linear regression model by design,
+this second-order regression does not need to be linear and more sophisticated models can be experimented with. 
 
+The details of this step are given in \autoref{sec:general-preference}.
 
+\paragraph{Preference prediction and optimization} Once the second-oder model has been learned, we can predict 
+preferences for any pair of symbols based on their feature vectors and thus also predict,
+given a problem $P$, how many steps will a prover require to solve it using a particular precedence $\pi_P$.
+(For this second step, we reverse the idea of decomposition:
+we sum up those predicted preferences that correspond to pairs of symbols $s_i,s_j$
+such that $\pi_P$ orders the symbol $s_i$ before the symbol $s_j$ -- see \autoref{sect:construction} for details).
 
-
-
-
-
-\paragraph{Reconstruction}
-
-\paragraph{``Learning to order things''}
-
-
-
-\newpage
-
-
-
-
-
-% each problem has it's own signature, so the precedences is a problems specific beast and ...
- 
-
-
-
-% computational complexity considerations
-
-
-
-
-% Challenges to define the flow
-
-% 1) - characterise a precedence, a permutation of a finite set of symbols, by a real-valued feature vector
-% 2) - across problems we need to do it in a way which does not presuppose a fixed signature size
-
-% learning pairwise preferences
-
-% 3) - some problems may be easy to solve for almost every precedence and others hard.
-% In theorem proving, running times typically vary considerably.
-
-%) standardization (log scale & centering)
-
-%4) - regression model ready to predict the prover's performance 
-% under a particular precedence $\pi$, we still need solve the task of finding 
-% the ideally optimal precedence $\pi^*$ according to this model.
+Having access to an estimate of performance for each precedence $\pi_P$, the final step 
+is to look for a precedence $\pi^*_P$ that ideally minimises the predicted performance measure 
+over all the $n!$ possible precedences on $P$'s signature. Since finding the true
+optimum could be computationally hard, we resort to using an approximation algorithm by \citet{Cohen2011}.
+The algorithm is recalled in \autoref{sect:ltot}.
 
 % ---> learning to order things (greedy), 
 % hillclimb - from greedy, from random (try many times)
 
-
-
-
-
-
-% - zmin konkretni stratgii, kterou pouzivame a variujeme v ni pouze predikatovou precendenci
-% (vcetne toho, ze funkcni precedenci fixujeme na frequency)
-
-
-
-\newpage
+% computational complexity considerations
 
 \iffalse
 
@@ -469,12 +432,8 @@ yields \(\CostProxy\) that approximates \(\CostStd\) well.
 
 % \todo[inline,author=Filip]{Discuss: We assume that the overall cost is a sum of contributions of symbol pairs. This assumption may be too strong but we proceed with it anyway. Martin: already mentioned informally in the overview.}
 
-<<<<<<< HEAD
 \subsection{General preference matrix learning}
 \label{sec:general-preference}
-=======
-\subsection{General preference matrix learning}  \label{sect:general}
->>>>>>> neco
 
 We proceed to cast the task of finding a good preference matrix \(W_P\)
 for an arbitrary problem as a regression on feature vector representations of symbol pairs.
@@ -537,17 +496,26 @@ improves the performance of the resulting model.
 
 % \todo[inline,author=Filip]{Will we use problem weighting after all? It is more difficult to justify...}
 
-\subsection{Precedence construction}
+\subsection{Precedence construction} \label{sect:construction}
 
 When presented a new problem, we construct a predicate precedence by
-first evaluating the general preference regressor for all pairs of symbols,
+first evaluating the general preference regressor for all pairs of symbols, 
+\todo[inline]{Martin: tady si to zaslouzi rozepsat lepe! 
+Ze vytvarime zbrusu novou matici $W_P$, kterou jeste nikdo nevidel.
+Ze buchom ji mohli pouzit na predikovani vykonu jednotlivych precedenci,
+ale ze mi ted chceme tu nejlepsi, kterou umi.}
 and then using a greedy algorithm described in \citet{Cohen2011}
 to construct the precedence using these estimates of preference values.
 While the problem of finding the optimum \(\pi_P\) given a \(W_P\) is NP-hard in general,
 the greedy algorithm is 2-approximation.
 In this manner we find a \(\pi_P\) that approximately minimizes \(\CostProxy(\pi_P)\).
+
+\subsubsection{Learning to Order Things} \label{sect:ltot}
+
+\todo[inline]{Martin: Slibil jsem (mini-)sekci, kde se vysvetli LToT.}
+
 \todo[author=Filip]{Too strong claim?}
-\todo[author=Martin]{Kdyz bude cas, trochu rozepsat, aby lidi taky meli radost, ze existuje LtOT.}
+\todo[author=Martin]{Trochu rozepsat, aby lidi taky meli radost, ze existuje LtOT.}
 \todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
 	Martin: tak napisme, ze jinak musime projit $n!$ moznosti...}
 \todo[inline,author=Filip]{Prove: If pref over embeddings is a sum of fl(l) and fr(r), then we can find optimum pi in linear time. This holds namely if pref is linear.}
