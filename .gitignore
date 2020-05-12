@@ -1,3 +1,6 @@
+*.bak
+*.orig
+
 # EasyChair class style
 easychair.zip
 easychair.cls
