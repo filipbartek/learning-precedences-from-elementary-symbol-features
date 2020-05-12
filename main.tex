@@ -157,9 +157,9 @@ Given a permutation \(\pi\) of the set of indices \(\{1,\ldots,n\}\),
 the \gls{order-matrix} \(\OrderMatrix(\pi)\) is a binary matrix of size \(n \times n\)
 defined in the following manner:
 \begin{align*}
-\OrderMatrix(\pi)_{i, j} = \indicator{\inv{\pi}(i) < \inv{\pi}(j)},
+\OrderMatrix(\pi)_{i, j} = \iverson{\inv{\pi}(i) < \inv{\pi}(j)},
 \end{align*}
-where we use \(\indicator{P}\) to denote the Iverson bracket \cite{Iverson1962} applied to proposition \(P\),
+where we use \(\iverson{P}\) to denote the Iverson bracket \cite{Iverson1962} applied to proposition \(P\),
 evaluating to 1 if \(P\) is true, and 0 otherwise.
 % In \citet{Iverson1962}, the expression is called "relational statement".
 %
