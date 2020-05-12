@@ -86,6 +86,8 @@ the ideally optimal precedence $\pi^*$ according to this model.
 % 2) normalization
 % 3) learning to order things
 
+To the best of our knowledge, we are the first to try this (high risk high gain)
+
 \section{Preliminaries}
 
 \subsection{Terminology}
@@ -271,6 +273,15 @@ For the follow-up steps we assume that preferences learned from such normalised 
 across problems in a meaningful way.
 
 \paragraph{Second-level regression}
+Once the symbols are abstracted by their feature vectors, we can collect symbol preferences from all the tested problems
+and turn this collection into another regression task. 
+Note that at this moment, the preferences which were obtained as coefficient of linear regression
+themselves become a regression target. In a certain sense, 
+
+
+
+
+
 
 
 \paragraph{Reconstruction}
