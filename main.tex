@@ -217,7 +217,9 @@ If the prover runs out of time before solving a problem, we obtain \(\AbstractTi
 The aim of this work is to design a system that learns to suggest good symbol precedences to an ATP 
 from observations of the ATP's performance on a class \(\mathcal{P}\) of problems with randomly sampled precedences. 
 Given a problem \(P = (\symbols,\clauses)\) with \(|\symbols|=n\), we consider a precedence \(\pi_P\) good
-if it leads to a low x among the $n!$ possible precedences for \(P\).
+if it leads to a low \(\AbstractTime(P,\pi_P)\)
+\todo[author=Filip]{I replaced the placeholder "x" with ast(). Is this what you had in mind, Martin?}
+among the $n!$ possible precedences for \(P\).
 % ze n! je super large -> almost infinite source of data (for non-trivial n)
 Note that for problems with a signature with more than a few symbols, repeatedly running the prover 
 with random precedences represents an effectively infinite source of training data.
