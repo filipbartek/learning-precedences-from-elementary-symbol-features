@@ -374,9 +374,8 @@ We further normalize the cost values by the following operations:
 Let \(\CostStd(\pi_P)\) denote the resulting cost value of permutation \(\pi_P\)
 after the scaling and standardization.
 
-\subsection{Reduction to preference learning} \label{sect:preferences}
-
-\subsubsection{Problem preference matrix learning}
+\subsection{Problem preference matrix learning}
+\label{sect:preferences}
 
 %    Let \(s_i \neq s_j\) be two symbols in a given \gls{problem} \(P\).
 %    Each precedence \(\pi_P\) orders these symbols in some order --
@@ -387,109 +386,60 @@ after the scaling and standardization.
 %    may lead to an exponential expansion of the affected clauses.
 %    \todo[author=Filip]{Consider omitting this justification because we have mentioned it in section Introduction.}
 
-Let a \gls{pairwise-preference-function}
-\todo[author=Filip]{Consider using preference matrix instead of preference function.}
+Given a problem \(P\) with \(n\) symbols,
+a \emph{preference matrix} \(W_P\) is any matrix over \(\re\) of size \(n \times n\).
 % \todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
-\(\pref_P : \symbols \times \symbols \rightarrow \re\)
-assign a value to each pair of symbols in problem \(P = (\symbols, \clauses)\).
-We define the \emph{proxy cost of precedence \(\pi_P\) under preference \(\pref_P\)}
-to be the sum of the preference values of all symbol pairs \(s_i, s_j\)
+We define the \emph{proxy cost of precedence \(\pi_P\) under preference \(W_P\)}
+to be the sum of the preference values \({W_P}_{i, j}\) of all symbol pairs \(s_i, s_j\)
 ordered by \(\pi_P\) such that \(s_i\) comes before \(s_j\):
-
 \begin{align*}
-\CostProxy(\pi_P, \pref_P) = \sum_{i, j: \inv{\pi_P}(i) < \inv{\pi_P}(j)} \pref_P(s_i, s_j)
-= \sum_{i, j} \OrderMatrix(\pi_P)_{i, j} \cdot \pref_P(s_i, s_j)
+\CostProxy(\pi_P, W_P) = \sum_{i, j} \iverson{\inv{\pi_P}(i) < \inv{\pi_P}(j)} {W_P}_{i, j}
+= \flatten{\OrderMatrix(\pi_P)} \cdot \flatten{W_P}
 \end{align*}
+where \(\flatten{\OrderMatrix(\pi_P)} \cdot \flatten{W_P}\) is the dot product
+of the flattened matrices \(\OrderMatrix(\pi_P)\) and \(W_P\).
 % \todo[author=Filip]{Is it not too confusing to have two expressions?}
 % \todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy cost seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
 
-Observe that if \(\pref_P\) is represented by an \(n \times n\) matrix \(M_{pref}\),
-computing \(\CostProxy(\pi_P, \pref_P)\)
-amounts to computing the dot product \(\flatten{O(\pi_P)} \cdot \flatten{M_{pref}}\).
-Since for any given problem we can generate a training set consisting of pairs
-\((\flatten{O(\pi_P)}, \CostStd(\pi_P))\) for various precedences \(\pi_P\),
-we can use linear regression to find a vector \(\flatten{M_{pref}}\)
-that minimizes mean square error \(\frac{1}{m} \sum_{\pi_P} (\CostProxy(\pi_P) - \CostStd(\pi_P))^2\).
-We use the Lasso regression algorithm \cite{?} to prevent overfitting.
+For any given problem we can uniformly sample precedences \(\pi_P\) to form the training set
+\(T = \{(\pi_P^1, \CostStd(\pi_P^1)), (\pi_P^2, \CostStd(\pi_P^2)), \ldots, (\pi_P^m, \CostStd(\pi_P^m))\}\).
+Having such training set allows us to find a vector \(\flatten{W_P}\)
+that minimizes the mean square error
+\begin{align*}
+\frac{1}{m} \sum_{(\pi_P, \CostStd(\pi_P)) \in T} (\CostProxy(\pi_P, W_P) - \CostStd(\pi_P))^2
+\end{align*}
+by linear regression.
 
-In the following sections we assume that \(M_{pref}\) we find by linear regression gives a good approximation of \(\CostStd\).
+We use the Lasso regression algorithm \cite{Tibshirani1996} instead of standard linear regression
+to improve generalization.
+\todo[author=Filip]{I think we should use RidgeCV or ElasticNetCV instead because they minimize L2 norm, while lasso only minimizes L1 norm.}
+We use cross-validation to set the value of the regularization hyperparameter.\footnote{See the model \texttt{LassoCV} in the machine learning library scikit-learn. \cite{scikit-learn}}
+\todo[author=Filip]{Don't we need to use the same value of regularization parameter in order for the preference matrix values to be comparable across problems?}
+Another reason to use the Lasso algorithm is that it performs regularization
+by imposing a penalty on coefficients with large absolute value,
+effectively shrinking the coefficients that correspond to symbol pairs
+whose mutual order does not matter for the performance.
+We can use this property to interpret the absolute value of preference value
+as a measure of importance of a given symbol pair.
+
+In the following sections we assume that the preference matrix \(W_P\) we find by linear regression
+yields \(\CostProxy\) that approximates \(\CostStd\) well.
 
 \todo[inline,author=Filip]{Discuss: We assume that the overall cost is a sum of contributions of symbol pairs. This assumption may be too strong but we proceed with it anyway.}
 
-\subsubsection{Precedence construction from preference function}
+\subsection{General preference matrix learning}
 
-When presented with a preference function \(\pref_P\),
-we may want to find a precedence \(\pi_P\) that minimizes \(\CostProxy(\pi_P, \pref_P)\).
-While the problem of finding the optimum \(\pi_P\) is NP-hard,
-a greedy 2-approximation algorithm exists. \cite{Cohen2011}
-\todo[author=Martin]{Kdyz bude cas, trochu rozepsat, aby lidi taky meli radost, ze existuje LtOT.}
-\todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
-Martin: tak napisme, ze jinak musime projit $n!$ moznosti...}
-
-\subsubsection{General preference learning}
-
-When presented a problem \(P\) we have not encountered during training,
-we first construct a preference matrix
-\todo[inline]{Finish.}
-
-\subsubsection{Notes}
-
-We define \emph{estimation error}
-% Source: https://cw.fel.cvut.cz/b191/_media/courses/be4m33ssu/erm2_ws2019.pdf
-of preference function \(\pref_P\) to be a measure
-of how well \(\pref_P\) functions as a proxy for finding an optimum precedence:
-
-\begin{align*}
-E(\pref_P) = \CostStd \left ( \argmin_{\pi_P} \CostProxy(\pi_P, \pref_P) \right ) - \min_{\pi_P} \CostStd(\pi_P)
-\end{align*}
-
-In the sections that follow we will describe how to find a general function \(\pref\)
-that approximates a good \(\pref_P\) for a class of problems.
-
-\subsection{Preference learning as supervised machine learning}
-
-\todo[inline,author=Martin]{If there is time left, restructure the description to bottom-up instead of top-down to make it easier to understand.}
-
-In order to cast the problem of finding an appropriate \(\pref\) function
-as a supervised machine learning task,
-we need to represent each pair of symbols by a feature vector
-and to know preference values for pairs of symbols in the training set.
+We proceed to cast the task of finding a good preference matrix \(W_P\)
+for an arbitrary problem as a regression on feature vector representations of symbol pairs.
+To accomplish this we need to be able to represent each pair of symbols by a feature vector
+and to know target preference values for pairs of symbols in a training problem set.
 
 \subsubsection{Target preference values}
 \label{sec:target-preference-values}
 
-For each problem in the training set, we construct a preference matrix that contains a preference
-value estimate for each pair of symbols in the problem.
-\todo[inline,author=Filip]{Why do we do this? Why don't we just take \(\CostStd\) as the target value? My intuition is that this way we get less variance in the target values. Our approach also possibly enables (or improves) sample weighting by absolute value of \(\pref\). I think we originally chose to use lasso because on a fixed problem lasso outperforms "MeanRegression" -- lasso generalizes better. But we could alternatively rely on regularization in the outer regression! We would probably need more samples to train the outer regression, but the model simplicity and saving time to train the inner regressors may be worth it.}
-We populate the matrix by the weights of a linear model trained on data
-collected from a number of \gls{atp} runs on uniformly random precedences.
-Each training sample has the following structure:
-
-\begin{itemize}
-	\item Input: \(\flatten{\OrderMatrix(\pi_P)}\) --
-	flattened \gls{order-matrix} of a precedence \(\pi_P\)
-	\item Target: \(\CostStd(\pi_P)\) --
-	standardized result of an \gls{atp} run on problem \(P\) with predicate precedence \(\pi_P\)
-	as defined in \autoref{sec:precedence-valuation}
-\end{itemize}
-
-This way we ensure that the preference matrix has a high value for a symbol pair \(l, r\)
-if the precedences that order \(l\) before \(r\) have a high expected cost.
-
-We use lasso regression \cite{?} to train the model.
-Advantages of using lasso as opposed to standard linear regression\cite{?}:
-
-\begin{itemize}
-	\item Lasso implements regularization so it generalizes to unseen data better.
-	\item Lasso prefers zero-valued weights so it is more likely to declare that the mutual order of a pair of symbols does not matter.
-	\todo[author=Filip]{I think we should use RidgeCV or ElasticNetCV instead because they minimize L2 norm, while lasso only minimizes L1 norm.}
-\end{itemize}
-
-To ensure good generalization,
-we use cross-validation as implemented in sklearn.linear\_model.LassoCV \cite{?}
-to set the regularization parameter.
-Note that each problem may use a different value of the regularization parameter.
-\todo[inline,author=Filip]{Don't we need to use the same value of regularization parameter in order for the preference matrix values to be comparable across problems?}
+For each problem \(P\) in the training problem set,
+we find a problem preference matrix by the method outlined in \autoref{sect:preferences}.
+The target value of an arbitrary pair of symbols \(s_i, s_j\) in \(P\) is \({W_P}_{i,j}\).
 
 \subsubsection{Symbol pair embedding}
 
@@ -505,45 +455,34 @@ indicator of occurrence in a unit clause, % inUnit
 % Witness: PUZ001-1.p
 indicator of being produced during clausification and % introduced
 indicator of being produced during skolemization. % skolem
-This choice of symbol features is motivated by the fact that the values of all of these symbol properties
-are readily available in the \gls{atp} Vampire
-and that they suffice as a basis for all of the common symbol precedence heuristics.
+This choice of symbol features is motivated by the fact that they
+are readily available in the \gls{atp} \gls{vampire}
+and that they suffice as a basis for common precedence generation schemes,
+namely the \texttt{invfreq} scheme.
 
 We represent a pair of symbols by the concatenation of their feature vectors.
 \todo[inline,author=Filip]{Make sure that problem embedding is omitted from symbol pair embedding in the experiment.}
 
-\subsubsection{Generalized preference regressor}
+\subsubsection{Training data}
 
-Generalized preference regressor is trained on samples of the following structure:
+The general preference regressor is trained on samples of the following structure:
 
 \begin{itemize}
-	\item Input: Embedding of a symbol pair \(p, q\) in problem \(P\)
-	\item Target: \(\pref(p, q)\) -- an element of the preference matrix we learned for problem \(P\)
+	\item Input: Embedding of a symbol pair \(s_i, s_j\) in problem \(P\)
+	\item Target: \({W_P}_{i,j}\) -- an element of the preference matrix we learned for problem \(P\)
 \end{itemize}
-
-Note here that each of the precedence heuristics implemented in Vampire
-minimizes \(\CostProxy\) for a particular \(\pref\).
-\todo[inline,author=Filip]{Fix this statement so that it makes sense.}
-\todo[inline,author=Filip]{Discuss in more detail.}
-\todo[inline,author=Filip]{Do we really cover all Vampire heuristics? How about \texttt{occurrence}, \texttt{scramble}, \texttt{weighted\_frequency}, \texttt{reverse\_weighted\_frequency}? What about \texttt{--symbol\_precedence\_boost}?}
-
-\todo{Martin "each of the precedence heuristics" je zbytecne obecny. 
-Staci nam poznamenat, ze pres Usage count ``umime'' frequency. Takze by mela jit naucit, nebo neco lepsiho.}
-
-\subsubsection{Sample weighting}
 
 We sample problem \(P\) from the training problem set with uniform probability.
 \todo[author=Filip]{Actually we immediately exclude problems whose preference matrix is all-zero.}
 
-Thanks to how \(\pref\) is constructed (see \autoref{sec:target-preference-values}),
+Thanks to how \(W_P\) is constructed (see \autoref{sect:preferences}),
 preference values close to 0 are associated with symbol pairs whose mutual order has little effect
 on the outcome of the proof search.
-To focus the training on the symbol pairs whose order matters,
+To focus the training on the symbol pairs whose order does matter,
 we weight the samples by the absolute target value.
-Experiments show that training with ElasticNet without sample weighting
-collapses to assigning zero coefficients to all features,
-preventing any predictive capacity.
-\todo[author=Filip]{Is it ok to mention an experimental result in this section like this?}
+
+Experiments show that using sample weighting
+improves the performance of the resulting model.
 
 % Result data file: sftp://cluster.ciirc.cvut.cz/home/bartefil/git/vampire-ml/map-reduce/predicate-100-1000/2020-05-08_20-49-14/reduce/fit_cv_results.csv
 % Rows where params is {} or {weighted: False} show impact of sample weighting (both problem and symbol pair).
@@ -554,10 +493,18 @@ preventing any predictive capacity.
 \subsection{Precedence construction}
 
 When presented a new problem, we construct a predicate precedence by
-first evaluating the generalized preference regressor for all pairs of predicates,
-and then using greedy algorithm to construct the precedence using these predicted preference values.
-
+first evaluating the general preference regressor for all pairs of symbols,
+and then using a greedy algorithm described in \citet{Cohen2011}
+to construct the precedence using these estimates of preference values.
+While the problem of finding the optimum \(\pi_P\) given a \(W_P\) is NP-hard in general,
+the greedy algorithm is 2-approximation.
 In this manner we find a \(\pi_P\) that approximately minimizes \(\CostProxy(\pi_P)\).
+\todo[author=Filip]{Too strong claim?}
+\todo[author=Martin]{Kdyz bude cas, trochu rozepsat, aby lidi taky meli radost, ze existuje LtOT.}
+\todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
+	Martin: tak napisme, ze jinak musime projit $n!$ moznosti...}
+\todo[inline,author=Filip]{Prove: If pref over embeddings is a sum of fl(l) and fr(r), then we can find optimum pi in linear time. This holds namely if pref is linear.}
+\todo[inline,author=Filip]{Prove: If pref(l, r) is a sum of fl(l) and fr(r), then LtOT yields the optimum pi.}
 
 \section{Evaluation}
 \label{sec:evaluation}
