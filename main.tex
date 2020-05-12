@@ -118,12 +118,13 @@ and which occurred in the conjecture (if it was present).
 \paragraph{Precedence}
 Given a problem \(P = (\Sigma, \clauses)\) with \(\Sigma = (s_1, s_2, \ldots, s_n)\),
 a precedence \(\pi_P\) is a permutation, i.e.~a bijective mapping, of the set of indices \(\{1,\ldots,n\}\).
-A precedence \(\pi_P\) \emph{determines}\todo[author=Filip]{Why the emphasis on "determines"?}{} a (total) ordering on \(\Sigma\) as follows:
+A precedence \(\pi_P\) \emph{determines} a (total) ordering on \(\Sigma\) as follows:
+% The word "determines" is emphasized because it is being defined.
 \(s_{\pi_P(1)} < s_{\pi_P(2)} < \ldots < s_{\pi_P(n)}.\)
 
 \paragraph{Simplification Orderings} are orderings on terms used to parameterize the superposition calculus \cite{Nieuwenhuis2001}
 employed by modern saturation-based theorem provers. The two classes of simplification orderings most commonly used in practice,
-\todo[author=Filip]{Why do we believe they are most commonly used in practice? Can we cite some source?}
+% \todo[author=Filip]{Why do we believe they are most commonly used in practice? Can we cite some source?}
 the \acrlongpl{kbo} \cite{Knuth1983} and the \acrlongpl{lpo} \cite{Kamin1980}, are both defined in terms 
 of a user-supplied (possibly partial) ordering $<$ %(typically also called the precedence) 
 on the given problem's signature \(\Sigma\).
