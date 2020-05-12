@@ -79,7 +79,7 @@ Finally, even with a regression model ready to predict the prover's performance
 under a particular precedence $\pi$, we still need solve the task of finding 
 the ideally optimal precedence $\pi^*$ according to this model.
 
-% Final paragraph, with forward reference, explaines how we tackle the challenges and where it is explained
+% Final paragraph, with forward reference, explains how we tackle the challenges and where it is explained
 % 1) preference values
 % 2) normalization
 % 3) learning to order things
@@ -212,10 +212,12 @@ If the prover runs out of time before solving a problem, we obtain \(\AbstractTi
 \section{Architecture}
 \label{sec:architecture}
 
+\subsection{General considerations and overview}
+
 The aim of this work is to design a system that learns to suggest good symbol precedences to an ATP 
-from observations of the ATP's performance on a class $\mathcal{P}$ of problems with randomly sampled precedences. 
+from observations of the ATP's performance on a class \(\mathcal{P}\) of problems with randomly sampled precedences. 
 Given a problem \(P = (\symbols,\clauses)\) with \(|\symbols|=n\), we consider a precedence \(\pi_P\) good
-if it leads to a low \(\mathit{ast}(P,\pi_P)\) among the $n!$ possible precedences for \(P\).
+if it leads to a low x among the $n!$ possible precedences for \(P\).
 % ze n! je super large -> almost infinite source of data (for non-trivial n)
 Note that for problems with a signature with more than a few symbols, repeatedly running the prover 
 with random precedences represents an effectively infinite source of training data.
@@ -232,21 +234,33 @@ What is common to basically all manually designed schemes, is that they pick a c
 (here it is symbol the frequency, i.e.~the number of occurrences of the symbol in the given problem)
 and obtain a precedence by \emph{sorting} the symbols using that property.
 
+We might want our system to also learn a certain property of symbols and use sorting to generate and suggest a precedence. 
+However, it is not clear how to ``extract'' such property from the observed data, since we only have 
+access to learning values for full precedences. Our idea for ``decomposing'' these values into pieces 
+that somehow relate to individual symbols (and can thus be ``transferred'' across problems) is to take a detour using symbol pairs:
+we assume that the performance of the ATP on \(P\) given \(\pi_P\), i.e.~our measure $\AbstractTime(P,\pi_P)$, can be predicted 
+from a sum of individual contributions corresponding to facts of the form 
+\[\pi_P\text{ orders the symbol }s_i\text{ before the symbol }s_j.\]
+This is in line with how a prover developer could reason about a precedence generating scheme:
+Even when it is not clear how good or bad a symbol is in absolute terms,
+one might have an intuition that a symbol from a certain class should preferably 
+came before a symbol from another class in the precedence  
+(e.g., symbols introduced during clausification should typically be smaller than others)
+and assign some weight to this intuition. 
+
+
+
+
+
+
 \newpage
 
+\autoref{sect:preferences}
+
+
+
 % each problem has it's own signature, so the precedences is a problems specific beast and ...
-% 
-
-
-
-
-
-
-
-
-
-We might want our system to also learn a certain property of symbols and use sorting to generate and suggest a precedence. However, 
-
+ 
 
 
 
@@ -278,12 +292,6 @@ We might want our system to also learn a certain property of symbols and use sor
 
 
 
-% ----
-
-% Zastrc nekam dozadu na pozdeji
-
-% - we use abstract time as the basic measure
-% (why not actual time to solve a problem? Unstable, abstract time is machine independent and still correlates well)
 
 % - zmin konkretni stratgii, kterou pouzivame a variujeme v ni pouze predikatovou precendenci
 % (vcetne toho, ze funkcni precedenci fixujeme na frequency)
@@ -364,7 +372,7 @@ We further normalize the cost values by the following operations:
 Let \(\CostStd(\pi_P)\) denote the resulting cost value of permutation \(\pi_P\)
 after the scaling and standardization.
 
-\subsection{Reduction to preference learning}
+\subsection{Reduction to preference learning} \label{sect:preferences}
 
 \subsubsection{Problem preference matrix learning}
 
