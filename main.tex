@@ -218,7 +218,7 @@ The aim of this work is to design a system that learns to suggest good symbol pr
 from observations of the ATP's performance on a class \(\mathcal{P}\) of problems with randomly sampled precedences. 
 Given a problem \(P = (\symbols,\clauses)\) with \(|\symbols|=n\), we consider a precedence \(\pi_P\) good
 if it leads to a low \(\AbstractTime(P,\pi_P)\)
-\todo[author=Filip]{I replaced the placeholder "x" with ast(). Is this what you had in mind, Martin?}
+% \todo[author=Filip]{I replaced the placeholder "x" with ast(). Is this what you had in mind, Martin?}
 among the $n!$ possible precedences for \(P\).
 % ze n! je super large -> almost infinite source of data (for non-trivial n)
 Note that for problems with a signature with more than a few symbols, repeatedly running the prover 
@@ -236,6 +236,8 @@ What is common to basically all manually designed schemes, is that they pick a c
 (here it is symbol the frequency, i.e.~the number of occurrences of the symbol in the given problem)
 and obtain a precedence by \emph{sorting} the symbols using that property.
 
+\paragraph{Decomposing}
+
 We might want our system to also learn a certain property of symbols and use sorting to generate and suggest a precedence. 
 However, it is not clear how to ``extract'' such property from the observed data, since we only have 
 access to learning values for full precedences. Our idea for ``decomposing'' these values into pieces 
@@ -246,9 +248,27 @@ from a sum of individual contributions corresponding to facts of the form
 This is in line with how a prover developer could reason about a precedence generating scheme:
 Even when it is not clear how good or bad a symbol is in absolute terms,
 one might have an intuition that a symbol from a certain class should preferably 
-came before a symbol from another class in the precedence  
+come before a symbol from another class in the precedence  
 (e.g., symbols introduced during clausification should typically be smaller than others)
-and assign some weight to this intuition. 
+and assign some weight to this piece of intuition. 
+
+In~\autoref{sect:preferences} we formalize this idea using the notion of \emph{pairwise symbol preferences}
+and show how, for each problem in isolation, these preferences can be learned using linear regression.
+
+\paragraph{Learning across problems}
+Symbol preferences learned on a particular problem are inherently tied to that problem
+and do not immediately carry over to other problems. The main reason for this 
+is that symbols themselves only appear in the context of a particular problem.\footnote{
+On certain benchmarks, such as those coming from translations of mathematical libraries \cite{KaliszykU13b},
+symbols maintain identity and meaning across individual problems. However, since our goal in this work
+is to learn general theorem proving knowledge, we do not use the assumption of aligned signatures.}
+This is the reason why we (have to) use a representation of symbols by their \emph{features}
+when aggregating the learned preferences across different problems (cf. \autoref{sect:embeddings}).
+
+
+
+
+% commensurable values
 
 
 
@@ -257,7 +277,7 @@ and assign some weight to this intuition.
 
 \newpage
 
-\autoref{sect:preferences}
+
 
 
 
@@ -442,7 +462,7 @@ For each problem \(P\) in the training problem set,
 we find a problem preference matrix by the method outlined in \autoref{sect:preferences}.
 The target value of an arbitrary pair of symbols \(s_i, s_j\) in \(P\) is \({W_P}_{i,j}\).
 
-\subsubsection{Symbol pair embedding}
+\subsubsection{Symbol pair embedding} \label{sect:embeddings}
 
 We represent each symbol by a numeric \emph{feature vector} that consists of the following components:
 symbol arity, % arity
