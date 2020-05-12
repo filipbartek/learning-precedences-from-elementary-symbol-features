@@ -596,17 +596,16 @@ proposed by the trained model.
 
 \subsection{Results}
 
-\begin{tabular}{lrrr}
-	Case & Success rate & Better than frequency & Worse than frequency \\
+\begin{tabular}{lrr}
+	Case & Success count mean & Success count std \\
 	\hline
-	Best of 10 random precedences & 0.513 & 0.029 & 0.006 \\
-	Frequency heuristic & 0.490 & 0.000 & 0.000 \\
-	GradientBoostingRegressor & 0.484 & 0.022 & 0.028 \\
-	ElasticNetCV & 0.478 & 0.005 & 0.017 \\
-	ElasticNetCV (no weighting) & 0.466 & 0.008 & 0.032 \\
-	Random & 0.449 & 0.010 & 0.051 \\
+	Best of 10 random & 506.40 & 9.75 \\
+	\texttt{invfreq} & 480.60 & 10.52 \\
+	Weighting(1,1) & 478.00 & 16.26 \\
+	Weighting(0,1) & 477.40 & 16.61 \\
+	Weighting(0,0) & 466.00 & 17.81 \\
 \end{tabular}
-% Source: sftp://cluster.ciirc.cvut.cz/home/bartefil/git/vampire-ml/map-reduce/predicate-100-1000/2020-05-08_20-49-14/reduce/fit_cv_results.csv
+% Source: https://docs.google.com/spreadsheets/d/1HSsC7piUAtWt6uwA9SYOX5vmiF0Ab3Ae4FPyGsDALIg/edit?usp=sharing
 
 \todo[inline,author=Filip]{Describe the results.}
 
