@@ -455,31 +455,24 @@ Note that each problem may use a different value of the regularization parameter
 
 \subsubsection{Symbol pair embedding}
 
-We represent each predicate symbol by a feature vector that consists of the following features:
-
-\begin{itemize}
-	\item Arity
-	\item Usage count
-	\item Unit usage count
-	\item In goal
-	\item In unit
-	
-	\item \todo[inline]{jeste skolemovitost / tseitinovitost} \_introduced
-	
-	\todo{Kouknout, jestli tam vubec nejake tseitiny jsou (jestli ne, je to chyba)}
-	
-\end{itemize}\todo[author=Filip]{Explain the meaning of each of these features.}
-\todo[author=Filip]{Add the feature "skolem" to accommodate function symbols.}
-
-This choice is motivated by the fact that the values of all of these symbol properties
+We represent each symbol by a numeric \emph{feature vector} that consists of the following components:
+symbol arity, % arity
+number of symbol occurrences in the problem, % usageCnt
+number of clauses in the problem that contain at least one occurrence of the symbol, % unitUsageCnt
+% Filip: I have deduced the meaning of usageCnt, unitUsageCnt and inUnit
+% by manual inspection of a few problems.
+% Witness: PUZ056-1.p: predicate 'fits', function 'pin'
+indicator of occurrence in a conjecture clause, % inGoal
+indicator of occurrence in a unit clause, % inUnit
+% Witness: PUZ001-1.p
+indicator of being produced during clausification and % introduced
+indicator of being produced during skolemization. % skolem
+This choice of symbol features is motivated by the fact that the values of all of these symbol properties
 are readily available in the \gls{atp} Vampire
 and that they suffice as a basis for all of the common symbol precedence heuristics.
-\todo[author=Filip]{Claify more.}
 
-We represent a pair of symbols \(l, r\) by the concatenation of their feature vectors.
-\todo[inline,author=Filip]{Shall we remove problem embedding from the experiment for simplicity? I have omitted problem embedding in this text.}
-
-\todo{Martin: idealne pustit znovu bez problem embeddingu, at se o nem nemusime zminovat.}
+We represent a pair of symbols by the concatenation of their feature vectors.
+\todo[inline,author=Filip]{Make sure that problem embedding is omitted from symbol pair embedding in the experiment.}
 
 \subsubsection{Generalized preference regressor}
 
