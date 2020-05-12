@@ -375,6 +375,7 @@ after the scaling and standardization.
 %    \todo[author=Filip]{Consider omitting this justification because we have mentioned it in section Introduction.}
 
 Let a \gls{pairwise-preference-function}
+\todo[author=Filip]{Consider using preference matrix instead of preference function.}
 % \todo[author=Filip]{Is it ok to use the name "preference" for a function that is to be minimized, thus actually a cost? I adopted it from LtOT terminology. Alternative: pairwise cost.}
 \(\pref_P : \symbols \times \symbols \rightarrow \re\)
 assign a value to each pair of symbols in problem \(P = (\symbols, \clauses)\).
@@ -389,6 +390,37 @@ ordered by \(\pi_P\) such that \(s_i\) comes before \(s_j\):
 % \todo[author=Filip]{Is it not too confusing to have two expressions?}
 % \todo[author=Filip]{Shall we call it "surrogate loss"? Our proxy cost seems to be positively aligned with the conventional use of the term but typically "surrogate loss" is differentiable.}
 
+Observe that if \(\pref_P\) is represented by an \(n \times n\) matrix \(M_{pref}\),
+computing \(\CostProxy(\pi_P, \pref_P)\)
+amounts to computing the dot product \(\flatten{O(\pi_P)} \cdot \flatten{M_{pref}}\).
+Since for any given problem we can generate a training set consisting of pairs
+\((\flatten{O(\pi_P)}, \CostStd(\pi_P))\) for various precedences \(\pi_P\),
+we can use linear regression to find a vector \(\flatten{M_{pref}}\)
+that minimizes mean square error \(\frac{1}{m} \sum_{\pi_P} (\CostProxy(\pi_P) - \CostStd(\pi_P))^2\).
+We use the Lasso regression algorithm \cite{?} to prevent overfitting.
+
+In the following sections we assume that \(M_{pref}\) we find by linear regression gives a good approximation of \(\CostStd\).
+
+\todo[inline,author=Filip]{Discuss: We assume that the overall cost is a sum of contributions of symbol pairs. This assumption may be too strong but we proceed with it anyway.}
+
+\subsubsection{Precedence construction from preference function}
+
+When presented with a preference function \(\pref_P\),
+we may want to find a precedence \(\pi_P\) that minimizes \(\CostProxy(\pi_P, \pref_P)\).
+While the problem of finding the optimum \(\pi_P\) is NP-hard,
+a greedy 2-approximation algorithm exists. \cite{Cohen2011}
+\todo[author=Martin]{Kdyz bude cas, trochu rozepsat, aby lidi taky meli radost, ze existuje LtOT.}
+\todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
+Martin: tak napisme, ze jinak musime projit $n!$ moznosti...}
+
+\subsubsection{General preference learning}
+
+When presented a problem \(P\) we have not encountered during training,
+we first construct a preference matrix
+\todo[inline]{Finish.}
+
+\subsubsection{Notes}
+
 We define \emph{estimation error}
 % Source: https://cw.fel.cvut.cz/b191/_media/courses/be4m33ssu/erm2_ws2019.pdf
 of preference function \(\pref_P\) to be a measure
@@ -397,15 +429,6 @@ of how well \(\pref_P\) functions as a proxy for finding an optimum precedence:
 \begin{align*}
 E(\pref_P) = \CostStd \left ( \argmin_{\pi_P} \CostProxy(\pi_P, \pref_P) \right ) - \min_{\pi_P} \CostStd(\pi_P)
 \end{align*}
-
-If we had access to a preference function with low estimation error,
-we could attempt to use it to construct a good symbol precedence
-by minimizing the corresponding proxy cost.
-While the problem of finding a \(\pi_P\) that minimizes \(\CostProxy(\pi_P, \pref_P)\)
-for a fixed \(\pref_P\) is in general NP-hard, a greedy 2-approximation algorithm exists. \cite{Cohen2011}
-\todo[author=Martin]{Kdyz bude cas, trochu rozepsat, aby lidi taky meli radost, ze existuje LtOT.}
-\todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
-Martin: tak napisme, ze jinak musime projit $n!$ moznosti...}
 
 In the sections that follow we will describe how to find a general function \(\pref\)
 that approximates a good \(\pref_P\) for a class of problems.
