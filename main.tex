@@ -428,6 +428,7 @@ yields \(\CostProxy\) that approximates \(\CostStd\) well.
 \todo[inline,author=Filip]{Discuss: We assume that the overall cost is a sum of contributions of symbol pairs. This assumption may be too strong but we proceed with it anyway.}
 
 \subsection{General preference matrix learning}
+\label{sec:general-preference}
 
 We proceed to cast the task of finding a good preference matrix \(W_P\)
 for an arbitrary problem as a regression on feature vector representations of symbol pairs.
@@ -512,12 +513,12 @@ In this manner we find a \(\pi_P\) that approximately minimizes \(\CostProxy(\pi
 
 \subsection{Setup}
 
-Since none the ordering strategies under consideration (LPO and KBO)
-uses the symbol precedence to compare a predicate symbol with a function symbol,
+Since the ordering strategies under consideration (\acrshort{lpo} and \acrshort{kbo})
+never use the symbol precedence to compare a predicate symbol with a function symbol,
 we can break the symbol precedence down into a predicate precedence and a function precedence.
 For the sake of simplicity,
 our practical experiments only propose predicate precedences.
-Function symbols are ordered by the frequency heuristic.
+Function symbols are ordered by the \texttt{invfreq} scheme.
 \todo[inline,author=Filip]{Discuss more.
 	Possible generalizations to combination of predicate and function precedences:
 	
@@ -530,50 +531,30 @@ Function symbols are ordered by the frequency heuristic.
 	- Train predicate and function preference regressor simultaneously with a shared underlying GNN.}
 
 For evaluation of the system presented in \autoref{sec:architecture},
-we use TPTP v7.2.0 \cite{?}, a collection of problems.
-From TPTP we select test set \(\ProblemsTest\) of 15751 problems with the following properties:
+we use TPTP v7.2.0 \cite{Sut17}, a library of problems.
 
-\begin{itemize}
-	\item \gls{fol} or \gls{cnf} problem
-	\item At most 1024 predicate symbols
-\end{itemize}
+We repeatedly sample a training set of 100 problems and test set of 1000 problems.
+We restrict the sampling to \acrshort{fol} and \acrshort{cnf} problems with at most 1024 predicate symbols.
 % problems/predicate-small-1024.txt
+We further restrict the training set based on the results of 24 probe runs with uniformly random predicate precedences:
+we only consider problems with at least 1 successful run and at least 1 failing run out of the 24 probe runs.
+% problems/predicate-1.txt
+\todo[author=Filip]{There is noise in the experiment: we have added some problems with more than 1024 predicates.}
+We sample in a way that ensures that the training and test problem sets do not overlap.
 
-We restrict training to sample problems from a set
-\(\ProblemsTrain \subset \ProblemsTest\) of 201 problems
-with the following properties:
-
-\begin{itemize}
-	\item At least 12 out of 24 random precedences solve the problem successfully.
-	\item The distribution of saturation iteration counts on 24 random precedences
-	shows variation of at least 1.
-\end{itemize}
-% problems/predicate-easy-variation.txt
-
-We train the system on 100 problems uniformly sampled from \(\ProblemsTrain\)
-and test the system on 1000 problems uniformly sampled from \(\ProblemsTest\)
-excluding the problems sampled for training.
-
-On each training problem we run the \gls{atp} Vampire with 1000 uniformly random predicate precedences
-and with the following options:
-
-\begin{lstlisting}[language=sh]
---literal_comparison_mode predicate
---symbol_precedence frequency
---saturation_algorithm discount
---age_weight_ratio 10
---avatar off
---time_limit 10
---memory_limit 8192
-\end{lstlisting}
-
+On each training problem we run the \gls{atp} Vampire with 100 uniformly random predicate precedences
+and with a strategy fixed up to the predicate precedence.
+\todo[author=Filip]{Shall we describe the strategy?}
+% Vampire options:
+% --literal_comparison_mode predicate --symbol_precedence frequency --saturation_algorithm discount --age_weight_ratio 10 --avatar off --time_limit 10 --memory_limit 8192
 Note that we use a customized version of Vampire to extract a symbol table from each problem.
-We call it with the same parameters, adding \texttt{--mode clausify}.
 \todo[author=Filip]{Add a link to our custom version of Vampire.}
 
-After we fit a preference matrix to each of the training problems,
-we create a batch of 1000000 symbol pairs with target values
-to train the main generalized preference regressor.
+After we fit a preference matrix to each of the training problems (see \autoref{sect:preferences}),
+we create a batch of 1000000 symbol pair feature vectors with target values
+to train the general preference regressor (see \autoref{sec:general-preference}).
+We evaluate the trained model by running Vampire on the test problem set with predicate precedences
+proposed by the trained model.
 
 \todo[inline,author=Filip]{Add a link to the repo with the experiment code.}
 
