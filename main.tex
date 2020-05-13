@@ -525,39 +525,38 @@ improves the performance of the resulting model.
 
 % \todo[inline,author=Filip]{Will we use problem weighting after all? It is more difficult to justify...}
 
-\todo{Martin: Co zavest znaceni pro vysledny nauceny model? Neco jako $\mathit{reg2}$?}
+\newcommand{\GeneralRegressor}{M}
+We denote the trained model as \(\GeneralRegressor\)
+and its prediction of preference value of the symbol pair \(s_i, s_j\)
+as \(\GeneralRegressor([\fv(s_i), \fv(s_j)])\).
 
 \subsection{Precedence construction} \label{sect:construction}
 
 When presented a new problem \(P = (\symbols, \clauses)\), we propose a symbol precedence by taking the following steps:
 \begin{enumerate}
-	\item Construct a preference matrix \(W_P\).
-	
-	\todo{Martin: trochu se mi nelibi, ze se tady opakuje \(W_P\). Drive to byly naucene preference 
-	z linearniho klasifikatoru pro trenovaci problem. Ted ji stavime z $\mathit{reg2}$ pro testovaci problem!  }
-	
-	\item Construct a precedence \(\pi_P\) that approximately minimizes
-	the proxy cost \(\CostProxy(\pi_P, W_P)\).
+	\item Estimate a preference matrix \(\widehat{W_P}\).
+	\item Construct a precedence \(\widehat{\pi_P}\) that approximately minimizes
+	\(\CostProxy(\widehat{\pi_P}, \widehat{W_P})\).
 \end{enumerate}
 
 \subsubsection{Preference matrix construction}
 
-To construct a preference matrix \(W_P\) for a new problem \(P\),
+To construct a preference matrix \(\widehat{W_P}\) for a new problem \(P\),
 we evaluate the general preference regressor
 on the feature vectors of all symbol pairs in \(P\).
+More specifically,
+\begin{align*}
+\widehat{W_P}_{i, j} = M([\fv(s_i), \fv(s_j)])
+\end{align*}
+for all \(s_i, s_j \in \symbols\).
 
-\todo{Martin: tohle by mohlo/melo byt presnejsi: \({W_P}_{i,j} =  \mathit{reg2}([\mathit{fv}(s_i),\mathit{fv}(s_j)])\) }
-
-At this moment, one can use \(W_P\) to estimate the cost of an arbitrary symbol precedence.
-% To uz se moc opakujeme:
-% Instead of that we will use it to find a symbol precedence
-% that approximately minimizes the estimated cost.
+At this moment, one can use \(\widehat{W_P}\) to estimate the cost of an arbitrary symbol precedence.
 
 \subsubsection{Precedence construction from preference matrix} \label{sect:ltot}
 
-The remaining task is, given a preference matrix \(W_P\), to find a precedence \(\pi_P\)
-that minimizes \(\CostProxy(\pi_P, W_P)\).
-Since this task is NP-hard in general,  \todo{Martin: tady by to chtelo taky citaci! Mozna jenom \cite{Cohen2011}? }
+The remaining task is, given a preference matrix \(\widehat{W_P}\), to find a precedence \(\widehat{\pi_P}\)
+that minimizes \(\CostProxy(\widehat{\pi_P}, \widehat{W_P})\).
+Since this task is NP-hard in general \cite{Cohen2011},
 we rely in this work on a greedy 2-approximation algorithm
 proposed by a \citet{Cohen2011}.
 \todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
