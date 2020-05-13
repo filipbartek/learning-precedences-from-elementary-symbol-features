@@ -432,12 +432,13 @@ that minimizes the mean square error
 \begin{align*}
 \frac{1}{m} \sum_{(\pi_P, \CostStd(\pi_P)) \in T} (\CostProxy(\pi_P, W_P) - \CostStd(\pi_P))^2
 \end{align*}
-\todo{Martin: MSE neni presne, kdyz nakonec pouzijeme Lasso/Ridge. Mozna vynechat?}
 by linear regression.
-\todo[author=Martin]{Since we use Lasso, we don't minimize MSE.}
 
-We use the Lasso regression algorithm \cite{Tibshirani1996} instead of standard linear regression
-to improve generalization.
+Minimizing the mean square error directly may lead to overfitting to the training set,
+especially in problems whose signature is relatively large in comparison to the size of the training set.
+\todo[author=Filip]{Justify along the following lines: Feature space dimension increases quadratically with signature size. Example: with 1000 samples and ... features we can fit exactly. 3 points in 3d etc., 1000 points in 1000d}
+To improve generalization,
+we use the Lasso regression algorithm \cite{Tibshirani1996} instead of standard linear regression.
 %\todo[author=Filip]{I think we should use RidgeCV or ElasticNetCV instead because they minimize L2 norm, while lasso only minimizes L1 norm.
 %Martin: also worth trying out experimentally.}
 We use cross-validation to set the value of the regularization hyperparameter.\footnote{See the model \texttt{LassoCV} in the machine learning library scikit-learn \cite{scikit-learn}.}
