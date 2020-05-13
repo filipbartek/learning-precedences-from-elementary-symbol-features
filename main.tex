@@ -13,13 +13,13 @@
 \begin{abstract}
 A simplification ordering, typically specified by a symbol precedence,
 is one of the key parameters of the superposition calculus, contributing
-to shaping the search space navigated by a saturation-based \acrlong{atp}.
+to shaping the search space navigated by a saturation-based \acrlong*{atp}.
 Thus the choice of a precedence can have a great impact on the prover's performance.
 In this work, we design a system for proposing symbol precedences
 that should lead to solving a problem quickly.
 The system relies on machine learning to extract this information from
-past successful and unsuccessful runs of a theorem prover over a set of problems and random precedences.
-Moreover, it uses a small set of simple human-engineered symbol features as the sole
+past successful and unsuccessful runs of a theorem prover over a set of problems and randomly sampled precedences.
+It uses a small set of simple human-engineered symbol features as the sole
 basis for discriminating the symbols. This allows for a direct comparison
 with precedence generation schemes designed by prover developers.
 % \todo[author=Martin]{Let's add this when we have the results finalized:
@@ -28,13 +28,14 @@ with precedence generation schemes designed by prover developers.
 
 \section{Introduction}
 
-Modern saturation-based \glspl{atp} such as E \cite{SCV:CADE-2019} and \gls{vampire} \cite{Kovacs2013}
+Modern saturation-based \glspl*{atp} such as E \cite{SCV:CADE-2019}, SPASS \cite{DBLP:conf/cade/WeidenbachDFKSW09} 
+or \gls*{vampire} \cite{Kovacs2013}
 use the superposition calculus \cite{Nieuwenhuis2001} as their underlying inference system.
 Superposition is built around the paramodulation inference \cite{Robinson1983} crucially
 constrained by simplification ordering on terms and literals, which is supplied as a parameter of the calculus.
 Both of the two main classes of simplification orderings used in practice,
-i.e., the \acrlong{kbo} \cite{Knuth1983}
-and the \acrlong{lpo} \cite{Kamin1980},
+i.e., the \acrlong*{kbo} \cite{Knuth1983}
+and the \acrlong*{lpo} \cite{Kamin1980},
 are mainly determined by a %pair of 
 \emph{symbol precedence}, a (partial) ordering on the signature symbols.\footnote{
 KBO is further parameterized by symbol weights, but our reference implementation in Vampire~\cite{Kovacs2013} 
@@ -60,7 +61,7 @@ We assume that by learning to solve already solvable problems quickly,
 the acquired knowledge will generalize and help solving problems previously out of reach.
 % This general assumption is shared with other projects for automatically learning theorem
 % proving strategies from previous experience, such as the MaLeS system \cite{DBLP:journals/jar/KuhlweinU15}.
-As a first step in a more ambitions project,
+As a first step in a more ambitious project,
 we focus here on representing the symbols in a problem by a fixed set of simple human-engineered features
 (such as the number the occurrences used by \texttt{invfreq} scheme mentioned above)\footnote{Automatic
 feature extraction using neural-networks is planned for future work.}
@@ -76,23 +77,29 @@ There is also a complication, when sampling different problems,
 that some problems may be easy to solve for almost every precedence and others hard.
 In theorem proving, running times typically vary considerably.
 Finally, even with a regression model ready to predict the prover's performance 
-under a particular precedence $\pi$, we still need solve the task of finding 
-the ideally optimal precedence $\pi^*$ according to this model.
+under a particular precedence $\pi$, we still need to solve the task of finding 
+the ideally optimal precedence $\pi^*$ according to this model,
+which cannot be simply solved by enumerating all the permutations and running the prediction for each
+due to their huge number.
 
-\todo[inline]{Martin, write one more paragraph here.}
+This paper is, to the best of our knowledge, a first attempt to use machine learning for proposing symbol precedences.
+Our way of addressing the above sketched challenges lies in using \emph{pairwise symbol preferences}
+to characterise a precedence, normalising the target prover run times on per problem basis,
+and in the use of ``second-order'' learning of the preferences for symbols abstracted by their features.
+These concepts are introduced in \Cref{sect:overview} and later formalized in \Cref{sec:architecture}.
+\Cref{sec:evaluation} presents the results of our experimental evaluation of the proposed technique over the TPTP \cite{Sut17} benchmark.
+We start our exposition by fixing the notation and basic concepts in \Cref{sect:prelim}.
 
 % Final paragraph, with forward reference, explains how we tackle the challenges and where it is explained
 % 1) preference values
 % 2) normalization
 % 3) learning to order things
 
-To the best of our knowledge, we are the first to try this (high risk high gain)
+\section{Preliminaries} \label{sect:prelim}
 
-\section{Preliminaries}
+% \subsection{Terminology}
 
-\subsection{Terminology}
-
-We assume that the reader is familiar with basic concepts used in \gls{fol} theorem proving.
+We assume that the reader is familiar with basic concepts used in \gls*{fol} theorem proving.
 We use this section to recall and formalize the key notions relevant for our work.
 
 % such as \gls{fol} problem, problem signature, predicate symbol, function symbol, clause and \gls{cnf}.
@@ -111,7 +118,7 @@ clauses built over the symbols of \(\symbols\).
 % This is where we assume familiarity with FOL.
 
 The problem is either given directly by the user or 
-could be the result of clausifying a general \gls{fol} formula \(\varphi\),
+could be the result of clausifying a general \gls*{fol} formula \(\varphi\),
 in which case we know which of the symbols were introduced during the clausification
 (namely during Tseitin transformation and skolemization; see e.g. \citet{DBLP:books/el/RV01/NonnengartW01})
 and which occurred in the conjecture (if it was present).
@@ -127,13 +134,13 @@ A precedence \(\pi_P\) \emph{determines} a (total) ordering on \(\symbols\) as f
 \paragraph{Simplification Orderings} are orderings on terms used to parameterize the superposition calculus \cite{Nieuwenhuis2001}
 employed by modern saturation-based theorem provers. The two classes of simplification orderings most commonly used in practice,
 % \todo[author=Filip]{Why do we believe they are most commonly used in practice? Can we cite some source?}
-the \acrlongpl{kbo} \cite{Knuth1983} and the \acrlongpl{lpo} \cite{Kamin1980}, are both defined in terms 
+the \acrlongpl*{kbo} \cite{Knuth1983} and the \acrlongpl*{lpo} \cite{Kamin1980}, are both defined in terms 
 of a user-supplied (possibly partial) ordering $<$ %(typically also called the precedence) 
 on the given problem's signature \(\symbols\).
 In this work, we assume that the theorem prover uses a simplification ordering from one of these two classes
 relying on the ordering on \(\symbols\) determined by a precedence \(\pi_P\) to construct such a simplification ordering.
 
-\paragraph{Performance measure} A saturation-based \gls{atp} \emph{solves} a problem \(P = (\symbols,\clauses)\)
+\paragraph{Performance measure} A saturation-based \gls*{atp} \emph{solves} a problem \(P = (\symbols,\clauses)\)
 (under a particular fixed strategy and a determined symbol precedence \(\pi_P\))  by either
 \begin{itemize}
 \item
@@ -141,27 +148,28 @@ relying on the ordering on \(\symbols\) determined by a precedence \(\pi_P\) to 
 	in which case \(P\) is shown \emph{unsatisfiable}, or
 \item
 	finitely saturating the set of clauses \(\clauses\) without deriving the contradiction,
-	in which case \(P\) is shown \emph{satisfiable}.\footnote{We assume a \emph{refutationally complete} strategy.}	
+	in which case \(P\) is shown \emph{satisfiable}.\footnote{We assume a \emph{refutationally complete} calculus and saturation strategy.}	
 \end{itemize}
-In both cases, we take the number of iterations of the employed saturation algorithm (see, e.g., \citet{DBLP:journals/jsc/RiazanovV03} for an overview) as a measure of effort that the \gls{atp} took to solve the problem.
-We will refer to this measure as the \emph{\gls{abstract-solving-time}} and denote it \(\AbstractTime(P,\pi_P)\).\footnote{The advantage of using abstract solving time is that it does not depend on the hardware used for the computation.}
+In both cases, we take the number of iterations of the employed saturation algorithm (see, e.g., \citet{DBLP:journals/jsc/RiazanovV03} for an overview) 
+as a measure of the effort that the \gls*{atp} took to solve the problem.
+We refer to this measure as the \emph{\gls*{abstract-solving-time}} and denote it \(\AbstractTime(P,\pi_P)\).\footnote{The advantage of using abstract solving time is that it does not depend on the hardware used for the computation.}
 
-In practice, an \gls{atp} can also run out of resources, typically out of the allocated time.
+In practice, an \gls*{atp} can also run out of resources, typically out of the allocated time.
 In that case, the abstract solving time is \emph{undefined}: \(\AbstractTime(P,\pi_P) = \bot\).
-
-While it may happen that running an \gls{atp} with the same problem and symbol precedence two times
+%
+While it may happen that running an \gls*{atp} with the same problem and symbol precedence two times
 yields a different result each time (namely succeeding one time and failing another time),
 such cases are rare and we ensure they do not interfere with the learning process by caching the results.
 
 
-\paragraph{\Gls{order-matrix}}
+\paragraph{\Gls*{order-matrix}}
 Given a permutation \(\pi\) of the set of indices \(\{1,\ldots,n\}\),
-the \gls{order-matrix} \(\OrderMatrix(\pi)\) is a binary matrix of size \(n \times n\)
+the \gls*{order-matrix} \(\OrderMatrix(\pi)\) is a binary matrix of size \(n \times n\)
 defined in the following manner:
 \begin{align*}
 \OrderMatrix(\pi)_{i, j} = \iverson{\inv{\pi}(i) < \inv{\pi}(j)},
 \end{align*}
-where we use \(\iverson{P}\) to denote the Iverson bracket \cite{Iverson1962} applied to proposition \(P\),
+where we use \(\iverson{P}\) to denote the Iverson bracket \cite{Iverson1962} applied to a proposition \(P\),
 % In \citet{Iverson1962}, the expression is called "relational statement".
 evaluating to 1 if \(P\) is true, and 0 otherwise.
 In other words, for a symbol precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) if
@@ -174,26 +182,31 @@ Given a matrix \(M\) of size \(n \times n\),
 \begin{align*}
 \flatten{M}_{(i - 1) n + j} = M_{i, j}
 \end{align*}
-for every \(i,j\in\{1,\ldots,n\}\).
+for every \(i,j\in\{1,\ldots,n\}\). For our use the exact way of mapping the 
+matrix elements to the vector indices is not important. We mostly just need a vector representation
+of the data contained in the given matrix to have access to the dot product operation. % which is more natural for vectors.
 
-% \todo[inline,author=Martin]{What is linear regression? Define and cite.}
+\paragraph{Linear regression}
+
+\todo[inline,author=Martin]{What is linear regression? Define and cite.}
+
 % \todo[inline,author=Martin]{Define sufficient apparatus to be able to prove that if we use linear regression for the general preference prediction, than we can construct optimum precedence in linear time from the coefficients. Write down the proof.}
 
-\subsection{Basic assumptions}
+\paragraph{Basic assumptions}
 
 For the discussion that follows,
 we assume a fixed %\gls{fol} 
-\gls{atp} that uses the superposition calculus with a simplification ordering parameterized by a symbol precedence.
+\gls*{atp} that uses the superposition calculus with a simplification ordering parameterized by a symbol precedence.
 %\todo[author=Filip]{Consider different approach: "For the discussion that follows,
 %we assume that Vampire is used. We keep the discussion general enough to accommodate any precedence-parameterized ATP."
 %and use "Vampire" instead of "ATP" in sections that follow.}
-While the practical experiments described in \autoref{sec:evaluation} use the \gls{atp} \gls{vampire} \cite{Kovacs2013},
+While the practical experiments described in \Cref{sec:evaluation} use the \gls*{atp} \gls*{vampire} \cite{Kovacs2013},
 % \todo[author=Filip]{Remove if we end up omitting practical experiments.}
-the model architecture does not assume a particular \gls{atp}
-and is compatible with any superposition-based \gls{atp} such as \gls{vampire} or E \cite{SCV:CADE-2019}.
+the model architecture does not assume a particular \gls*{atp}
+and is compatible with any superposition-based \gls*{atp} such as E \cite{SCV:CADE-2019}, SPASS \cite{DBLP:conf/cade/WeidenbachDFKSW09} or  \gls*{vampire}.
 % 
 Within the prover a particular saturation strategy is fixed including a time limit.
-If the prover runs out of time before solving a problem, we obtain \(\AbstractTime(P,\pi_P) = \bot\).
+If the prover runs out of time before solving a problem, we record \(\AbstractTime(P,\pi_P) = \bot\).
 
 %The parameters may specify for example a literal comparison mode, a saturation algorithm
 %\todo[author=Filip]{Are these examples or their terminology too specific for Vampire? Can we expect the reader to understand them?}
@@ -207,10 +220,7 @@ If the prover runs out of time before solving a problem, we obtain \(\AbstractTi
 % \todo[inline,author=Filip]{Consider: Mention that we need to call the configured ATP to clausify 
 % the problem so that we know all the symbols including Tseitin and Skolem.}
 
-\section{Architecture}
-\label{sec:architecture}
-
-\subsection{General considerations and overview}
+\section{General considerations and overview} \label{sect:overview}
 
 The aim of this work is to design a system that learns to suggest good symbol precedences to an ATP 
 from observations of the ATP's performance on a class \(\mathcal{P}\) of problems with randomly sampled precedences. 
@@ -327,6 +337,9 @@ We strive to create a system that satisfies the following properties:
 \todo[inline,author=Filip]{Should we mention the following side goal? "Make it possible to backpropagate gradient to the input features for future GNN training."}
 
 \fi
+
+\section{Architecture}
+\label{sec:architecture}
 
 \subsection{Values of precedences}
 \label{sec:precedence-valuation}
