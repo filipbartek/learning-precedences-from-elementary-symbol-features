@@ -570,29 +570,20 @@ The rest of this section provides a brief description of the algorithm.
 \newcommand{\SymbolsAvail}{\symbols_{\mathit{avail}}}
 \newcommand{\potential}{c}
 
-The algorithm maintains a partially constructed symbol precedence (initially empty),
-a set of available symbols \(\SymbolsAvail\) (initially containing all symbols in \(\symbols\))
+The algorithm maintains a partially constructed symbol precedence \(\mathbf{p} \in \symbols^*\) (initially empty),
+a set of available symbols \(\SymbolsAvail \subseteq \symbols\) (initially the whole \(\symbols\))
 and a \emph{potential value} for each of the symbols \(\potential: \SymbolsAvail \to \re\).
-It repeatedly selects one of the available symbols,
-removes it from the available set and
-appends it to the partial precedence.
-\todo{Martin: tohle se rika jeste jednou dole, ale tam uz je to presnejsi, protoze uz ctenar vi,
-co je $\potential(s_i)$ a muzes rict: the smallest potential.
-Asi bych se pokusit to preformulovat tak, abys to rikal jenom jednou a uz presne.}
-This process is repeated until all symbols have been selected.
-
 The potential value of a symbol corresponds to the relative increase in proxy cost
-\todo[author=Filip]{Should we explain in more detail?
-Martin: tohle je asi dobry.}
 associated with selecting the symbol as the next to append to the partial precedence:
 \begin{align*}
 \potential(s_i) = \sum_{s_j \in \SymbolsAvail} {W_P}_{i, j} - \sum_{s_j \in \SymbolsAvail} {W_P}_{j, i}
 \end{align*}
 
-In each iteration, a symbol with the smallest potential is chosen as the next in the precedence
-and removed from \(\SymbolsAvail\)
-and the potentials of the remaining symbols in \(\SymbolsAvail\) are updated.
-
+In each iteration, a symbol with the smallest potential is chosen from \(\SymbolsAvail\).
+This symbol is removed from \(\SymbolsAvail\) and appended to the partial precedence \(\mathbf{p}\).
+The potentials of the remaining symbols in \(\SymbolsAvail\) are updated.
+This process is repeated until all symbols have been selected,
+returning the final \(\mathbf{p}\).
 % Implementation: https://github.com/filipbartek/vampire-ml/blob/master/vampire_ml/precedence.py
 
 % Dneska uz ne:
