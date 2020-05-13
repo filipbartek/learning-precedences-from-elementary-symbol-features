@@ -432,6 +432,7 @@ that minimizes the mean square error
 \begin{align*}
 \frac{1}{m} \sum_{(\pi_P, \CostStd(\pi_P)) \in T} (\CostProxy(\pi_P, W_P) - \CostStd(\pi_P))^2
 \end{align*}
+\todo{Martin: MSE neni presne, kdyz nakonec pouzijeme Lasso/Ridge. Mozna vynechat?}
 by linear regression.
 \todo[author=Martin]{Since we use Lasso, we don't minimize MSE.}
 
@@ -490,6 +491,8 @@ are readily available in %the \gls*{atp}
 and that they suffice as a basis for common precedence generation schemes,
 such as the \texttt{invfreq} scheme.
 
+\todo{Martin: Co zavest znaceni pro feature-vectorizaci symbolu? $\mathit{fv}$ se mi mnohokrat hodilo pri uvahach na tabuli! }
+
 We represent a pair of symbols by the concatenation of their feature vectors.
 
 \subsubsection{Training data}
@@ -498,7 +501,9 @@ The general preference regressor is trained on samples of the following structur
 
 \begin{itemize}
 	\item the input: the embedding of a symbol pair \(s_i, s_j\) in problem \(P\),
-	\item the target: \({W_P}_{i,j}\) -- an element of the preference matrix we learned for problem \(P\).
+	\todo{Martin: tady by pak bylo presnejsi pouzi $\mathit{fv}$}
+	\item the target: \({W_P}_{i,j}\) -- an element of the preference matrix we learned for problem \(P\)
+	corresponding to the symbols pair \((s_i,s_j)\).
 \end{itemize}
 We sample problem \(P\) from the training problem set with uniform probability.
 %\todo[author=Filip]{Actually we immediately exclude problems whose preference matrix is all-zero.
@@ -519,11 +524,17 @@ improves the performance of the resulting model.
 
 % \todo[inline,author=Filip]{Will we use problem weighting after all? It is more difficult to justify...}
 
+\todo{Martin: Co zavest znaceni pro vysledny nauceny model? Neco jako $\mathit{reg2}$?}
+
 \subsection{Precedence construction} \label{sect:construction}
 
 When presented a new problem \(P = (\symbols, \clauses)\), we propose a symbol precedence by taking the following steps:
 \begin{enumerate}
 	\item Construct a preference matrix \(W_P\).
+	
+	\todo{Martin: trochu se mi nelibi, ze se tady opakuje \(W_P\). Drive to byly naucene preference 
+	z linearniho klasifikatoru pro trenovaci problem. Ted ji stavime z $\mathit{reg2}$ pro testovaci problem!  }
+	
 	\item Construct a precedence \(\pi_P\) that approximately minimizes
 	the proxy cost \(\CostProxy(\pi_P, W_P)\).
 \end{enumerate}
@@ -534,19 +545,26 @@ To construct a preference matrix \(W_P\) for a new problem \(P\),
 we evaluate the general preference regressor
 on the feature vectors of all symbol pairs in \(P\).
 
-Note that we could use \(W_P\) to estimate the cost of an arbitrary symbol precedence.
-Instead of that we will use it to find a symbol precedence
-that approximately minimizes the estimated cost.
+\todo{Martin: tohle by mohlo/melo byt presnejsi: \({W_P}_{i,j} =  \mathit{reg2}([\mathit{fv}(s_i),\mathit{fv}(s_j)])\) }
+
+At this moment, one can use \(W_P\) to estimate the cost of an arbitrary symbol precedence.
+% To uz se moc opakujeme:
+% Instead of that we will use it to find a symbol precedence
+% that approximately minimizes the estimated cost.
 
 \subsubsection{Precedence construction from preference matrix} \label{sect:ltot}
 
 The remaining task is, given a preference matrix \(W_P\), to find a precedence \(\pi_P\)
 that minimizes \(\CostProxy(\pi_P, W_P)\).
-While this task is NP-hard in general,
-\citet{Cohen2011} propose a greedy 2-approximation algorithm.
+Since this task is NP-hard in general,  \todo{Martin: tady by to chtelo taky citaci! Mozna jenom \cite{Cohen2011}? }
+we rely in this work on a greedy 2-approximation algorithm
+proposed by a \citet{Cohen2011}.
 \todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
-	Martin: tak napisme, ze jinak musime projit $n!$ moznosti...}
-\todo[author=Filip]{Should we run an experiment to determine the actual approximation reached on small problems?}
+	Martin: tak napisme, ze jinak musime projit $n!$ moznosti...
+	Martin2: v dalsim rozsireni bys mohl vyzkouset a zmerit hillclimb. Da se startovat ze seedu od Cohena,
+	nebo i z nahodnych seedu opakovane.}
+\todo[author=Filip]{Should we run an experiment to determine the actual approximation reached on small problems?
+Martin: To by mohlo byt zajimave, ale momentalne mame asi dulezitejsi veci v hledacku.}
 The rest of this section provides a brief description of the algorithm.
 
 \newcommand{\SymbolsAvail}{\symbols_{\mathit{avail}}}
@@ -554,14 +572,18 @@ The rest of this section provides a brief description of the algorithm.
 
 The algorithm maintains a partially constructed symbol precedence (initially empty),
 a set of available symbols \(\SymbolsAvail\) (initially containing all symbols in \(\symbols\))
-and a \emph{potential value} for each of the symbols \(\potential: \SymbolsAvail -> \re\).
+and a \emph{potential value} for each of the symbols \(\potential: \SymbolsAvail \to \re\).
 It repeatedly selects one of the available symbols,
 removes it from the available set and
 appends it to the partial precedence.
+\todo{Martin: tohle se rika jeste jednou dole, ale tam uz je to presnejsi, protoze uz ctenar vi,
+co je $\potential(s_i)$ a muzes rict: the smallest potential.
+Asi bych se pokusit to preformulovat tak, abys to rikal jenom jednou a uz presne.}
 This process is repeated until all symbols have been selected.
 
 The potential value of a symbol corresponds to the relative increase in proxy cost
-\todo[author=Filip]{Should we explain in more detail?}
+\todo[author=Filip]{Should we explain in more detail?
+Martin: tohle je asi dobry.}
 associated with selecting the symbol as the next to append to the partial precedence:
 \begin{align*}
 \potential(s_i) = \sum_{s_j \in \SymbolsAvail} {W_P}_{i, j} - \sum_{s_j \in \SymbolsAvail} {W_P}_{j, i}
@@ -573,8 +595,9 @@ and the potentials of the remaining symbols in \(\SymbolsAvail\) are updated.
 
 % Implementation: https://github.com/filipbartek/vampire-ml/blob/master/vampire_ml/precedence.py
 
-\todo[inline,author=Filip]{Prove: If pref over embeddings is a sum of fl(l) and fr(r), then we can find optimum pi in linear time. This holds namely if pref is linear.}
-\todo[inline,author=Filip]{Prove: If pref(l, r) is a sum of fl(l) and fr(r), then LtOT yields the optimum pi.}
+% Dneska uz ne:
+% \todo[inline,author=Filip]{Prove: If pref over embeddings is a sum of fl(l) and fr(r), then we can find optimum pi in linear time. This holds namely if pref is linear.}
+% \todo[inline,author=Filip]{Prove: If pref(l, r) is a sum of fl(l) and fr(r), then LtOT yields the optimum pi.}
 
 \section{Evaluation}
 \label{sec:evaluation}
