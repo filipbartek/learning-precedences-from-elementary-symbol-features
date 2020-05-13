@@ -504,7 +504,7 @@ The general preference regressor is trained on samples of the following structur
 \begin{itemize}
 	\item the input: \([\fv(s_i), \fv(s_j)]\) -- the embedding of a symbol pair \(s_i, s_j\) in problem \(P\),
 	\item the target: \({W_P}_{i,j}\) -- an element of the preference matrix we learned for problem \(P\)
-	corresponding to the symbols pair \((s_i,s_j)\).
+	corresponding to the symbol pair \((s_i,s_j)\).
 \end{itemize}
 We sample problem \(P\) from the training problem set with uniform probability.
 %\todo[author=Filip]{Actually we immediately exclude problems whose preference matrix is all-zero.
