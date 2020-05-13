@@ -601,49 +601,61 @@ Function symbols are ordered by the \texttt{invfreq} scheme.
 For evaluation of the system presented in \autoref{sec:architecture},
 we use TPTP v7.2.0 \cite{Sut17}, a library of problems.
 
-We repeatedly sample a training set of 100 problems and test set of 1000 problems.
+To evaluate the stability of training, we repeat the experiment 5 times with different seeds.
+Each time we sample a training set of 1000 problems and test set of 1000 problems.
 We restrict the sampling to \acrshort{fol} and \acrshort{cnf} problems with at most 1024 predicate symbols for test set and at most 200 predicate symbols for training set.
 % problems/predicate-small-1024.txt
-We further restrict the training set based on the results of 24 probe runs with uniformly random predicate precedences:
-we only consider problems with at least 1 successful run and at least 1 failing run out of the 24 probe runs.
-% problems/predicate-1.txt
-\todo[author=Filip]{There is noise in the experiment: we have added some problems with more than 1024 predicates.}
+We further restrict the training set based on the results of 24 probing proof attempts
+with uniformly random predicate precedences:
+we only consider problems with at least 1 successful proof search out of the 24.
+% problems/predicate-solvable.txt
 We sample the problems uniformly in a way that ensures that the training and test problem sets do not overlap.
 
 On each training problem we run the \gls{atp} Vampire with 100 uniformly random predicate precedences
-and with a strategy fixed up to the predicate precedence.\footnote{Time limit: 10 seconds, memory limit: 8192 MB, literal comparison mode: predicate, function symbol precedence: \texttt{invfreq}, saturation algorithm: discount, age-weight ratio: 10, avatar: disabled.}
+and a strategy fixed up to the predicate precedence.\footnote{Time limit: 10 seconds, memory limit: 8192 MB, literal comparison mode: predicate, function symbol precedence: \texttt{invfreq}, saturation algorithm: discount, age-weight ratio: 10, avatar: disabled.}
 \todo[author=Filip]{Write the age-weight ratio as a ratio. Is it 10:1 in favor of age?}
 \todo[author=Filip]{What is the correct way to type "avatar"?}
 % vampire --literal_comparison_mode predicate --symbol_precedence frequency --saturation_algorithm discount --age_weight_ratio 10 --avatar off --time_limit 10 --memory_limit 8192
-Note that we use a customized version of Vampire to extract a symbol table from each problem.\footnote{\url{https://github.com/filipbartek/vampire/tree/926154f2}}
+Note that we use a customized version of Vampire to extract a symbol table from each of the problems.\footnote{\url{https://github.com/filipbartek/vampire/tree/926154f2}}
 % `git reflog` shortens the commit hashes to a prefix of length 8.
 \todo[author=Filip]{Should we avoid including my username "filipbartek" to allow double-blind review?}
 
-After we fit a preference matrix to each of the training problems (see \autoref{sect:preferences}),
-we create a batch of 1000000 symbol pair feature vectors with target values
+After we fit a preference matrix on each of the training problems (see \autoref{sect:preferences}),
+we create a batch of \(10^6\) symbol pair feature vectors with target values
 to train the general preference regressor (see \autoref{sec:general-preference}).
 We evaluate the trained model by running Vampire on the test problem set with predicate precedences
 proposed by the trained model,
 counting the number of successfully solved problems.
 
-We repeat the whole process 5 times to estimate the stability of the training.
-
 \todo[inline,author=Filip]{Add a link to the repo with the experiment code.}
 
-\subsection{Results}
+\subsection{Experimental results}
+
+The following table shows the results of evaluation on 1000 problems aggregated
+across 5 random choices of training and test problem set:
 
 \begin{tabular}{lrr}
 	Case & Success count mean & Success count std \\
 	\hline
-	Best of 10 random & 506.40 & 9.75 \\
-	\texttt{invfreq} & 480.60 & 10.52 \\
-	Weighting(1,1) & 478.00 & 16.26 \\
-	Weighting(0,1) & 477.40 & 16.61 \\
-	Weighting(0,0) & 466.00 & 17.81 \\
+	Best of 10 uniformly random precedences & 501.80 & 13.85 \\
+	Machine learning with ElasticNetCV & 476.60 & 12.67 \\
+	Vampire with \texttt{invfreq} & 475.80 & 13.83 \\
+	Random precedence & 450.40 & 10.25 \\
 \end{tabular}
 % Source: https://docs.google.com/spreadsheets/d/1HSsC7piUAtWt6uwA9SYOX5vmiF0Ab3Ae4FPyGsDALIg/edit?usp=sharing
-\todo[inline,author=Filip]{Update the data with results from a new experiment.}
-\todo[inline,author=Filip]{Describe the results.}
+\todo[inline,author=Filip]{Add results from the experiment with weighting on and off.}
+
+Our machine learning model on average matches the performance
+of Vampire with the \texttt{invfreq} precedence scheme.
+While it performs significantly better than random precedence generator,
+it still performs significantly worse than a generator
+that, given a problem, tries 10 random precedences and chooses the best of these.
+This suggests that there is space for improvement, possibly with a more sophisticated, non-linear model.
+
+%The current architecture allows using arbitrary symbol feature vectors
+%and can be modified to backpropagate loss gradients.
+%This opens a way for using neural networks as feature extractors.
+
 \todo[inline,author=Filip]{Consider adding example feature weights.}
 
 \section{Conclusion}
