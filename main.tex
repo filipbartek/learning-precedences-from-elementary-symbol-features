@@ -491,18 +491,18 @@ are readily available in %the \gls*{atp}
 \gls*{vampire}
 and that they suffice as a basis for common precedence generation schemes,
 such as the \texttt{invfreq} scheme.
+\newcommand{\fv}{\mathit{fv}}
+We denote the feature vector corresponding to symbol \(s\) as \(\fv(s)\).
 
-\todo{Martin: Co zavest znaceni pro feature-vectorizaci symbolu? $\mathit{fv}$ se mi mnohokrat hodilo pri uvahach na tabuli! }
-
-We represent a pair of symbols by the concatenation of their feature vectors.
+We represent a pair of symbols \(s, t\)
+by the concatenation of their feature vectors \([\fv(s), \fv(t)]\).
 
 \subsubsection{Training data}
 
 The general preference regressor is trained on samples of the following structure:
 
 \begin{itemize}
-	\item the input: the embedding of a symbol pair \(s_i, s_j\) in problem \(P\),
-	\todo{Martin: tady by pak bylo presnejsi pouzi $\mathit{fv}$}
+	\item the input: \([\fv(s_i), \fv(s_j)]\) -- the embedding of a symbol pair \(s_i, s_j\) in problem \(P\),
 	\item the target: \({W_P}_{i,j}\) -- an element of the preference matrix we learned for problem \(P\)
 	corresponding to the symbols pair \((s_i,s_j)\).
 \end{itemize}
