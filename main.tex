@@ -623,18 +623,22 @@ Function symbols are ordered by the \texttt{invfreq} scheme.
 %	
 %	- Train predicate and function preference regressor simultaneously with a shared underlying GNN.}
 
+\newcommand{\ProblemsTrain}{\mathcal{P}_{\mathit{train}}}
+\newcommand{\ProblemsTest}{\mathcal{P}_{\mathit{test}}}
+
 We use problems from the TPTP library v7.2.0 \cite{Sut17} for the evaluation.
-%
-To evaluate the stability of training, we repeat the experiment 5 times with different seeds.
-Each time we sample a training set of 1000 problems and test set of 1000 problems.
-We restrict the sampling to \acrshort*{fol} and \acrshort*{cnf} problems with at most 1024 predicate symbols
-for test set and at most 200 predicate symbols for training set.
+Let \(\ProblemsTrain\) be the set of all \acrshort*{fol} and \acrshort*{cnf} problems in TPTP
+with at most 200 predicate symbols such that at least 1 out of 24 random predicate precedences
+leads to a successful proof search (\(|\ProblemsTrain| = 8217\)).
+% problems/predicate-small-1024.txt & problems/predicate-solvable.txt & n_predicates <= 200
+Let \(\ProblemsTest\) be the set of all \acrshort*{fol} and \acrshort*{cnf} problems in TPTP
+with at most 1024 predicate symbols (\(|\ProblemsTest| = 15751\)).
 % problems/predicate-small-1024.txt
-We further restrict the training set based on the results of 24 probing proof attempts
-with uniformly random predicate precedences:
-we only consider problems with at least 1 successful proof search out of the 24.
-% problems/predicate-solvable.txt
-We sample the problems uniformly in a way that ensures that the training and test problem sets do not overlap.
+In each of 5 evaluation iterations,
+we sample 1000 training problems from \(\ProblemsTrain\)
+and 1000 test problems from \(\ProblemsTest\)
+uniformly in a way that ensures that the sets do not overlap.
+We repeat the experiment 5 times to evaluate the stability of training.
 
 On each training problem we run %the \gls{atp} 
 Vampire with 100 uniformly random predicate precedences
