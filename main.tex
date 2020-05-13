@@ -605,29 +605,30 @@ and the potentials of the remaining symbols in \(\SymbolsAvail\) are updated.
 
 \subsection{Setup}
 
-Since the ordering strategies under consideration (\acrshort{lpo} and \acrshort{kbo})
+Since the simplification orderings under consideration (\acrshort*{lpo} and \acrshort*{kbo})
 never use the symbol precedence to compare a predicate symbol with a function symbol,
-we can break the symbol precedence down into a predicate precedence and a function precedence.
-For the sake of simplicity,
-our practical experiments only propose predicate precedences.
+we can break down the symbol precedence  into a predicate precedence and a function precedence.
+For the sake of simplicity and easier interpretation of the results,
+we restrict our attention in this evaluation to predicate precedences.
 Function symbols are ordered by the \texttt{invfreq} scheme.
-\todo[inline,author=Filip]{Discuss more.
-	Possible generalizations to combination of predicate and function precedences:
-	
-	- Learn predicate precedence in the context of frequency heuristic for function precedences. (current experiment)
-	
-	- Learn predicate precedence in the context of random function precedences.
-	
-	- Iterate: Learn predicate precedence in the context of function precedences from previous training epoch.
-	
-	- Train predicate and function preference regressor simultaneously with a shared underlying GNN.}
 
-For evaluation of the system presented in \autoref{sec:architecture},
-we use TPTP v7.2.0 \cite{Sut17}, a library of problems.
+%\todo[inline,author=Filip]{Discuss more.
+%	Possible generalizations to combination of predicate and function precedences:
+%	
+%	- Learn predicate precedence in the context of frequency heuristic for function precedences. (current experiment)
+%	
+%	- Learn predicate precedence in the context of random function precedences.
+%	
+%	- Iterate: Learn predicate precedence in the context of function precedences from previous training epoch.
+%	
+%	- Train predicate and function preference regressor simultaneously with a shared underlying GNN.}
 
+We use problems from the TPTP library v7.2.0 \cite{Sut17} for the evaluation.
+%
 To evaluate the stability of training, we repeat the experiment 5 times with different seeds.
 Each time we sample a training set of 1000 problems and test set of 1000 problems.
-We restrict the sampling to \acrshort{fol} and \acrshort{cnf} problems with at most 1024 predicate symbols for test set and at most 200 predicate symbols for training set.
+We restrict the sampling to \acrshort*{fol} and \acrshort*{cnf} problems with at most 1024 predicate symbols
+for test set and at most 200 predicate symbols for training set.
 % problems/predicate-small-1024.txt
 We further restrict the training set based on the results of 24 probing proof attempts
 with uniformly random predicate precedences:
@@ -635,18 +636,17 @@ we only consider problems with at least 1 successful proof search out of the 24.
 % problems/predicate-solvable.txt
 We sample the problems uniformly in a way that ensures that the training and test problem sets do not overlap.
 
-On each training problem we run the \gls{atp} Vampire with 100 uniformly random predicate precedences
-and a strategy fixed up to the predicate precedence.\footnote{Time limit: 10 seconds, memory limit: 8192 MB, literal comparison mode: predicate, function symbol precedence: \texttt{invfreq}, saturation algorithm: discount, age-weight ratio: 10, avatar: disabled.}
-\todo[author=Filip]{Write the age-weight ratio as a ratio. Is it 10:1 in favor of age?}
-\todo[author=Filip]{What is the correct way to type "avatar"?}
+On each training problem we run %the \gls{atp} 
+Vampire with 100 uniformly random predicate precedences
+and a strategy fixed up to the predicate precedence.\footnote{Time limit: 10 seconds, memory limit: 8192 MB, literal comparison mode: predicate, function symbol precedence: \texttt{invfreq}, saturation algorithm: discount, age-weight ratio: 1:10, AVATAR: disabled.}
 % vampire --literal_comparison_mode predicate --symbol_precedence frequency --saturation_algorithm discount --age_weight_ratio 10 --avatar off --time_limit 10 --memory_limit 8192
 Note that we use a customized version of Vampire to extract a symbol table from each of the problems.\footnote{\url{https://github.com/filipbartek/vampire/tree/926154f2}}
 % `git reflog` shortens the commit hashes to a prefix of length 8.
 \todo[author=Filip]{Should we avoid including my username "filipbartek" to allow double-blind review?}
 
-After we fit a preference matrix on each of the training problems (see \autoref{sect:preferences}),
+After we fit a preference matrix on each of the training problems (see \Cref{sect:preferences}),
 we create a batch of \(10^6\) symbol pair feature vectors with target values
-to train the general preference regressor (see \autoref{sec:general-preference}).
+to train the general preference regressor (see \Cref{sec:general-preference}).
 We evaluate the trained model by running Vampire on the test problem set with predicate precedences
 proposed by the trained model,
 counting the number of successfully solved problems.
