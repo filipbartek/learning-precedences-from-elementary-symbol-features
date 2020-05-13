@@ -511,26 +511,58 @@ improves the performance of the resulting model.
 
 \subsection{Precedence construction} \label{sect:construction}
 
-When presented a new problem, we construct a predicate precedence by
-first evaluating the general preference regressor for all pairs of symbols, 
-\todo[inline]{Martin: tady si to zaslouzi rozepsat lepe! 
-Ze vytvarime zbrusu novou matici $W_P$, kterou jeste nikdo nevidel.
-Ze buchom ji mohli pouzit na predikovani vykonu jednotlivych precedenci,
-ale ze mi ted chceme tu nejlepsi, kterou umi.}
-and then using a greedy algorithm described in \citet{Cohen2011}
-to construct the precedence using these estimates of preference values.
-While the problem of finding the optimum \(\pi_P\) given a \(W_P\) is NP-hard in general,
-the greedy algorithm is 2-approximation.
-In this manner we find a \(\pi_P\) that approximately minimizes \(\CostProxy(\pi_P)\).
+When presented a new problem \(P = (\symbols, \clauses)\), we propose a symbol precedence by taking the following steps:
+\begin{enumerate}
+	\item Construct a preference matrix \(W_P\).
+	\item Construct a precedence \(\pi_P\) that approximately minimizes
+	the proxy cost \(\CostProxy(\pi_P, W_P)\).
+\end{enumerate}
 
-\subsubsection{Learning to Order Things} \label{sect:ltot}
+\subsubsection{Preference matrix construction}
 
-\todo[inline]{Martin: Slibil jsem (mini-)sekci, kde se vysvetli LToT.}
+To construct a preference matrix \(W_P\) for a new problem \(P\),
+we evaluate the general preference regressor
+on the feature vectors of all symbol pairs in \(P\).
 
-\todo[author=Filip]{Too strong claim?}
-\todo[author=Martin]{Trochu rozepsat, aby lidi taky meli radost, ze existuje LtOT.}
+Note that we could use \(W_P\) to estimate the cost of an arbitrary symbol precedence.
+Instead of that we will use it to find a symbol precedence
+that approximately minimizes the estimated cost.
+
+\subsubsection{Precedence construction from preference matrix} \label{sect:ltot}
+
+The remaining task is, given a preference matrix \(W_P\), to find a precedence \(\pi_P\)
+that minimizes \(\CostProxy(\pi_P, W_P)\).
+While this task is NP-hard in general,
+\citet{Cohen2011} propose a greedy 2-approximation algorithm.
 \todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
 	Martin: tak napisme, ze jinak musime projit $n!$ moznosti...}
+\todo[author=Filip]{Should we run an experiment to determine the actual approximation reached on small problems?}
+The rest of this section provides a brief description of the algorithm.
+
+\newcommand{\SymbolsAvail}{\symbols_{\mathit{avail}}}
+\newcommand{\potential}{c}
+
+The algorithm maintains a partially constructed symbol precedence (initially empty),
+a set of available symbols \(\SymbolsAvail\) (initially containing all symbols in \(\symbols\))
+and a \emph{potential value} for each of the symbols \(\potential: \SymbolsAvail -> \re\).
+It repeatedly selects one of the available symbols,
+removes it from the available set and
+appends it to the partial precedence.
+This process is repeated until all symbols have been selected.
+
+The potential value of a symbol corresponds to the relative increase in proxy cost
+\todo[author=Filip]{Should we explain in more detail?}
+associated with selecting the symbol as the next to append to the partial precedence:
+\begin{align*}
+\potential(s_i) = \sum_{s_j \in \SymbolsAvail} {W_P}_{i, j} - \sum_{s_j \in \SymbolsAvail} {W_P}_{j, i}
+\end{align*}
+
+In each iteration, a symbol with the smallest potential is chosen as the next in the precedence
+and removed from \(\SymbolsAvail\)
+and the potentials of the remaining symbols in \(\SymbolsAvail\) are updated.
+
+% Implementation: https://github.com/filipbartek/vampire-ml/blob/master/vampire_ml/precedence.py
+
 \todo[inline,author=Filip]{Prove: If pref over embeddings is a sum of fl(l) and fr(r), then we can find optimum pi in linear time. This holds namely if pref is linear.}
 \todo[inline,author=Filip]{Prove: If pref(l, r) is a sum of fl(l) and fr(r), then LtOT yields the optimum pi.}
 
