@@ -82,7 +82,6 @@ the ideally optimal precedence $\pi^*$ according to this model,
 which cannot be simply solved by enumerating all the permutations and running the prediction for each
 due to their huge number.
 
-This paper is, to the best of our knowledge, a first attempt to use machine learning for proposing symbol precedences.
 Our way of addressing the above sketched challenges lies in using \emph{pairwise symbol preferences}
 to characterise a precedence, normalising the target prover run times on per problem basis,
 and in the use of ``second-order'' learning of the preferences for symbols abstracted by their features.
@@ -187,8 +186,15 @@ matrix elements to the vector indices is not important. We mostly just need a ve
 of the data contained in the given matrix to have access to the dot product operation. % which is more natural for vectors.
 
 \paragraph{Linear regression}
-
-\todo[inline,author=Martin]{What is linear regression? Define and cite.}
+is an approach to modeling the relationship between scalar \emph{target} values $y_i \in \re$
+and one or more \emph{input} variables $\mathbf{x}_i = (x^1_i,\ldots,x^k_i)$, $i = 1,\ldots,n$.
+The relationship is modeled using a linear predictor function:
+\[\hat{y}_i =  \mathbf{x}_i \cdot \mathbf{w} + b, \]
+whose unknown model parameters $\mathbf{w}\in \re^k$ and $b \in \re$ are estimated from the data.
+We call the vector $\mathbf{w}$ the \emph{coefficients} of the model and $b$ the \emph{intercept}.
+Most commonly, the parameters are picked to minimize the so called mean squared error:
+\[\mathit{MSE} = \frac{1}{n} \sum\limits_{i=1}^n (\hat{y}_i - y_i)^2, \]
+but other norms are also possible \cite{hastie01statisticallearning}.
 
 % \todo[inline,author=Martin]{Define sufficient apparatus to be able to prove that if we use linear regression for the general preference prediction, than we can construct optimum precedence in linear time from the coefficients. Write down the proof.}
 
@@ -259,7 +265,7 @@ come before a symbol from another class in the precedence
 (e.g., symbols introduced during clausification should typically be smaller than others)
 and assign some weight to this piece of intuition. 
 
-In~\autoref{sect:preferences} we formalize this idea using the notion of \emph{preference matrix}
+In~\Cref{sect:preferences} we formalize this idea using the notion of \emph{preference matrix}
 and show how, for each problem in isolation, such preference matrix can be learned using linear regression.
 
 \paragraph{Learning across problems}
@@ -269,17 +275,16 @@ is that symbols themselves only appear in the context of a particular problem.\f
 On certain benchmarks, such as those coming from translations of mathematical libraries \cite{KaliszykU13b},
 symbols maintain identity and meaning across individual problems. However, since our goal in this work
 is to learn general theorem proving knowledge, we do not use the assumption of aligned signatures.}
-That is why we resort to representing symbols by their \emph{features} (cf.~\autoref{sect:embeddings})
+That is why we resort to representing symbols by their \emph{features} (cf.~\Cref{sect:embeddings})
 when aggregating the learned preferences across different problems.
-This is in more details explained further below and, formally, in \autoref{sect:general}.
-\todo[author=Filip]{Reference missing.}
+This is in more details explained further below and, formally, in \Cref{sec:general-preference}.
 
 We also strive to ensure that the preference values across problems have possibly the same magnitude.
 Note that \(\AbstractTime(P,\pi_P)\) may vary a lot for a fixed problem \(P\) but all the more so across
-problems. To obtain commensurable values, we normalise
-\todo[author=Filip]{I would prefer to use "normalize" since it seems more common to me. Is there an advantage in using "normalise"?}
-(see \autoref{sec:precedence-valuation}) the prover performance data
-on a per problem basis before learning the preferences. Normalisation also deals with
+problems. To obtain commensurable values, we normalize
+%\todo[author=Filip]{I would prefer to use "normalize" since it seems more common to me. Is there an advantage in using "normalise"?}
+(see \Cref{sec:precedence-valuation}) the prover performance data
+on a per problem basis before learning the preferences. Normalization also deals with
 supplying a concrete value to those runs which did not finish, i.e.~have \(\AbstractTime(P,\pi_P) = \bot\).
 
 For the follow-up steps we assume that preferences learned from such normalised data relate to one another
@@ -290,23 +295,24 @@ Once the symbols are abstracted by their feature vectors, we can collect symbol 
 and turn this collection into another regression task. 
 Note that at this moment, the preferences, which were obtained as the coefficients learned by linear regression,
 themselves become the regression target. Thus, in a certain sense, we now do second-order learning.
-It should be stressed that while the learning of the preferences \emph{requires} a linear regression model by design,
+It should be stressed though, that while the learning of the preferences \emph{requires} a linear regression model by design,
 this second-order regression does not need to be linear and more sophisticated models can be experimented with. 
 
-The details of this step are given in \autoref{sec:general-preference}.
+The details of this step are given in \Cref{sec:general-preference}.
 
 \paragraph{Preference prediction and optimization} Once the second-oder model has been learned, we can predict 
 preferences for any pair of symbols based on their feature vectors and thus also predict,
 given a problem $P$, how many steps will a prover require to solve it using a particular precedence $\pi_P$.
 (For this second step, we reverse the idea of decomposition:
 we sum up those predicted preferences that correspond to pairs of symbols $s_i,s_j$
-such that $\pi_P$ orders the symbol $s_i$ before the symbol $s_j$ -- see \autoref{sect:construction} for details).
+such that $\pi_P$ orders the symbol $s_i$ before the symbol $s_j$ -- see \Cref{sect:construction} for details).
 
 Having access to an estimate of performance for each precedence $\pi_P$, the final step 
 is to look for a precedence $\pi^*_P$ that ideally minimises the predicted performance measure 
 over all the $n!$ possible precedences on $P$'s signature. Since finding the true
 optimum could be computationally hard, we resort to using an approximation algorithm by \citet{Cohen2011}.
-The algorithm is recalled in \autoref{sect:ltot}.
+
+The algorithm is recalled in \Cref{sect:ltot}.
 
 % ---> learning to order things (greedy), 
 % hillclimb - from greedy, from random (try many times)
@@ -383,7 +389,7 @@ We further normalize the cost values by the following operations:
 	\item Standardization: %\cite{?}:
 	%\todo[author=Filip]{We can use the more general term "normalization" instead.
 	% Our goal is to normalize the values and standardization is the means we choose.}
-	For each problem,
+	Independently for each problem,
 	we apply an affine transformation so that the resulting cost values
 	have the mean 0 and standard deviation 1.
 	This ensures that the values are comparable across problems.
@@ -460,25 +466,26 @@ and to know target preference values for pairs of symbols in a training problem 
 \label{sec:target-preference-values}
 
 For each problem \(P\) in the training problem set,
-we find a problem preference matrix by the method outlined in \autoref{sect:preferences}.
+we find a problem preference matrix by the method outlined in \Cref{sect:preferences}.
 The target value of an arbitrary pair of symbols \(s_i, s_j\) in \(P\) is \({W_P}_{i,j}\).
 
 \subsubsection{Symbol pair embedding} \label{sect:embeddings}
 
 We represent each symbol by a numeric \emph{feature vector} that consists of the following components:
 symbol arity, % arity
-number of symbol occurrences in the problem, % usageCnt
-number of clauses in the problem that contain at least one occurrence of the symbol, % unitUsageCnt
+the number of symbol occurrences in the problem, % usageCnt
+the number of clauses in the problem that contain at least one occurrence of the symbol, % unitUsageCnt
 % Filip: I have deduced the meaning of usageCnt, unitUsageCnt and inUnit
 % by manual inspection of a few problems.
 % Witness: PUZ056-1.p: predicate 'fits', function 'pin'
-indicator of occurrence in a conjecture clause, % inGoal
-indicator of occurrence in a unit clause, % inUnit
+an indicator of occurrence in a conjecture clause, % inGoal
+an indicator of occurrence in a unit clause, % inUnit
 % Witness: PUZ001-1.p
-indicator of being produced during clausification and % introduced
-indicator of being produced during skolemization. % skolem
+an indicator of being produced during clausification and, % introduced
+an indicator of being produced during skolemization. % skolem
 This choice of symbol features is motivated by the fact that they
-are readily available in the \gls{atp} \gls{vampire}
+are readily available in %the \gls*{atp} 
+\gls*{vampire}
 and that they suffice as a basis for common precedence generation schemes,
 such as the \texttt{invfreq} scheme.
 
@@ -489,15 +496,14 @@ We represent a pair of symbols by the concatenation of their feature vectors.
 The general preference regressor is trained on samples of the following structure:
 
 \begin{itemize}
-	\item Input: Embedding of a symbol pair \(s_i, s_j\) in problem \(P\)
-	\item Target: \({W_P}_{i,j}\) -- an element of the preference matrix we learned for problem \(P\)
+	\item the input: the embedding of a symbol pair \(s_i, s_j\) in problem \(P\),
+	\item the target: \({W_P}_{i,j}\) -- an element of the preference matrix we learned for problem \(P\).
 \end{itemize}
-
 We sample problem \(P\) from the training problem set with uniform probability.
 %\todo[author=Filip]{Actually we immediately exclude problems whose preference matrix is all-zero.
 %Martin: I think it is fine not to say this and still do it that way.}
 
-Thanks to how \(W_P\) is constructed (see \autoref{sect:preferences}),
+Thanks to how \(W_P\) is constructed (see \Cref{sect:preferences}),
 preference values close to 0 are associated with symbol pairs whose mutual order has little effect
 on the outcome of the proof search.
 To focus the training on the symbol pairs whose order does matter,
@@ -641,6 +647,8 @@ We repeat the whole process 5 times to estimate the stability of the training.
 \todo[inline,author=Filip]{Consider adding example feature weights.}
 
 \section{Conclusion}
+
+This paper is, to the best of our knowledge, a first attempt to use machine learning for proposing symbol precedences.
 
 \todo[inline]{Finish.}
 
