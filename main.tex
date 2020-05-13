@@ -448,11 +448,11 @@ We use cross-validation to set the value of the regularization hyperparameter.\f
 Another reason to use the Lasso algorithm is that it performs regularization
 by imposing a penalty on coefficients with large absolute value,
 effectively shrinking the coefficients that correspond to symbol pairs
-whose mutual order does not matter for the performance.
+whose mutual order does not affect the \(\CostStd(\pi_P)\).
 We can use this property to interpret the absolute value of preference value
 as a measure of importance of a given symbol pair.
 
-In the following sections we assume that the preference matrix \(W_P\) we find by linear regression
+In the following sections we assume that the preference matrix \(W_P\) we find by Lasso regression
 yields \(\CostProxy\) that approximates \(\CostStd\) well.
 
 % \todo[inline,author=Filip]{Discuss: We assume that the overall cost is a sum of contributions of symbol pairs. This assumption may be too strong but we proceed with it anyway. Martin: already mentioned informally in the overview.}
