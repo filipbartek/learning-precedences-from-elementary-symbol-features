@@ -433,6 +433,7 @@ that minimizes the mean square error
 \frac{1}{m} \sum_{(\pi_P, \CostStd(\pi_P)) \in T} (\CostProxy(\pi_P, W_P) - \CostStd(\pi_P))^2
 \end{align*}
 by linear regression.
+\todo[author=Martin]{Since we use Lasso, we don't minimize MSE.}
 
 We use the Lasso regression algorithm \cite{Tibshirani1996} instead of standard linear regression
 to improve generalization.
