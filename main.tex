@@ -37,8 +37,7 @@ Both of the two main classes of simplification orderings used in practice,
 i.e., the \acrlong*{kbo} \cite{Knuth1983}
 and the \acrlong*{lpo} \cite{Kamin1980},
 are mainly determined by a %pair of 
-\emph{symbol precedence}, a (partial) ordering on the signature symbols.\footnote{
-KBO is further parameterized by symbol weights, but our reference implementation in Vampire~\cite{Kovacs2013} 
+\emph{symbol precedence}, a (partial) ordering on the signature symbols.\footnote{KBO is further parameterized by symbol weights, but our reference implementation in Vampire~\cite{Kovacs2013} 
 uses for efficiency reasons only weights equal to one \cite{DBLP:conf/cade/KovacsMV11} and so we do not consider this parameter here.}
 
 While the superposition calculus is known \cite{DBLP:journals/logcom/BachmairG94} to be refutationally complete for any simplification ordering, the choice of the precedence may have a significant impact on how long it takes to solve a given problem.
@@ -65,8 +64,7 @@ As a first step in a more ambitious project,
 we focus here on representing the symbols in a problem by a fixed set of simple human-engineered features
 (such as the number the occurrences used by \texttt{invfreq} scheme mentioned above)\footnote{Automatic
 feature extraction using neural-networks is planned for future work.}
-and, to simplify the experimental setup, we restrict our attention to learning precedences for predicate symbols only.\footnote{
-Our theoretical considerations, however, apply equally to learning function symbol precedences.}
+and, to simplify the experimental setup, we restrict our attention to learning precedences for predicate symbols only.\footnote{Our theoretical considerations, however, apply equally to learning function symbol precedences.}
 
 Learning to predict good precedences poses several interesting challenges that we address in this work.
 First, it is not immediately clear how to characterize a precedence, a permutation of a finite set of symbols,
@@ -271,8 +269,7 @@ and show how, for each problem in isolation, such preference matrix can be learn
 \paragraph{Learning across problems}
 Symbol preferences learned on a particular problem are inherently tied to that problem
 and do not immediately carry over to other problems. The main reason for this 
-is that symbols themselves only appear in the context of a particular problem.\footnote{
-On certain benchmarks, such as those coming from translations of mathematical libraries \cite{KaliszykU13b},
+is that symbols themselves only appear in the context of a particular problem.\footnote{On certain benchmarks, such as those coming from translations of mathematical libraries \cite{KaliszykU13b},
 symbols maintain identity and meaning across individual problems. However, since our goal in this work
 is to learn general theorem proving knowledge, we do not use the assumption of aligned signatures.}
 That is why we resort to representing symbols by their \emph{features} (cf.~\Cref{sect:embeddings})
