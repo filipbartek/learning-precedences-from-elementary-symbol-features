@@ -69,9 +69,9 @@ and, to simplify the experimental setup, we restrict our attention to learning p
 Our theoretical considerations, however, apply equally to learning function symbol precedences.}
 
 Learning to predict good precedences poses several interesting challenges that we address in this work.
-First, it is not immediately clear how to characterise a precedence, a permutation of a finite set of symbols,
+First, it is not immediately clear how to characterize a precedence, a permutation of a finite set of symbols,
 by a real-valued feature vector to serve as an input for a learning algorithm. 
-Additionally, to be able to generalise across problems
+Additionally, to be able to generalize across problems
 we need to do it in a way which does not presuppose a fixed signature size. 
 There is also a complication, when sampling different problems,
 that some problems may be easy to solve for almost every precedence and others hard.
@@ -83,7 +83,7 @@ which cannot be simply solved by enumerating all the permutations and running th
 due to their huge number.
 
 Our way of addressing the above sketched challenges lies in using \emph{pairwise symbol preferences}
-to characterise a precedence, normalising the target prover run times on per problem basis,
+to characterize a precedence, normalizing the target prover run times on per problem basis,
 and in the use of ``second-order'' learning of the preferences for symbols abstracted by their features.
 These concepts are introduced in \Cref{sect:overview} and later formalized in \Cref{sec:architecture}.
 \Cref{sec:evaluation} presents the results of our experimental evaluation of the proposed technique over the TPTP \cite{Sut17} benchmark.
@@ -282,12 +282,11 @@ This is in more details explained further below and, formally, in \Cref{sec:gene
 We also strive to ensure that the preference values across problems have possibly the same magnitude.
 Note that \(\AbstractTime(P,\pi_P)\) may vary a lot for a fixed problem \(P\) but all the more so across
 problems. To obtain commensurable values, we normalize
-%\todo[author=Filip]{I would prefer to use "normalize" since it seems more common to me. Is there an advantage in using "normalise"?}
 (see \Cref{sec:precedence-valuation}) the prover performance data
 on a per problem basis before learning the preferences. Normalization also deals with
 supplying a concrete value to those runs which did not finish, i.e.~have \(\AbstractTime(P,\pi_P) = \bot\).
 
-For the follow-up steps we assume that preferences learned from such normalised data relate to one another
+For the follow-up steps we assume that preferences learned from such normalized data relate to one another
 across problems in a meaningful way.
 
 \paragraph{``Second-order'' regression}
@@ -308,7 +307,7 @@ we sum up those predicted preferences that correspond to pairs of symbols $s_i,s
 such that $\pi_P$ orders the symbol $s_i$ before the symbol $s_j$ -- see \Cref{sect:construction} for details).
 
 Having access to an estimate of performance for each precedence $\pi_P$, the final step 
-is to look for a precedence $\pi^*_P$ that ideally minimises the predicted performance measure 
+is to look for a precedence $\pi^*_P$ that ideally minimizes the predicted performance measure 
 over all the $n!$ possible precedences on $P$'s signature. Since finding the true
 optimum could be computationally hard, we resort to using an approximation algorithm by \citet{Cohen2011}.
 
