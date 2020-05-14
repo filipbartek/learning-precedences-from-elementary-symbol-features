@@ -716,17 +716,17 @@ the precedence constructed using the greedy algorithm presented in \Cref{sect:lt
 
 \begin{table}[ht]
 	\centering
-	\begin{tabular}{l|rrr|rrr}
+	\begin{tabular}{c|rrr|rrr}
 		Training set & \multicolumn{3}{c}{Left symbol} & \multicolumn{3}{c}{Right symbol} \\
 		& Arity & Frequency & Unit frequency & Arity & Frequency & Unit frequency \\
 		\hline
-		0 &     &-0.01&     &-0.98& 0.01&      \\
-		1 &     &-0.48&     &     & 0.08& 0.44 \\
-		2 &     &     &-0.64&     & 0.36&      \\
-		3 & 0.88&-0.03& 0.01&     &-0.03& 0.05 \\
-		4 &     &-0.62&     &     & 0.30& 0.07 \\
+		0 &     &$-0.01$&     &$-0.98$&$ 0.01$&      \\
+		1 &     &$-0.48$&     &     &$ 0.08$&$ 0.44 $\\
+		2 &     &     &$-0.64$&     &$ 0.36$&      \\
+		3 &$ 0.88$&$-0.03$& 0.01&     &$-0.03$&$ 0.05 $\\
+		4 &     &$-0.62$&     &     &$ 0.30$&$ 0.07 $\\
 		\hline
-		\(\ProblemsTrain\) &     &     &-0.57&     & 0.43&      \\
+		\(\ProblemsTrain\) &     &     &$-0.57$&     &$ 0.43$&      \\
 	\end{tabular}
 	% Source: https://docs.google.com/spreadsheets/d/1HSsC7piUAtWt6uwA9SYOX5vmiF0Ab3Ae4FPyGsDALIg/edit?usp=sharing
 	\caption{Elastic-Net feature coefficients after fitting on each of the 5 training sets of 1000 problems and on the whole \(\ProblemsTrain\).
@@ -745,18 +745,21 @@ is consistent with the \texttt{invfreq} precedence generating scheme
 
 \section{Conclusion}
 
-This paper is, to the best of our knowledge, a first attempt to use machine learning for proposing symbol precedences.
-This appears to be a potentially highly rewarding task with the possibility of generating effectively unlimited
-amount of training data. Nevertheless, the journey from evaluating the prover on random precedences 
-to proposing a good precedence when presented with a new problem is not straightforward and several 
+This paper is, to the best of our knowledge, a first attempt to use machine learning for proposing symbol precedences for an ATP. 
+This appears to be a potentially highly rewarding task with an assess to effectively unlimited amount of training data generated on demand.
+Nevertheless, the journey from evaluating the prover on random precedences to proposing a good precedence when presented 
+with a new problem is not straightforward and several conceptual gaps need to be bridged to connect these two tasks algorithmically. 
 
-% In this work
-
-
-% Future
-
-
-
+In this paper, we proposed a connection using the concept of pairwise symbol preferences that, as we have shown,
+can be learned as the coefficients of a linear regression model for 
+which an order matrix provides the features of a precedence understood as a permutation. 
+In a second stage, in which symbols are abstracted by their features, the preferences themselves become a regression target.
+In our initial experiments reported in this paper, the performance of our system does not
+yet reach that of the human designed heuristic \texttt{invfreq}. We believe, however,
+that further improvements are possible by using a more advanced regression model for the second stage
+and/or by further hyper-parameter tuning (e.g.~of the Gradient Boosting model).
+Ultimately, we expect to gain the most by using a richer set of symbols features,
+ideally automatically extracted from the problems using graph neural networks. 
 
 \bibliographystyle{plainnat}
 \bibliography{main}
