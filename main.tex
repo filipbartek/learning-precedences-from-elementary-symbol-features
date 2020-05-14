@@ -705,7 +705,45 @@ so more elaborate feature extraction may be necessary.
 %and can be modified to backpropagate loss gradients.
 %This opens a way for using neural networks as feature extractors.
 
-\todo[inline,author=Filip]{Consider adding example feature weights.}
+\subsection{Feature weights}
+
+Since Elastic-Net is a linear regression model, we can inspect the weights it assigns
+to the input features (see \Cref{sect:embeddings}).
+In each of the five splits, the final weights of the three indicator features are 0.
+\Cref{table:feature-weights} shows the fitted non-zero weights of the remaining features.
+Note that scaling the weights by a constant does not affect
+the precedence constructed using the greedy algorithm presented in \Cref{sect:ltot}.
+
+\begin{table}[ht]
+	\centering
+	\begin{tabular}{l|rrr|rrr}
+		Training set & \multicolumn{3}{c}{Left symbol} & \multicolumn{3}{c}{Right symbol} \\
+		& Arity & Frequency & Unit frequency & Arity & Frequency & Unit frequency \\
+		\hline
+		0 &     &-0.01&     &-0.98& 0.01&      \\
+		1 &     &-0.48&     &     & 0.08& 0.44 \\
+		2 &     &     &-0.64&     & 0.36&      \\
+		3 & 0.88&-0.03& 0.01&     &-0.03& 0.05 \\
+		4 &     &-0.62&     &     & 0.30& 0.07 \\
+		\hline
+		\(\ProblemsTrain\) &     &     &-0.57&     & 0.43&      \\
+	\end{tabular}
+	% Source: https://docs.google.com/spreadsheets/d/1HSsC7piUAtWt6uwA9SYOX5vmiF0Ab3Ae4FPyGsDALIg/edit?usp=sharing
+	\caption{Elastic-Net feature weights after fitting on each of the 5 training sets of 1000 problems each and on the whole \(\ProblemsTrain\).
+		``Frequency'' is the number of occurrences of the symbol in the problem.
+		``Unit frequency'' is the number of clauses in the problem that contain at least one occurrence of the symbol.
+		The weights are scaled so that their absolute values sum up to 1 in each weight vector.
+		Zero-valued weights are omitted.}
+	\label{table:feature-weights}
+\end{table}
+
+We can namely see that the regressor fitted on the whole \(\ProblemsTrain\)
+assigns a high preference value to symbol pairs \((s, t)\)
+such that \(t\) has a higher frequency and unit frequency than \(s\).
+Since unit frequency is positively correlated with frequency,
+minimizing \(\CostProxy\) using this fitted regressor
+is consistent with the \texttt{invfreq} precedence generating scheme
+(ordering the symbols by frequency in descending order).
 
 \section{Conclusion}
 
