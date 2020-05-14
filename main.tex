@@ -486,7 +486,7 @@ an indicator of occurrence in a conjecture clause, % inGoal
 an indicator of occurrence in a unit clause, % inUnit
 % Witness: PUZ001-1.p
 an indicator of being produced during clausification. % introduced
-\todo[author=Filip]{I removed the dedicated "skolem" indicator because it is not included in the experiment because "intoduced" suffices. Is this okay?}
+% \todo[author=Filip]{I removed the dedicated "skolem" indicator because it is not included in the experiment because "intoduced" suffices. Is this okay?}
 This choice of symbol features is motivated by the fact that they
 are readily available in %the \gls*{atp} 
 \gls*{vampire}
@@ -654,7 +654,7 @@ All the scripts used for the evaluation can be found at
 
 We trained the two types general preference regressors (see \Cref{sec:general-preference}):
 \begin{itemize}
-	\item Elastic-Net -- a linear regression model with L1 and L2 norm regularization;
+	\item Elastic-Net -- a linear regression model with L1 and L2 norm regularization; \\
 	see \texttt{ElasticNetCV} in \citet{scikit-learn}
 	\item Gradient Boosting regressor -- see \texttt{GradientBoostingRegressor} in \citet{scikit-learn}
 \end{itemize}
@@ -685,7 +685,7 @@ for 5 random choices of training and test problem set (splits).
 
 The case ``Elastic-Net without sample weighting'' shows the effect of
 sampling the symbol pairs uniformly.
-Inspection of the trained feature weights reveals that the fitting ends up
+Inspection of the trained feature coefficients reveals that the fitting ends up
 with an all-zero feature weight vector on splits 1 and 2,
 signifying a complete failure to learn on these training sets.
 
@@ -702,13 +702,14 @@ so more elaborate feature extraction may be necessary.
 %and can be modified to backpropagate loss gradients.
 %This opens a way for using neural networks as feature extractors.
 
-\subsection{Feature weights}
+\subsection{Feature coefficients}
 
-Since Elastic-Net is a linear regression model, we can inspect the weights it assigns
+Since Elastic-Net is a linear regression model, we can easily inspect the coefficients it assigns
 to the input features (see \Cref{sect:embeddings}).
-In each of the five splits, the final weights of the three indicator features are 0.
-\Cref{table:feature-weights} shows the fitted non-zero weights of the remaining features.
-Note that scaling the weights by a constant does not affect
+In each of the five splits, the final coefficients of the three indicator features are 0.
+\Cref{table:feature-weights} shows the fitted non-zero coefficients of the remaining features.
+The coefficients were scaled so that their absolute values sum up to 1 and zero-valued coefficients omitted.
+Note that scaling the coefficients by a constant does not affect
 the precedence constructed using the greedy algorithm presented in \Cref{sect:ltot}.
 
 \begin{table}[ht]
@@ -726,15 +727,13 @@ the precedence constructed using the greedy algorithm presented in \Cref{sect:lt
 		\(\ProblemsTrain\) &     &     &-0.57&     & 0.43&      \\
 	\end{tabular}
 	% Source: https://docs.google.com/spreadsheets/d/1HSsC7piUAtWt6uwA9SYOX5vmiF0Ab3Ae4FPyGsDALIg/edit?usp=sharing
-	\caption{Elastic-Net feature weights after fitting on each of the 5 training sets of 1000 problems each and on the whole \(\ProblemsTrain\).
+	\caption{Elastic-Net feature coefficients after fitting on each of the 5 training sets of 1000 problems and on the whole \(\ProblemsTrain\).
 		``Frequency'' is the number of occurrences of the symbol in the problem.
-		``Unit frequency'' is the number of clauses in the problem that contain at least one occurrence of the symbol.
-		The weights are scaled so that their absolute values sum up to 1 in each weight vector.
-		Zero-valued weights are omitted.}
+		``Unit frequency'' is the number of clauses in the problem that contain at least one occurrence of the symbol.}
 	\label{table:feature-weights}
 \end{table}
 
-We can namely see that the regressor fitted on the whole \(\ProblemsTrain\)
+It is worth pointing out that the regressor fitted on the whole \(\ProblemsTrain\)
 assigns a high preference value to symbol pairs \((s, t)\)
 such that \(t\) has a higher frequency and unit frequency than \(s\).
 Since unit frequency is positively correlated with frequency,
