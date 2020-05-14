@@ -576,7 +576,7 @@ and a \emph{potential value} for each of the symbols \(\potential: \SymbolsAvail
 The potential value of a symbol corresponds to the relative increase in proxy cost
 associated with selecting the symbol as the next to append to the partial precedence:
 \begin{align*}
-\potential(s_i) = \sum_{s_j \in \SymbolsAvail} {W_P}_{i, j} - \sum_{s_j \in \SymbolsAvail} {W_P}_{j, i}
+\potential(s_i) = \sum_{s_j \in \SymbolsAvail} \widehat{W_P}_{i, j} - \sum_{s_j \in \SymbolsAvail} \widehat{W_P}_{j, i}
 \end{align*}
 
 In each iteration, a symbol \(s_i\) with the smallest potential is selected from \(\SymbolsAvail\).
