@@ -597,7 +597,6 @@ ale zas final \(\mathbf{p}\) neni precedence tak, jak ji mame zavedenou.}
 
 \section{Evaluation}
 \label{sec:evaluation}
-\todo[inline,author=Filip]{Update with the final experiment setup and results.}
 
 \subsection{Setup}
 
@@ -630,9 +629,9 @@ leads to a successful proof search (\(|\ProblemsTrain| = 8217\)).
 Let \(\ProblemsTest\) be the set of all \acrshort*{fol} and \acrshort*{cnf} problems in TPTP
 with at most 1024 predicate symbols (\(|\ProblemsTest| = 15751\)).
 % problems/predicate-small-1024.txt
-In each of 5 evaluation iterations,
+In each of 5 evaluation iterations (splits),
 we sample 1000 training problems from \(\ProblemsTrain\)
-and 1000 test problems from \(\ProblemsTest\)
+and 4108 test problems from \(\ProblemsTest\)
 uniformly in a way that ensures that the sets do not overlap.
 We repeat the experiment 5 times to evaluate the stability of training.
 
@@ -656,26 +655,51 @@ All the scripts used for the evaluation can be found at
 
 \subsection{Experimental results}
 
-The following table shows the results of evaluation on 1000 problems aggregated
-across 5 random choices of training and test problem set:
+We trained the two types general preference regressors (see \Cref{sec:general-preference}):
+\begin{itemize}
+	\item Elastic-Net -- a linear regression model with L1 and L2 norm regularization;
+	see \texttt{ElasticNetCV} in \citet{scikit-learn}
+	\item Gradient Boosting regressor -- see \texttt{GradientBoostingRegressor} in \citet{scikit-learn}
+\end{itemize}
 
-\begin{tabular}{lrr}
-	Case & Success count mean & Success count std \\
-	\hline
-	Best of 10 uniformly random precedences & 501.8 & 13.9 \\
-	Machine learning with ElasticNetCV & 476.6 & 12.7 \\
-	Vampire with \texttt{invfreq} & 475.8 & 13.8 \\
-	Random precedence & 450.4 & 10.3 \\
-\end{tabular}
-% Source: https://docs.google.com/spreadsheets/d/1HSsC7piUAtWt6uwA9SYOX5vmiF0Ab3Ae4FPyGsDALIg/edit?usp=sharing
-\todo[inline,author=Filip]{Add results from the experiment with weighting on and off.}
+We compared the performance of the regressors
+with three baseline precedence generation schemes -- random precedence, best of 10 random precedences
+and the \texttt{invfreq} scheme.
+\Cref{table:results} shows the results of evaluation on 1000 problems
+for 5 random choices of training and test problem set (splits).
 
-Our machine learning model on average matches the performance
+\begin{table}[ht]
+	\centering
+	\begin{tabular}{l|rrrrr|r}
+		Case & \multicolumn{6}{c}{Successes out of 1000 per split} \\
+		& 0 & 1 & 2 & 3 & 4 & Mean \\
+		\hline
+		Best of 10 random & 514 & 499 & 509 & 511 & 476 & 501.8 \\
+		\texttt{invfreq} & 494 & 472 & 480 & 481 & 452 & 475.8 \\
+		Elastic-Net & 484 & 471 & 479 & 470 & 454 & 471.6 \\
+		Gradient Boosting & 473 & 462 & 475 & 475 & 439 & 464.8 \\
+		Elastic-Net without sample weighting & 475 & 454 & 465 & 459 & 453 & 461.2 \\
+		Random & 454 & 455 & 457 & 456 & 430 & 450.4 \\
+	\end{tabular}
+	% Source: https://docs.google.com/spreadsheets/d/1HSsC7piUAtWt6uwA9SYOX5vmiF0Ab3Ae4FPyGsDALIg/edit?usp=sharing
+	\caption{Experiment results}
+	\label{table:results}
+\end{table}
+
+The case ``Elastic-Net without sample weighting'' shows the effect of
+sampling the symbol pairs uniformly.
+Inspection of the trained feature weights reveals that the fitting ends up
+with an all-zero feature weight vector on splits 1 and 2,
+signifying a complete failure to learn on these training sets.
+
+Using Elastic-Net for general preference prediction on average nearly matches the performance
 of Vampire with the \texttt{invfreq} precedence scheme.
-While it performs significantly better than random precedence generator,
+While Elastic-Net performs significantly better than random precedence generator,
 it still performs significantly worse than a generator
 that, given a problem, tries 10 random precedences and chooses the best of these.
 This suggests that there is space for improvement, possibly with a more sophisticated, non-linear model.
+Plugging in a Gradient Boosting regressor does not show immediate improvement
+so more elaborate feature extraction may be necessary.
 
 %The current architecture allows using arbitrary symbol feature vectors
 %and can be modified to backpropagate loss gradients.
