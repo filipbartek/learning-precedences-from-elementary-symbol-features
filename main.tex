@@ -560,10 +560,10 @@ that minimizes \(\CostProxy(\widehat{\pi_P}, \widehat{W_P})\).
 Since this task is NP-hard in general \cite{Cohen2011},
 we rely in this work on a greedy 2-approximation algorithm
 proposed by a \citet{Cohen2011}.
-\todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
-	Martin: tak napisme, ze jinak musime projit $n!$ moznosti...
-	Martin2: v dalsim rozsireni bys mohl vyzkouset a zmerit hillclimb. Da se startovat ze seedu od Cohena,
-	nebo i z nahodnych seedu opakovane.}
+%\todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
+%	Martin: tak napisme, ze jinak musime projit $n!$ moznosti...
+%	Martin2: v dalsim rozsireni bys mohl vyzkouset a zmerit hillclimb. Da se startovat ze seedu od Cohena,
+%	nebo i z nahodnych seedu opakovane.}
 The rest of this section provides a brief description of the algorithm.
 
 \newcommand{\SymbolsAvail}{\symbols_{\mathit{avail}}}
@@ -583,6 +583,12 @@ This symbol is removed from \(\SymbolsAvail\) and appended to the partial preced
 The potentials of the remaining symbols in \(\SymbolsAvail\) are updated.
 This process is repeated until all symbols have been selected,
 returning the final \(\mathbf{p}\).
+\todo{Martin: Hezky!
+Asi by to slo dal zlepsit a definovat, co se mysli tim: $\symbols^*$...
+Konecna slova nad abecedou? Tam sice mozna intuitivne funguje append, 
+ale zas final \(\mathbf{p}\) neni precedence tak, jak ji mame zavedenou.}
+
+
 % Implementation: https://github.com/filipbartek/vampire-ml/blob/master/vampire_ml/precedence.py
 
 % Dneska uz ne:
@@ -680,8 +686,17 @@ This suggests that there is space for improvement, possibly with a more sophisti
 \section{Conclusion}
 
 This paper is, to the best of our knowledge, a first attempt to use machine learning for proposing symbol precedences.
+This appears to be a potentially highly rewarding task with the possibility of generating effectively unlimited
+amount of training data. Nevertheless, the journey from evaluating the prover on random precedences 
+to proposing a good precedence when presented with a new problem is not straightforward and several 
 
-\todo[inline]{Finish.}
+% In this work
+
+
+% Future
+
+
+
 
 \bibliographystyle{plainnat}
 \bibliography{main}
