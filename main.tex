@@ -43,7 +43,7 @@ uses for efficiency reasons only weights equal to one \cite{DBLP:conf/cade/Kovac
 While the superposition calculus is known \cite{DBLP:journals/logcom/BachmairG94} to be refutationally complete for any simplification ordering, the choice of the precedence may have a significant impact on how long it takes to solve a given problem.
 In a well-known example, prioritizing in the precedence the predicates introduced during the Tseitin transformation of an input formula \cite{Tseitin1983} exposes the corresponding literals to resolution inference during early stages of the proof search,
 with the effect of essentially undoing the transformation and thus threatening with an exponential blow-up
-the transformation is designed to prevent \cite{Reger2016}.
+that the transformation is designed to prevent \cite{Reger2016}.
 %
 ATPs typically offer a few heuristic schemes for generating the symbol precedences.
 For example, the successful \texttt{invfreq} scheme in E \cite{E-manual} orders the symbols by the number of occurrences in the input problem,
@@ -228,7 +228,7 @@ If the prover runs out of time before solving a problem, we record \(\AbstractTi
 
 The aim of this work is to design a system that learns to suggest good symbol precedences to an ATP 
 from observations of the ATP's performance on a class \(\mathcal{P}\) of problems with randomly sampled precedences. 
-Given a problem \(P = (\symbols,\clauses)\) with \(|\symbols|=n\), we consider a precedence \(\pi_P\) good
+Given a problem \(P = (\symbols,\clauses)\) with \(|\symbols|=n\), we consider a precedence \(\pi_P\) good,
 if it leads to a low \(\AbstractTime(P,\pi_P)\)
 among the $n!$ possible precedences for \(P\).
 % ze n! je super large -> almost infinite source of data (for non-trivial n)
@@ -244,7 +244,7 @@ Sort symbols by frequency (frequently occurring symbols are smaller).
 \end{quote}
 What is common to basically all manually designed schemes, is that they pick a certain scalar property of symbols 
 % information retrieval terminology
-(here it is symbol the frequency, i.e.~the number of occurrences of the symbol in the given problem)
+(here it is the symbol frequency, i.e.~the number of occurrences of the symbol in the given problem)
 and obtain a precedence by \emph{sorting} the symbols using that property.
 
 \paragraph{Decomposing}
@@ -296,7 +296,7 @@ this second-order regression does not need to be linear and more sophisticated m
 
 The details of this step are given in \Cref{sec:general-preference}.
 
-\paragraph{Preference prediction and optimization} Once the second-oder model has been learned, we can predict 
+\paragraph{Preference prediction and optimization} Once the second-order model has been learned, we can predict 
 preferences for any pair of symbols based on their feature vectors and thus also predict,
 given a problem $P$, how many steps will a prover require to solve it using a particular precedence $\pi_P$.
 (For this second step, we reverse the idea of decomposition:
@@ -755,7 +755,7 @@ In our initial experiments reported in this paper, the performance of our system
 yet reach that of the human designed heuristic \texttt{invfreq}. We believe, however,
 that further improvements are possible by using a more advanced regression model for the second stage
 and/or by further hyper-parameter tuning (e.g.~of the Gradient Boosting model).
-Ultimately, we expect to gain the most by using a richer set of symbols features,
+Ultimately, we expect to gain the most by using a richer set of symbol features,
 ideally automatically extracted from the problems using graph neural networks. 
 
 \bibliographystyle{plainnat}
