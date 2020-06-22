@@ -80,6 +80,14 @@ an optimum precedence $\pi^*$ according to this model,
 which cannot be simply solved by enumerating all the permutations and running the prediction for each
 due to their huge number.
 
+\todo[inline,author=Review 3]{I would have like to see at least a short section on related work;
+	while it might be true that this is the first attempt to learn symbol
+	preferences, existing work for instance in the SAT area seems to be
+	quite similar in nature, for instance:
+	
+	Daniel Selsam, Nikolaj Bjørner: Guiding High-Performance SAT Solvers
+	with Unsat-Core Predictions. SAT 2019: 336-353}
+
 Our way of addressing the above sketched challenges lies in using \emph{pairwise symbol preferences}
 to characterize a precedence, normalizing the target prover run times on a per problem basis,
 and in the use of ``second-order'' learning of the preferences for symbols abstracted by their features.
@@ -182,6 +190,9 @@ Given a matrix \(M\) of size \(n \times n\),
 for every \(i,j\in\{1,\ldots,n\}\). For our use the exact way of mapping the 
 matrix elements to the vector indices is not important. We mostly just need a vector representation
 of the data contained in the given matrix to have access to the dot product operation. % which is more natural for vectors.
+\todo[inline,author=Review 3]{it feels unnecessary/cumbersome to define the notion of "flattened
+	matrices" just to obtain dot products; the dot product of matrices is
+	called Frobenius inner product, and could directly be used here}
 
 \paragraph{Linear regression}
 is an approach to modeling the relationship between scalar \emph{target} values $y_i \in \re$
@@ -285,6 +296,10 @@ supplying a concrete value to those runs which did not finish, i.e.~have \(\Abst
 
 For the follow-up steps we assume that preferences learned from such normalized data relate to one another
 across problems in a meaningful way.
+\todo[inline,author=Review 1]{The sentence "For the follow-up steps we assume the preferences ... in a
+	meaningful way." is not clear. What do you mean exactly by "a meaningful way"?
+	And why do you need to "assume" this? Isn't it the whole point of the
+	normalization process?}
 
 \paragraph{``Second-order'' regression}
 Once the symbols are abstracted by their feature vectors, we can collect symbol preferences from all the tested problems
@@ -293,6 +308,12 @@ Note that at this moment, the preferences, which were obtained as the coefficien
 themselves become the regression target. Thus, in a certain sense, we now do second-order learning.
 It should be stressed though, that while the learning of the preferences \emph{requires} a linear regression model by design,
 this second-order regression does not need to be linear and more sophisticated models can be experimented with. 
+
+\todo[inline,author=Review 3]{the paragraph on "Second-order regression" is quite confusing when
+	reading it the first time, since the learning of preference matrices
+	is only described later. The paragraph becomes clear after studying
+	the whole paper, but it could be improved to allow backtracking-free
+	reading.}
 
 The details of this step are given in \Cref{sec:general-preference}.
 
@@ -369,6 +390,11 @@ according to the outcome of the proof search configured to use this precedence:
 	where \(\Pi^+_P\) is the set of all training precedences on problem \(P\)
 	that yield a successful proof search.
 	% \todo[author=Martin,inline]{Not even times 2?}
+	\todo[author=Review 1]{Why assign the same value to the precedences for which the proof search
+		failed as to the worst-case successful precedence? Especially given the short
+		timeout you are using in the experiments, it seems to me that such precedences
+		should receive a much higher penalty cost. At least, this is one of the
+		parameters that could be tuned in experiments or better justified.}
 \end{itemize}
 We further normalize the cost values by the following operations:
 \begin{enumerate}
@@ -437,6 +463,9 @@ To improve generalization,
 we use the Lasso regression algorithm \cite{Tibshirani1996} instead of standard linear regression.
 %\todo[author=Filip]{I think we should use RidgeCV or ElasticNetCV instead because they minimize L2 norm, while lasso only minimizes L1 norm.
 %Martin: also worth trying out experimentally.}
+\todo[author=Review 1]{The choice of what technique to apply (here Lasso
+	regression) is only loosely motivated, which is regrettable but usual with
+	machine learning papers.}
 We use cross-validation to set the value of the regularization hyperparameter.\footnote{See the model \texttt{LassoCV} in the machine learning library scikit-learn \cite{scikit-learn}.}
 %\todo[author=Filip]{Don't we need to use the same value of regularization parameter in order 
 %for the preference matrix values to be comparable across problems?
@@ -515,6 +544,11 @@ we weight the samples by the absolute value of the target.
 %
 Preliminary experiments have shown that using sample weighting
 improves the performance of the resulting model.
+\todo[inline,author=Review 1]{It is not clear to me what the paragraph between these two pages
+	describes. What does weighting the samples mean exactly? Will the samples with
+	a bigger weight have more impact on the overall learned model? But are these
+	weights not assigned in retrospect, once the model is able to assign good
+	weights to the inputs?}
 
 % Result data file: sftp://cluster.ciirc.cvut.cz/home/bartefil/git/vampire-ml/map-reduce/predicate-100-1000/2020-05-08_20-49-14/reduce/fit_cv_results.csv
 % Rows where params is {} or {weighted: False} show impact of sample weighting (both problem and symbol pair).
@@ -598,6 +632,19 @@ never use the symbol precedence to compare a predicate symbol with a function sy
 we can break down the symbol precedence  into a predicate precedence and a function precedence.
 For the sake of simplicity and easier interpretation of the results,
 we restrict our attention in this evaluation to predicate precedences.
+\todo[author=Review 1]{Is there a reason that makes predicate preferences provide results that
+	are simpler and easier to interpret? or does the simplification only follows
+	from having less symbols to deal with?}
+\todo[author=Review 2]{One choice for the experimental evaluation puzzles me though: the
+	approach is only applied to the precedence of the *predicate* symbols.
+	The precedence for the function symbols is determined by the
+	inverse-frequency heuristic. I would like the authors to explain this
+	choice.}
+\todo[author=Review 1]{I don't see how the half-hearted application of the new technique
+	makes the results *easier* to interpret. Can you explain more
+	concretely why you only learned precedences for the predicate symbols?
+	Is there an expectation that symbol precedence is more important for
+	predicate symbols than function symbols?}
 Function symbols are ordered by the \texttt{invfreq} scheme.
 
 %\todo[inline,author=Filip]{Discuss more.
@@ -627,11 +674,20 @@ we sample 1000 training problems from \(\ProblemsTrain\)
 and 4108 test problems from \(\ProblemsTest\)
 uniformly in a way that ensures that the sets do not overlap.
 We repeat the experiment 5 times to evaluate the stability of the training.
+\todo[inline,author=Review 1]{The two sentences about "splits" (i.e. "In each of 5... to evaluate the
+	stability of the training.") is ambiguous. The first and second sentences seem
+	to be about different things because "evaluation" is used in the first while
+	"experiment" is used in the second, but it makes more sense to me if they are
+	about the same thing.}
 
 On each training problem we run %the \gls{atp} 
 Vampire with 100 uniformly random predicate precedences
 and a strategy fixed up to the predicate precedence.\footnote{Time limit: 10 seconds, memory limit: 8192 MB, literal comparison mode: predicate, function symbol precedence: \texttt{invfreq}, saturation algorithm: discount, age-weight ratio: 1:10, AVATAR: disabled.}
 % vampire --literal_comparison_mode predicate --symbol_precedence frequency --saturation_algorithm discount --age_weight_ratio 10 --avatar off --time_limit 10 --memory_limit 8192
+\todo[author=Review 1]{Was the timeout imposed to be so short solely because of the important
+	amount of experiments needed or is there any particular value in looking only
+	at the easier to solve problems? Intuitively, I would have assumed that you
+	would be rather more interested in the hard-to-solve problems.}
 Note that we use a customized version of Vampire to extract a symbol table from each of the problems.\footnote{\url{https://github.com/filipbartek/vampire/tree/926154f2}}
 % `git reflog` shortens the commit hashes to a prefix of length 8.
 
@@ -663,6 +719,10 @@ and the \texttt{invfreq} scheme.
 \Cref{table:results} shows the results of evaluation on 1000 problems
 for 5 random choices of training and test problem set (splits).
 
+\todo[inline,author=Review 2]{How well does the model fit? Can you show the error on the test
+	data set (for the predicted preferences and maybe also predicted
+	runtime)?}
+
 \begin{table}[ht]
 	\centering
 	\begin{tabular}{l|rrrrr|r}
@@ -680,6 +740,9 @@ for 5 random choices of training and test problem set (splits).
 	\caption{Experiment results}
 	\label{table:results}
 \end{table}
+\todo[inline,author=Review 1]{In table one, it would be more interesting to have the standard deviation
+	rather than the raw values per split. (Of course, if there is space, having
+	both wouldn't hurt.)}
 
 The case ``Elastic-Net without sample weighting'' shows the effect of
 sampling the symbol pairs uniformly.
@@ -735,6 +798,17 @@ the precedence constructed using the greedy algorithm presented in \Cref{sect:lt
 	\label{table:feature-weights}
 \end{table}
 
+\todo[inline,author=Review 2]{The coefficient table in Sec 5.3 is very interesting. Two
+	observations:
+	
+	- The coefficients in the splits are asymmetric. Is this to be
+	expected? Would it make sense to assume a model where the preference
+	of (s,t) is the negation of (t,s)?
+	
+	- Splits 0 and 3 generate a very different preference function. If I
+	interpret this correctly, it is another well-known heuristic: the
+	"sorted by arity" heuristic, right?}
+
 It is worth pointing out that the regressor fitted on the whole \(\ProblemsTrain\)
 assigns a high preference value to symbol pairs \((s, t)\)
 such that \(t\) has a higher frequency and unit frequency than \(s\).
@@ -761,8 +835,13 @@ that further improvements are possible by using a more advanced regression model
 and/or by further hyper-parameter tuning (e.g.~of the Gradient Boosting model).
 Ultimately, we expect to gain the most by using a richer set of symbol features,
 ideally automatically extracted from the problems using graph neural networks. 
+\todo[author=Reivew 1]{A reference is needed regarding graph neural networks.}
 
 \bibliographystyle{plainnat}
 \bibliography{main}
+
+\todo[inline,author=Review 1]{Globally, the bibliography should be more uniform. For example, it is
+	strange that [10] and [11] have such a different citation style although they
+	come from the same book.}
 
 \end{document}
