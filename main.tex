@@ -704,7 +704,11 @@ so more elaborate feature extraction may be necessary.
 
 Since Elastic-Net is a linear regression model, we can easily inspect the coefficients it assigns
 to the input features (see \Cref{sect:embeddings}).
-In each of the five splits, the final coefficients of the three indicator features are 0.
+In each of the five splits, the final coefficients of the three indicator features
+(namely the indicators of presence in a conjecture clause,
+presence in a unit clause and
+being introduced during clausification)
+are 0.
 \Cref{table:feature-weights} shows the fitted non-zero coefficients of the remaining features.
 The coefficients were scaled so that their absolute values sum up to 1 and zero-valued coefficients omitted.
 Note that scaling the coefficients by a constant does not affect
