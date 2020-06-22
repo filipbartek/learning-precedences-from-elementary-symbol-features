@@ -62,7 +62,7 @@ the acquired knowledge will generalize and help solving problems previously out 
 % proving strategies from previous experience, such as the MaLeS system \cite{DBLP:journals/jar/KuhlweinU15}.
 As a first step in a more ambitious project,
 we focus here on representing the symbols in a problem by a fixed set of simple human-engineered features
-(such as the number the occurrences used by \texttt{invfreq} scheme mentioned above)\footnote{Automatic
+(such as the number of occurrences used by \texttt{invfreq} scheme mentioned above)\footnote{Automatic
 feature extraction using neural networks is planned for future work.}
 and, to simplify the experimental setup, we restrict our attention to learning precedences for predicate symbols only.\footnote{Our theoretical considerations, however, apply equally to learning function symbol precedences.}
 
@@ -81,7 +81,7 @@ which cannot be simply solved by enumerating all the permutations and running th
 due to their huge number.
 
 Our way of addressing the above sketched challenges lies in using \emph{pairwise symbol preferences}
-to characterize a precedence, normalizing the target prover run times on per problem basis,
+to characterize a precedence, normalizing the target prover run times on a per problem basis,
 and in the use of ``second-order'' learning of the preferences for symbols abstracted by their features.
 These concepts are introduced in \Cref{sect:overview} and later formalized in \Cref{sec:architecture}.
 \Cref{sec:evaluation} presents the results of our experimental evaluation of the proposed technique over the TPTP \cite{Sut17} benchmark.
@@ -555,7 +555,7 @@ The remaining task is, given a preference matrix \(\widehat{W_P}\), to find a pr
 that minimizes \(\CostProxy(\widehat{\pi_P}, \widehat{W_P})\).
 Since this task is NP-hard in general \cite{Cohen2011},
 we rely in this work on a greedy 2-approximation algorithm
-proposed by a \citet{Cohen2011}.
+proposed by \citet{Cohen2011}.
 %\todo[author=Filip]{Discuss: Is the algorithm acceptable despite the fact that it does not guarantee to find the optimum?
 %	Martin: tak napisme, ze jinak musime projit $n!$ moznosti...
 %	Martin2: v dalsim rozsireni bys mohl vyzkouset a zmerit hillclimb. Da se startovat ze seedu od Cohena,
