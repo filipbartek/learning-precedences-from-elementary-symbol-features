@@ -1,0 +1,315 @@
+\documentclass[notes]{beamer}
+
+\input{preamble}
+
+\title{Learning Precedences from Simple Symbol Features\thanks{Supported by the ERC Consolidator grant AI4REASON no. 649043 under the EU-H2020 programme and the Czech Science Foundataion project 20-06390Y.}}
+\author{Filip B\'{a}rtek \and Martin Suda}
+\institute{Czech Technical University in Prague, Czech Republic}
+
+\usepackage[pdf]{graphviz}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{Where are we?}
+% TODO: Is the title not too informal?
+\centering
+\digraph[scale=0.3]{context}{
+	node [shape=rectangle, fontsize=32];
+	atp [label="Automated theorem proving"];
+	refutation [label="Refutation-based"];
+	fol [label="First-order logic"];
+	kbo [label="Knuth-Bendix Ordering"];
+	lpo [label="Lexicographic Path Ordering"];
+	precedence [label="Symbol precedence", style=bold];
+	"Automated reasoning" -> atp -> refutation -> "Saturation-based" -> "Superposition calculus" -> "Paramodulation inference" -> "Term simplification ordering" -> kbo -> precedence;
+	atp -> fol -> "Saturation-based";
+	"Term simplification ordering" -> lpo -> precedence;
+}
+% Does superposition calculus really use paramodulation inference?
+\end{frame}
+\note{KBO is further parameterized by symbol weights. Vampire uses uniform weights so we ignore this parameter.}
+
+\begin{frame}{Project overview}
+
+Training:
+\begin{enumerate}
+	\item For each of 1000 training problems:
+	\begin{enumerate}
+		\item Try to solve with 1000 random precedences
+		\item Assign a cost to each of the precedences
+		\item Assign a cost to each symbol pair
+		\begin{enumerate}
+			\item Fit a linear regressor of precedence cost
+			\item Extract feature coefficients (feature $\sim$ symbol pair)
+		\end{enumerate}
+	\end{enumerate}
+	\item Train a symbol pair cost model
+	\begin{itemize}
+		\item Represent each symbol by simple hand-made features
+	\end{itemize}
+\end{enumerate}
+
+Prediction (on a new problem):
+\begin{enumerate}
+	\item Predict cost of every symbol pair
+	\item Construct a precedence that minimizes cumulative symbol pair cost
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}{Basic concepts}
+\begin{tabular}{lll}
+	Concept & Notation & Example \\
+	\hline
+	First-order problem & $P = (\symbols, \clauses)$ & \\
+	Symbols & $\symbols = (s_1, s_2, \ldots, s_n)$ & \\
+	Symbol precedence & $\pi_P \in \{1, \ldots, n\}^n$ & $(0, 3, 1, 2)$ \\
+	% Note that the set \pi_P is drawn from does not demonstrate notation consistently.
+	Order matrix & $\OrderMatrix(\pi_P)$ & $\begin{bmatrix}
+	0 & 1 & 1 & 1 \\
+	0 & 0 & 1 & 0 \\
+	0 & 0 & 0 & 0 \\
+	0 & 1 & 1 & 0
+	\end{bmatrix}$ \\
+	Flattened matrix & $\flatten{\OrderMatrix(\pi_P)}$ & 0111001000000110 \\
+	Abstract solving time & $\AbstractTime(P,\pi_P)$ & \\
+	%Linear regression & & $\hat{y} =  \mathbf{x} \cdot \mathbf{w} + b$ \\
+	Training problem set & $\ProblemsTrain$ & \\
+\end{tabular}
+\end{frame}
+\note{Order matrix: The element in the $i$-th row and $j$-th column is 1 iff the permutation $\pi_P$ orders $s_i$ before $s_j$, that is $\inv{\pi_P}(i) < \inv{\pi_P}(j)$.
+The element is 0 otherwise.}
+
+\section{Architecture}
+
+\begin{frame}{Precedence cost}
+For each problem $P \in \ProblemsTrain$:
+\begin{enumerate}
+	\item For 1000 uniformly random precedences $\pi_P$:
+
+	Run Vampire and measure $\AbstractTime(P,\pi_P)$.
+	\item Assign a penalty to precedences that fail to solve the problem (namely by timing out).
+	% TODO: Consider leaving out to save time.
+	\begin{itemize}
+		\item Penalty: Maximum $\AbstractTime(P,\pi_P)$ over successful runs on $P$
+	\end{itemize}
+	\item Normalize the costs:
+	% TODO: Consider leaving out to save time.
+	\begin{enumerate}
+		\item Log-scale
+		\item Standardize (ensure mean 0 and standard deviation 1)
+	\end{enumerate}
+\end{enumerate}
+Let $\CostStd(\pi_P)$ be the normalized cost of $\pi_P$.
+\end{frame}
+\note{
+	Why not multiply the penalty by some constant? -- Multiplying by 2 and 10 yields a very similar performance to keeping the maximum.
+	
+	Why log-scale? -- Because the visual inspection shows that the distributions are usually approximately log-normal.
+	
+	How to standardize? -- Subtract mean and divide by standard deviation.
+}
+
+\begin{frame}{Symbol pair cost}
+For each problem $P \in \ProblemsTrain$, train a linear model:
+
+\begin{itemize}
+	\item Input: $\OrderMatrix(\pi_P)$ -- order matrix of a precedence
+	
+	Example: $\pi_P = (0, 3, 1, 2),
+	\OrderMatrix(\pi_P) =
+	\begin{bmatrix}
+	0 & 1 & 1 & 1 \\
+	0 & 0 & 1 & 0 \\
+	0 & 0 & 0 & 0 \\
+	0 & 1 & 1 & 0
+	\end{bmatrix}
+	$
+	\item Target: $\CostStd(\pi_P)$ -- normalized cost of $\pi_P$
+	% TODO: Consider leaving out to save time.
+	\item Regression method: Lasso
+	
+	(linear, square loss, l1-norm regularization penalty)
+	% https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html
+	\item Trained model coefficients: $W_P$ -- preference matrix
+	
+	${W_P}_{i,j} \sim$ cost attributed to $\iverson{s_i\text{ is ordered before }s_j}$
+	\item Prediction: $\CostProxy(\pi_P, W_P) = \flatten{\OrderMatrix(\pi_P)} \cdot \flatten{W_P}$
+\end{itemize}
+\end{frame}
+\note{
+	We use cross-validation to set the regularization parameter of Lasso
+	to ensure the model generalizes to unseen precedences.
+	
+	We should multiply the coefficients by number of unordered symbol pairs, that is $n \choose 2$,
+	and predict by averaging instead of summation.
+	Otherwise small problems dominate.
+}
+
+\begin{frame}{Symbol features}
+6 simple features:
+\begin{itemize}
+	\item Arity
+	\item Frequency (number of occurrences)
+	\item Number of clauses that contain the symbol
+	\item Is it in conjecture?
+	\item Is it in a unit clause?
+	\item Is it introduced (Tseitin or Skolem)?
+\end{itemize}
+Feature vector of symbol $s_i$: $\fv(s_i)$
+\end{frame}
+\note{
+	Why these features? -- They are readily available in Vampire
+	and they suffice as a basis for common precedence generation schemes such as invfreq.
+	
+	The last 3 features are indicator features.
+}
+
+\begin{frame}{Symbol pair cost model $M$}{Generalize to new problems}
+\begin{itemize}
+	\item Input: symbol pair feature vector $[\fv(s_i), \fv(s_j)]$
+	\item Target: ${W_P}_{i,j}$
+	\item Prediction: $M([\fv(s_i), \fv(s_j)])$
+	\item Learning method:
+	\begin{itemize}
+		\item Elastic-Net
+		\item Gradient Boosting Machine
+	\end{itemize}
+	\item Training sample distribution:
+	\begin{enumerate}
+		\item Sample problems from $\ProblemsTrain$ uniformly.
+		\item Given a problem, weight symbol pairs by absolute target value.
+	\end{enumerate}
+\end{itemize}
+\end{frame}
+\note{Why symbol weighting? -- Experiments show that it works better.}
+
+\begin{frame}{Precedence construction}
+Given a previously unseen problem $P$:
+\begin{enumerate}
+	\item Estimate a preference matrix $\widehat{W_P}$.
+	
+	$\widehat{W_P}_{i,j} = M([\fv(s_i), \fv(s_j)])$.
+	\item Construct a precedence \(\widehat{\pi_P}\) that approximately minimizes
+	$\CostProxy(\widehat{\pi_P}, \widehat{W_P}) = \flatten{\OrderMatrix(\widehat{\pi_P})} \cdot \flatten{\widehat{W_P}}$.
+	\begin{itemize}
+		\item NP-hard in general
+		\item 2-approximation algorithm by \citet{Cohen2011}:
+		
+		% TODO: Consider leaving out to save time.
+		Repeatedly append symbol with the smallest potential:
+		
+		$\potential(s_i) = \sum_{s_j \in \SymbolsAvail} \widehat{W_P}_{i, j} - \sum_{s_j \in \SymbolsAvail} \widehat{W_P}_{j, i}$
+	\end{itemize}
+\end{enumerate}
+\end{frame}
+\note{
+	The approximation algorithm yields the optimum solution in case we use a linear model
+	of symbol pair cost.
+	This has not been proven in the paper.
+}
+
+\section{Experiments}
+
+\begin{frame}{Experimental evaluation}
+\begin{tabular}{l|rr}
+	Case & \multicolumn{2}{c}{Successes out of 1000} \\
+	& Mean & Std \\
+	\hline
+	Best of 10 random & 501.8 & 13.85 \\
+	\texttt{invfreq} & 475.8 & 13.83 \\
+	Elastic-Net\footnote{Linear regression with l1-norm and l2-norm penalty regularization} & 471.6 & 10.21 \\
+	Gradient Boosting & 464.8 & 13.78 \\
+	Elastic-Net without weighting & 461.2 & 8.11 \\
+	Random & 450.4 & 10.25 \\
+\end{tabular}
+\end{frame}
+
+\begin{frame}{Elastic-Net feature coefficients}{of symbol pairs}
+\begin{tabular}{c|rrr|rrr}
+	Split & \multicolumn{3}{c}{Left symbol} & \multicolumn{3}{c}{Right symbol} \\
+	& Arity & Freq. & Unit freq. & Arity & Freq. & Unit freq. \\
+	\hline
+	0 &     &$-0.01$&     &$-0.98$&$ 0.01$&      \\
+	1 &     &$-0.48$&     &     &$ 0.08$&$ 0.44 $\\
+	2 &     &     &$-0.64$&     &$ 0.36$&      \\
+	3 &$ 0.88$&$-0.03$& 0.01&     &$-0.03$&$ 0.05 $\\
+	4 &     &$-0.62$&     &     &$ 0.30$&$ 0.07 $\\
+	\hline
+	\(\ProblemsTrain\) &     &     &$-0.57$&     &$ 0.43$&      \\
+\end{tabular}
+
+The other 3 features have all zero coefficients.
+\end{frame}
+
+\begin{frame}{Elastic-Net feature coefficients}{of individual symbols}
+% TODO: Is it ok to include this slide, despite the fact that the table is not in the article?
+% Perhaps make it a bonus slide?
+
+\begin{tabular}{c|rrr}
+	Training set & Arity & Frequency & Unit frequency \\
+	\hline
+	0 & $-.98$ & $ .01$ & $-.01$ \\
+	1 &        & $ .56$ & $ .44$ \\
+	2 &        & $ .36$ & $ .64$ \\
+	3 & $-.88$ &        & $ .04$ \\
+	4 &        & $ .93$ & $ .07$ \\
+	\hline
+	\(\ProblemsTrain\) &        & $ .43$ & $ .57$ \\
+\end{tabular}
+
+Symbol order: descending by predicted value
+
+\begin{itemize}
+	\item Sets 1, 2, 4, $\ProblemsTrain$:
+	\begin{itemize}
+		\item Descending by frequency: low frequency $\sim$ early inference
+		\item Similar to \texttt{invfreq} and \texttt{vampire \--\--sp frequency}
+	\end{itemize}
+	\item Sets 0, 3:
+	\begin{itemize}
+		\item Ascending by arity: high arity $\sim$ early inference
+		\item Similar to \texttt{vampire \--\--sp arity}
+	\end{itemize}
+\end{itemize}
+% https://docs.google.com/spreadsheets/d/1enrsKzIjNpEbXaZ8JtKBUe29N1C-S2Yf2jDAPUsizDA
+
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{References}
+\bibliographystyle{plainnat}
+\bibliography{main}
+\end{frame}
+
+\section{Bonus slides}
+
+\begin{frame}\sectionpage\end{frame}
+
+\begin{frame}{Experimental setup}
+\begin{itemize}
+	\item Only predicate precedences are learned.
+	Function symbols are ordered by \texttt{invfreq}.
+	\item Problems from TPTP \cite{Sut17} -- FOF and CNF
+	\begin{itemize}
+		\item $\ProblemsTrain$ (8217 problems):
+		at most 200 predicate symbols,
+		at least 1 out of 24 random predicate precedences yield success
+		\item $\ProblemsTest$ (15751 problems):
+		at most 1024 predicate symbols
+	\end{itemize}
+	\item 5 evaluation iterations (splits): 1000 training problems and 1000 test problems
+	\item 100 precedences per training problem
+	\item Vampire: time limit: 10 seconds
+	\item $10^6$ symbol pair samples to train $M$
+\end{itemize}
+\end{frame}
+
+\end{document}
