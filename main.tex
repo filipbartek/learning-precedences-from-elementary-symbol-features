@@ -693,24 +693,22 @@ for 5 random choices of training and test problem set (splits).
 
 \begin{table}[ht]
 	\centering
-	\begin{tabular}{l|rrrrr|r}
-		Case & \multicolumn{6}{c}{Successes out of 1000 per split} \\
-		& 0 & 1 & 2 & 3 & 4 & Mean \\
+	\begin{tabular}{l|rrrrr|rr}
+		Case & \multicolumn{7}{c}{Successes out of 1000 per split} \\
+		& 0 & 1 & 2 & 3 & 4 & Mean & Std \\
 		\hline
-		Best of 10 random & 514 & 499 & 509 & 511 & 476 & 501.8 \\
-		\texttt{invfreq} & 494 & 472 & 480 & 481 & 452 & 475.8 \\
-		Elastic-Net & 484 & 471 & 479 & 470 & 454 & 471.6 \\
-		Gradient Boosting & 473 & 462 & 475 & 475 & 439 & 464.8 \\
-		Elastic-Net without sample weighting & 475 & 454 & 465 & 459 & 453 & 461.2 \\
-		Random & 454 & 455 & 457 & 456 & 430 & 450.4 \\
+		Best of 10 random & 514 & 499 & 509 & 511 & 476 & 501.8 & 13.85 \\
+		\texttt{invfreq} & 494 & 472 & 480 & 481 & 452 & 475.8 & 13.83 \\
+		Elastic-Net & 484 & 471 & 479 & 470 & 454 & 471.6 & 10.21 \\
+		% sftp://cluster.ciirc.cvut.cz/home/bartefil/git/vampire-ml/map-reduce/paar/6_final-refit/2020-05-14_00-41-46/reduce/4
+		Gradient Boosting & 473 & 462 & 475 & 475 & 439 & 464.8 & 13.78 \\
+		Elastic-Net without sample weighting & 475 & 454 & 465 & 459 & 453 & 461.2 & 8.11 \\
+		Random & 454 & 455 & 457 & 456 & 430 & 450.4 & 10.25 \\
 	\end{tabular}
 	% Source: https://docs.google.com/spreadsheets/d/1HSsC7piUAtWt6uwA9SYOX5vmiF0Ab3Ae4FPyGsDALIg/edit?usp=sharing
 	\caption{Experiment results}
 	\label{table:results}
 \end{table}
-\todo[inline,author=Review 1]{In table one, it would be more interesting to have the standard deviation
-	rather than the raw values per split. (Of course, if there is space, having
-	both wouldn't hurt.)}
 
 The case ``Elastic-Net without sample weighting'' shows the effect of
 sampling the symbol pairs uniformly.
