@@ -240,7 +240,7 @@ If the prover runs out of time before solving a problem, we record \(\AbstractTi
 \section{General considerations and overview} \label{sect:overview}
 
 The aim of this work is to design a system that learns to suggest good symbol precedences to an ATP 
-from observations of the ATP's performance on a class \(\mathcal{P}\) of problems with randomly sampled precedences. 
+from observations of the ATP's performance on a class \(\ProblemsTrain\) of problems with randomly sampled precedences. 
 Given a problem \(P = (\symbols,\clauses)\) with \(|\symbols|=n\), we consider a precedence \(\pi_P\) good,
 if it leads to a low \(\AbstractTime(P,\pi_P)\)
 among the $n!$ possible precedences for \(P\).
@@ -248,7 +248,7 @@ among the $n!$ possible precedences for \(P\).
 Note that for problems with a signature with more than a few symbols, repeatedly running the prover 
 with random precedences represents an effectively infinite source of training data.
 
-Ideally, we would like to learn general theorem proving knowledge, not too dependent on $\mathcal{P}$,
+Ideally, we would like to learn general theorem proving knowledge, not too dependent on $\ProblemsTrain$,
 which could be later explained and compared to precedence generation schemes manually designed 
 by the prover developers. Let us quickly recall one such scheme, already mentioned in the introduction,
 called \texttt{invfreq} in E \cite{SCV:CADE-2019}. The prover's manual \cite{E-manual} explains:
