@@ -648,12 +648,7 @@ In each of 5 evaluation iterations (splits),
 we sample 1000 training problems from \(\ProblemsTrain\)
 and 1000 test problems from \(\ProblemsTest\)
 uniformly in a way that ensures that the sets do not overlap.
-We repeat the experiment 5 times to evaluate the stability of the training.
-\todo[inline,author=Review 1]{The two sentences about "splits" (i.e. "In each of 5... to evaluate the
-	stability of the training.") is ambiguous. The first and second sentences seem
-	to be about different things because "evaluation" is used in the first while
-	"experiment" is used in the second, but it makes more sense to me if they are
-	about the same thing.}
+We repeat the evaluation 5 times to evaluate the stability of the training.
 
 On each training problem we run %the \gls{atp} 
 Vampire with 100 uniformly random predicate precedences
