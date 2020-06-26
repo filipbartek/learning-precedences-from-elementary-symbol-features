@@ -82,13 +82,13 @@ an optimum precedence $\pi^*$ according to this model,
 which cannot be simply solved by enumerating all the permutations and running the prediction for each
 due to their huge number.
 
-\todo[inline,author=Review 3]{I would have like to see at least a short section on related work;
-	while it might be true that this is the first attempt to learn symbol
-	preferences, existing work for instance in the SAT area seems to be
-	quite similar in nature, for instance:
-	
-	Daniel Selsam, Nikolaj Bjørner: Guiding High-Performance SAT Solvers
-	with Unsat-Core Predictions. SAT 2019: 336-353}
+%\todo[inline,author=Review 3]{I would have like to see at least a short section on related work;
+%	while it might be true that this is the first attempt to learn symbol
+%	preferences, existing work for instance in the SAT area seems to be
+%	quite similar in nature, for instance:
+%	
+%	Daniel Selsam, Nikolaj Bjørner: Guiding High-Performance SAT Solvers
+%	with Unsat-Core Predictions. SAT 2019: 336-353}
 
 Our way of addressing the above sketched challenges lies in using \emph{pairwise symbol preferences}
 to characterize a precedence, normalizing the target prover run times on a per problem basis,
@@ -192,9 +192,9 @@ Given a matrix \(M\) of size \(n \times n\),
 for every \(i,j\in\{1,\ldots,n\}\). For our use the exact way of mapping the 
 matrix elements to the vector indices is not important. We mostly just need a vector representation
 of the data contained in the given matrix to have access to the dot product operation. % which is more natural for vectors.
-\todo[inline,author=Review 3]{it feels unnecessary/cumbersome to define the notion of "flattened
-	matrices" just to obtain dot products; the dot product of matrices is
-	called Frobenius inner product, and could directly be used here}
+%\todo[inline,author=Review 3]{it feels unnecessary/cumbersome to define the notion of "flattened
+%	matrices" just to obtain dot products; the dot product of matrices is
+%	called Frobenius inner product, and could directly be used here}
 
 \paragraph{Linear regression}
 is an approach to modeling the relationship between scalar \emph{target} values $y_i \in \re$
@@ -386,11 +386,11 @@ according to the outcome of the proof search configured to use this precedence:
 	where \(\Pi^+_P\) is the set of all training precedences on problem \(P\)
 	that yield a successful proof search.
 	% \todo[author=Martin,inline]{Not even times 2?}
-	\todo[author=Review 1]{Why assign the same value to the precedences for which the proof search
-		failed as to the worst-case successful precedence? Especially given the short
-		timeout you are using in the experiments, it seems to me that such precedences
-		should receive a much higher penalty cost. At least, this is one of the
-		parameters that could be tuned in experiments or better justified.}
+%	\todo[author=Review 1]{Why assign the same value to the precedences for which the proof search
+%		failed as to the worst-case successful precedence? Especially given the short
+%		timeout you are using in the experiments, it seems to me that such precedences
+%		should receive a much higher penalty cost. At least, this is one of the
+%		parameters that could be tuned in experiments or better justified.}
 \end{itemize}
 We further normalize the cost values by the following operations:
 \begin{enumerate}
@@ -459,9 +459,9 @@ To improve generalization,
 we use the Lasso regression algorithm \cite{Tibshirani1996} instead of standard linear regression.
 %\todo[author=Filip]{I think we should use RidgeCV or ElasticNetCV instead because they minimize L2 norm, while lasso only minimizes L1 norm.
 %Martin: also worth trying out experimentally.}
-\todo[author=Review 1]{The choice of what technique to apply (here Lasso
-	regression) is only loosely motivated, which is regrettable but usual with
-	machine learning papers.}
+%\todo[author=Review 1]{The choice of what technique to apply (here Lasso
+%	regression) is only loosely motivated, which is regrettable but usual with
+%	machine learning papers.}
 We use cross-validation to set the value of the regularization hyperparameter.\footnote{See the model \texttt{LassoCV} in the machine learning library scikit-learn \cite{scikit-learn}.}
 %\todo[author=Filip]{Don't we need to use the same value of regularization parameter in order 
 %for the preference matrix values to be comparable across problems?
@@ -687,9 +687,10 @@ and the \texttt{invfreq} scheme.
 \Cref{table:results} shows the results of evaluation on 1000 problems
 for 5 random choices of training and test problem set (splits).
 
-\todo[inline,author=Review 2]{How well does the model fit? Can you show the error on the test
-	data set (for the predicted preferences and maybe also predicted
-	runtime)?}
+%\todo[inline,author=Review 2]{How well does the model fit? Can you show the error on the test
+%	data set (for the predicted preferences and maybe also predicted
+%	runtime)?}
+%\todo[inline,author=Filip]{I have not measured this.}
 
 \begin{table}[ht]
 	\centering
@@ -805,8 +806,8 @@ ideally automatically extracted from the problems using graph neural networks \c
 \bibliographystyle{plainnat}
 \bibliography{main}
 
-\todo[inline,author=Review 1]{Globally, the bibliography should be more uniform. For example, it is
-	strange that [10] and [11] have such a different citation style although they
-	come from the same book.}
+%\todo[inline,author=Review 1]{Globally, the bibliography should be more uniform. For example, it is
+%	strange that [10] and [11] have such a different citation style although they
+%	come from the same book.}
 
 \end{document}
