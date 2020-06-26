@@ -1,3 +1,5 @@
+\documentclass[a4paper]{easychair}
+
 \input{preamble}
 
 \title{Learning Precedences from Simple Symbol Features\thanks{Supported by the ERC Consolidator grant AI4REASON no. 649043 under the EU-H2020 programme and the Czech Science Foundataion project 20-06390Y.}}
@@ -517,7 +519,6 @@ are readily available in %the \gls*{atp}
 \gls*{vampire}
 and that they suffice as a basis for common precedence generation schemes,
 such as the \texttt{invfreq} scheme.
-\newcommand{\fv}{\mathit{fv}}
 We denote the feature vector corresponding to symbol \(s\) as \(\fv(s)\).
 
 We represent a pair of symbols \(s, t\)
@@ -596,9 +597,6 @@ proposed by \citet{Cohen2011}.
 %	nebo i z nahodnych seedu opakovane.}
 The rest of this section provides a brief description of the algorithm.
 
-\newcommand{\SymbolsAvail}{\symbols_{\mathit{avail}}}
-\newcommand{\potential}{c}
-
 The algorithm maintains a partially constructed symbol precedence \(\mathbf{p} \in \nat^*\)
 (a finite sequence over \(\nat\); initially empty),
 a set of available symbols \(\SymbolsAvail \subseteq \symbols\) (initially the whole \(\symbols\))
@@ -657,9 +655,6 @@ Function symbols are ordered by the \texttt{invfreq} scheme.
 %	- Iterate: Learn predicate precedence in the context of function precedences from previous training epoch.
 %	
 %	- Train predicate and function preference regressor simultaneously with a shared underlying GNN.}
-
-\newcommand{\ProblemsTrain}{\mathcal{P}_{\mathit{train}}}
-\newcommand{\ProblemsTest}{\mathcal{P}_{\mathit{test}}}
 
 We use problems from the TPTP library v7.2.0 \cite{Sut17} for the evaluation.
 Let \(\ProblemsTrain\) be the set of all \acrshort*{fol} and \acrshort*{cnf} problems in TPTP
