@@ -277,7 +277,7 @@ come before a symbol from another class in the precedence
 and assign some weight to this piece of intuition. 
 
 In~\Cref{sect:preferences} we formalize this idea using the notion of \emph{preference matrix}
-and show how, for each problem in isolation, such preference matrix can be learned using linear regression.
+and show how, for each problem in isolation, such preference matrix can be obtained in the form of coefficients learned by linear regression.
 
 \paragraph{Learning across problems}
 Symbol preferences learned on a particular problem are inherently tied to that problem
@@ -310,12 +310,6 @@ Note that at this moment, the preferences, which were obtained as the coefficien
 themselves become the regression target. Thus, in a certain sense, we now do second-order learning.
 It should be stressed though, that while the learning of the preferences \emph{requires} a linear regression model by design,
 this second-order regression does not need to be linear and more sophisticated models can be experimented with. 
-
-\todo[inline,author=Review 3]{the paragraph on "Second-order regression" is quite confusing when
-	reading it the first time, since the learning of preference matrices
-	is only described later. The paragraph becomes clear after studying
-	the whole paper, but it could be improved to allow backtracking-free
-	reading.}
 
 The details of this step are given in \Cref{sec:general-preference}.
 
