@@ -654,10 +654,7 @@ On each training problem we run %the \gls{atp}
 Vampire with 100 uniformly random predicate precedences
 and a strategy fixed up to the predicate precedence.\footnote{Time limit: 10 seconds, memory limit: 8192 MB, literal comparison mode: predicate, function symbol precedence: \texttt{invfreq}, saturation algorithm: discount, age-weight ratio: 1:10, AVATAR: disabled.}
 % vampire --literal_comparison_mode predicate --symbol_precedence frequency --saturation_algorithm discount --age_weight_ratio 10 --avatar off --time_limit 10 --memory_limit 8192
-\todo[author=Review 1]{Was the timeout imposed to be so short solely because of the important
-	amount of experiments needed or is there any particular value in looking only
-	at the easier to solve problems? Intuitively, I would have assumed that you
-	would be rather more interested in the hard-to-solve problems.}
+We limit the time to 10 seconds per execution which is in our experience with Vampire sufficient to exhibit interesting behavior.
 Note that we use a customized version of Vampire to extract a symbol table from each of the problems.\footnote{\url{https://github.com/filipbartek/vampire/tree/926154f2}}
 % `git reflog` shortens the commit hashes to a prefix of length 8.
 
