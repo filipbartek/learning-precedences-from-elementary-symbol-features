@@ -536,14 +536,12 @@ preference values close to 0 are associated with symbol pairs whose mutual order
 on the outcome of the proof search.
 To focus the training on the symbol pairs whose order does matter,
 we weight the samples by the absolute value of the target.
+More precisely, given a problem $P$,
+the probability of sampling the symbol pair $i,j$
+is proportional to the absolute target value $|{W_P}_{i,j}|$.
 %
-Preliminary experiments have shown that using sample weighting
-improves the performance of the resulting model.
-\todo[inline,author=Review 1]{It is not clear to me what the paragraph between these two pages
-	describes. What does weighting the samples mean exactly? Will the samples with
-	a bigger weight have more impact on the overall learned model? But are these
-	weights not assigned in retrospect, once the model is able to assign good
-	weights to the inputs?}
+Experiments have shown that using sample weighting
+improves the performance of the resulting model (see \Cref{sect:experimental-results}).
 
 % Result data file: sftp://cluster.ciirc.cvut.cz/home/bartefil/git/vampire-ml/map-reduce/predicate-100-1000/2020-05-08_20-49-14/reduce/fit_cv_results.csv
 % Rows where params is {} or {weighted: False} show impact of sample weighting (both problem and symbol pair).
