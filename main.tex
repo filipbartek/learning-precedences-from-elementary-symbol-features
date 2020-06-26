@@ -620,22 +620,10 @@ yielding the final \(\mathbf{p}\) as \(\widehat{\pi_P}\).
 Since the simplification orderings under consideration (\acrshort*{lpo} and \acrshort*{kbo})
 never use the symbol precedence to compare a predicate symbol with a function symbol,
 we can break down the symbol precedence  into a predicate precedence and a function precedence.
-For the sake of simplicity and easier interpretation of the results,
-we restrict our attention in this evaluation to predicate precedences.
-\todo[author=Review 1]{Is there a reason that makes predicate preferences provide results that
-	are simpler and easier to interpret? or does the simplification only follows
-	from having less symbols to deal with?}
-\todo[author=Review 2]{One choice for the experimental evaluation puzzles me though: the
-	approach is only applied to the precedence of the *predicate* symbols.
-	The precedence for the function symbols is determined by the
-	inverse-frequency heuristic. I would like the authors to explain this
-	choice.}
-\todo[author=Review 1]{I don't see how the half-hearted application of the new technique
-	makes the results *easier* to interpret. Can you explain more
-	concretely why you only learned precedences for the predicate symbols?
-	Is there an expectation that symbol precedence is more important for
-	predicate symbols than function symbols?}
-Function symbols are ordered by the \texttt{invfreq} scheme.
+In this paper, we restrict our attention to predicate precedences,
+leaving function symbols to be ordered by the \texttt{invfreq} scheme.
+More thorough evaluation of both predicate and function precedences and their interaction
+is left for future work.
 
 %\todo[inline,author=Filip]{Discuss more.
 %	Possible generalizations to combination of predicate and function precedences:
