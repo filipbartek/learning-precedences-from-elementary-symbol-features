@@ -32,7 +32,7 @@ with precedence generation schemes designed by prover developers.
 
 Modern saturation-based \glspl*{atp} such as E \cite{SCV:CADE-2019}, SPASS \cite{DBLP:conf/cade/WeidenbachDFKSW09} 
 or \gls*{vampire} \cite{Kovacs2013}
-use the superposition calculus \cite{Nieuwenhuis2001} as their underlying inference system.
+use the superposition calculus \cite{DBLP:books/el/RV01/NieuwenhuisR01} as their underlying inference system.
 Superposition is built around the paramodulation inference \cite{Robinson1983} crucially
 constrained by simplification ordering on terms and literals, which is supplied as a parameter of the calculus.
 Both of the two main classes of simplification orderings used in practice,
@@ -138,7 +138,7 @@ A precedence \(\pi_P\) \emph{determines} a (total) ordering on \(\symbols\) as f
 % The word "determines" is emphasized because it is being defined.
 \(s_{\pi_P(1)} < s_{\pi_P(2)} < \ldots < s_{\pi_P(n)}.\)
 
-\paragraph{Simplification Orderings} are orderings on terms used to parameterize the superposition calculus \cite{Nieuwenhuis2001}
+\paragraph{Simplification Orderings} are orderings on terms used to parameterize the superposition calculus \cite{DBLP:books/el/RV01/NieuwenhuisR01}
 employed by modern saturation-based theorem provers. The two classes of simplification orderings most commonly used in practice,
 % \todo[author=Filip]{Why do we believe they are most commonly used in practice? Can we cite some source?}
 the \acrlongpl*{kbo} \cite{Knuth1983} and the \acrlongpl*{lpo} \cite{Kamin1980}, are both defined in terms 
