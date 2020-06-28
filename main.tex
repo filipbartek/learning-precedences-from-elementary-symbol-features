@@ -765,24 +765,26 @@ the precedence constructed using the greedy algorithm presented in \Cref{sect:lt
 	\label{table:feature-weights}
 \end{table}
 
-\todo[inline,author=Review 2]{The coefficient table in Sec 5.3 is very interesting. Two
-	observations:
-	
-	- The coefficients in the splits are asymmetric. Is this to be
-	expected? Would it make sense to assume a model where the preference
-	of (s,t) is the negation of (t,s)?
-	
-	- Splits 0 and 3 generate a very different preference function. If I
-	interpret this correctly, it is another well-known heuristic: the
-	"sorted by arity" heuristic, right?}
+%\todo[inline,author=Review 2]{The coefficient table in Sec 5.3 is very interesting. Two
+%	observations:
+%	
+%	- The coefficients in the splits are asymmetric. Is this to be
+%	expected? Would it make sense to assume a model where the preference
+%	of (s,t) is the negation of (t,s)?
+%	
+%	- Splits 0 and 3 generate a very different preference function. If I
+%	interpret this correctly, it is another well-known heuristic: the
+%	"sorted by arity" heuristic, right?}
 
 It is worth pointing out that the regressor fitted on the whole \(\ProblemsTrain\)
+and on the training sets 1, 2 and 4
 assigns a high preference value to symbol pairs \((s, t)\)
 such that \(t\) has a higher frequency and unit frequency than \(s\).
 Since unit frequency is positively correlated with frequency,
 minimizing \(\CostProxy\) using this fitted regressor
 is consistent with the \texttt{invfreq} precedence generating scheme
 (ordering the symbols by frequency in descending order).
+Similarly, the model fitted on training sets 0 and 3 corresponds to ordering the symbols by arity in ascending order.
 
 \section{Conclusion}
 
