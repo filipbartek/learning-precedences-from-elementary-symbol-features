@@ -218,17 +218,17 @@ Feature vector of symbol $s_i$: $\fv(s_i)$
 	of a symbol pair $s_i, s_j$
 	from a problem $P \in \ProblemsTrain$
 	\item Target: ${W_P}_{i,j}$ (cost attributed to $\iverson{s_i\text{ is ordered before }s_j}$)
-	\item Prediction: $M([\fv(s_i), \fv(s_j)])$
-	\item Learning method:
-	\begin{itemize}
-		\item Elastic-Net (linear regression with $L_1$ and $L_2$ penalties)
-		\item Gradient Boosting Machine
-	\end{itemize}
 	\item Training sample distribution:
 	\begin{enumerate}
 		\item Sample problems from $\ProblemsTrain$ uniformly.
 		\item Given a problem, weight symbol pairs by absolute target value.
 	\end{enumerate}
+	\item Learning method:
+	\begin{itemize}
+		\item Elastic-Net (linear regression with $L_1$ and $L_2$ penalties)
+		\item Gradient Boosting Machine
+	\end{itemize}
+	\item Prediction: $M([\fv(s_i), \fv(s_j)])$
 \end{itemize}
 \end{frame}
 \note{Why symbol weighting? -- Experiments show that it works better.}
