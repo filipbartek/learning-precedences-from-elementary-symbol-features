@@ -57,34 +57,6 @@
 \end{frame}
 \note{KBO is further parameterized by symbol weights. Vampire uses uniform weights so we ignore this parameter.}
 
-\begin{frame}{Project overview}
-
-Training:
-\begin{enumerate}
-	\item For each of 1000 training problems:
-	\begin{enumerate}
-		\item Try to solve with 1000 random precedences
-		\item Assign a cost to each of the precedences
-		\item Assign a cost to each symbol pair
-		\begin{enumerate}
-			\item Fit a linear regressor of precedence cost
-			\item Extract feature coefficients (feature $\sim$ symbol pair)
-		\end{enumerate}
-	\end{enumerate}
-	\item Train a symbol pair cost model
-	\begin{itemize}
-		\item Represent each symbol by simple hand-made features
-	\end{itemize}
-\end{enumerate}
-
-Prediction (on a new problem):
-\begin{enumerate}
-	\item Predict cost of every symbol pair
-	\item Construct a precedence that minimizes cumulative symbol pair cost
-\end{enumerate}
-
-\end{frame}
-
 \begin{frame}{Basic concepts}
 \begin{table}
 \begin{tabular}{lll}
@@ -121,6 +93,36 @@ using simple symbol features?
 \end{frame}
 
 \section{Architecture}
+
+\begin{frame}{Architecture overview}
+
+Training:
+\begin{enumerate}
+	% TODO: Should I specify number of training problems and precedences here?
+	\item For each of 1000 training problems in isolation:
+	\begin{enumerate}
+		\item Try to solve with 100 random precedences using Vampire
+		% TODO: Should I mention Vampire here?
+		\item Assign a cost to each of the precedences
+		\item Assign a cost to each symbol pair
+		\begin{enumerate}
+			\item Fit a linear regressor of precedence cost
+			\item Extract feature coefficients (feature $\sim$ symbol pair)
+		\end{enumerate}
+	\end{enumerate}
+	\item Train a symbol pair cost regressor
+	\begin{itemize}
+		\item Represent each symbol by simple syntactic features
+	\end{itemize}
+\end{enumerate}
+
+Proposing a precedence on a new problem:
+\begin{enumerate}
+	\item Predict the cost of every symbol pair
+	\item Construct a precedence that minimizes the cumulative symbol pair cost
+\end{enumerate}
+
+\end{frame}
 
 \begin{frame}{Precedence cost}
 For each problem $P \in \ProblemsTrain$:
