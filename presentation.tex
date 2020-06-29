@@ -135,12 +135,12 @@ For each problem $P \in \ProblemsTrain$:
 
 	Run Vampire and measure $\AbstractTime(P,\pi_P)$.
 	\item Assign a penalty to precedences that fail to solve the problem (namely by timing out).
-	% TODO: Consider leaving out to save time.
+	% Do not read.
 	\begin{itemize}
 		\item Penalty: Maximum $\AbstractTime(P,\pi_P)$ over successful runs on $P$
 	\end{itemize}
 	\item Normalize the costs:
-	% TODO: Consider leaving out to save time.
+	% Do not read.
 	\begin{enumerate}
 		\item Log-scale
 		\item Standardize (ensure mean 0 and standard deviation 1)
@@ -245,7 +245,7 @@ Given a previously unseen problem $P$:
 		\item NP-hard in general
 		\item 2-approximation greedy algorithm by \citet{Cohen2011}:
 		
-		% TODO: Consider leaving out to save time.
+		% Do not read.
 		Repeatedly append symbol with the smallest potential:
 		
 		$\potential(s_i) = \sum_{s_j \in \SymbolsAvail} \widehat{W_P}_{i, j} - \sum_{s_j \in \SymbolsAvail} \widehat{W_P}_{j, i}$
