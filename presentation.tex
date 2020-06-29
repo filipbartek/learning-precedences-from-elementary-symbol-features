@@ -64,6 +64,7 @@ Prediction (on a new problem):
 \end{frame}
 
 \begin{frame}{Basic concepts}
+\begin{table}
 \begin{tabular}{lll}
 	Concept & Notation & Example \\
 	\hline
@@ -82,6 +83,7 @@ Prediction (on a new problem):
 	%Linear regression & & $\hat{y} =  \mathbf{x} \cdot \mathbf{w} + b$ \\
 	Training problem set & $\ProblemsTrain$ & \\
 \end{tabular}
+\end{table}
 \end{frame}
 \note{Order matrix: The element in the $i$-th row and $j$-th column is 1 iff the permutation $\pi_P$ orders $s_i$ before $s_j$, that is $\inv{\pi_P}(i) < \inv{\pi_P}(j)$.
 The element is 0 otherwise.}
@@ -218,6 +220,7 @@ Given a previously unseen problem $P$:
 \section{Experiments}
 
 \begin{frame}{Experimental evaluation}
+\begin{table}
 \begin{tabular}{l|rr}
 	Case & \multicolumn{2}{c}{Successes out of 1000} \\
 	& Mean & Std \\
@@ -229,9 +232,11 @@ Given a previously unseen problem $P$:
 	Elastic-Net without weighting & 461.2 & 8.11 \\
 	Random & 450.4 & 10.25 \\
 \end{tabular}
+\end{table}
 \end{frame}
 
 \begin{frame}{Elastic-Net feature coefficients}{of symbol pairs}
+\begin{table}
 \begin{tabular}{c|rrr|rrr}
 	Split & \multicolumn{3}{c}{Left symbol} & \multicolumn{3}{c}{Right symbol} \\
 	& Arity & Freq. & Unit freq. & Arity & Freq. & Unit freq. \\
@@ -244,6 +249,7 @@ Given a previously unseen problem $P$:
 	\hline
 	\(\ProblemsTrain\) &     &     &$-0.57$&     &$ 0.43$&      \\
 \end{tabular}
+\end{table}
 
 The other 3 features have all zero coefficients.
 \end{frame}
@@ -252,6 +258,7 @@ The other 3 features have all zero coefficients.
 % TODO: Is it ok to include this slide, despite the fact that the table is not in the article?
 % Perhaps make it a bonus slide?
 
+\begin{table}
 \begin{tabular}{c|rrr}
 	Training set & Arity & Frequency & Unit frequency \\
 	\hline
@@ -263,6 +270,7 @@ The other 3 features have all zero coefficients.
 	\hline
 	\(\ProblemsTrain\) &        & $ .43$ & $ .57$ \\
 \end{tabular}
+\end{table}
 
 Symbol order: descending by predicted value
 
