@@ -167,9 +167,7 @@ For each problem $P \in \ProblemsTrain$, train a linear model:
 	$
 	\item Target: $\CostStd(\pi_P)$ -- normalized cost of $\pi_P$
 	% TODO: Consider leaving out to save time.
-	\item Regression method: Lasso
-	
-	(linear, square loss, l1-norm regularization penalty)
+	\item Regression method: Lasso (linear regression with $L_1$ penalty)
 	% https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html
 	\item Trained model coefficients: $W_P$ -- preference matrix
 	
@@ -178,6 +176,8 @@ For each problem $P \in \ProblemsTrain$, train a linear model:
 \end{itemize}
 \end{frame}
 \note{
+	Lasso uses squared loss.
+	
 	We use cross-validation to set the regularization parameter of Lasso
 	to ensure the model generalizes to unseen precedences.
 	
