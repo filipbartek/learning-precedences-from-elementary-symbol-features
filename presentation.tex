@@ -43,14 +43,13 @@
 \centering
 \digraph[scale=0.3]{context}{
 	node [shape=rectangle, fontsize=32];
-	atp [label="Automated theorem proving"];
+	atp [label="Automated theorem proving for first-order logic"];
 	refutation [label="Refutation-based"];
-	fol [label="First-order logic"];
 	kbo [label="Knuth-Bendix Ordering"];
 	lpo [label="Lexicographic Path Ordering"];
 	precedence [label="Symbol precedence", style=bold];
-	"Automated reasoning" -> atp -> refutation -> "Saturation-based" -> "Superposition calculus" -> "Paramodulation inference" -> "Term simplification ordering" -> kbo -> precedence;
-	atp -> fol -> "Saturation-based";
+	"Automated reasoning" -> atp -> refutation -> "Superposition calculus" -> "Term simplification ordering" -> kbo -> precedence;
+	atp -> "Saturation-based" -> "Superposition calculus";
 	"Term simplification ordering" -> lpo -> precedence;
 }
 % Does superposition calculus really use paramodulation inference?
