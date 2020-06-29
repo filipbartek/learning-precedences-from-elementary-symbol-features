@@ -337,16 +337,53 @@ Symbol order: descending by predicted value
 
 \section{Conclusion}
 
-\begin{frame}{References}
-\bibliographystyle{plainnat}
-\bibliography{main}
+\begin{frame}{Summary}
+
+Training:
+\begin{enumerate}
+	\item For each training problem in isolation:
+	\begin{enumerate}
+		\item Run Vampire on 100 random precedences.
+		\item Assign a cost to each symbol pair:
+		Fit a linear regressor of precedence cost and extract feature coefficients.
+	\end{enumerate}
+	\item Train a symbol pair cost regressor.
+	
+	Represent symbols using simple syntactic features.
+\end{enumerate}
+
+Proposing a precedence on a new problem:
+\begin{enumerate}
+	\item Predict the cost of each symbol pair.
+	\item Minimize the sum of costs of ordered symbol pairs.
+\end{enumerate}
+
+Experimental evaluation:
+\begin{itemize}
+	\item We learned to order predicate symbols by frequency.
+\end{itemize}
+
+Future:
+\begin{itemize}
+	\item Stabilize training
+	\item Learn to propose function symbol precedences
+	\item Richer symbol representation using graph neural networks
+\end{itemize}
+
 \end{frame}
 
 \section{Bonus slides}
 
-\begin{frame}\sectionpage\end{frame}
+\begin{frame}[noframenumbering]
+\sectionpage
+\end{frame}
 
-\begin{frame}{Experimental setup}
+\begin{frame}[noframenumbering]{References}
+\bibliographystyle{plainnat}
+\bibliography{main}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Experimental setup}
 \begin{itemize}
 	\item Only predicate precedences are learned.
 	Function symbols are ordered by \texttt{invfreq}.
