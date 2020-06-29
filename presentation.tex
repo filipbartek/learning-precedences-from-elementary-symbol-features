@@ -345,34 +345,21 @@ Symbol order: descending by predicted value
 
 \begin{frame}{Summary}
 
-Training:
-\begin{enumerate}
-	\item For each training problem in isolation:
-	\begin{enumerate}
-		\item Run Vampire on 100 random precedences.
-		\item Assign a cost to each symbol pair:
-		Fit a linear regressor of precedence cost and extract feature coefficients.
-	\end{enumerate}
-	\item Train a symbol pair cost regressor.
-	
-	Represent symbols using simple syntactic features.
-\end{enumerate}
+We designed a system that:
 
-Proposing a precedence on a new problem:
-\begin{enumerate}
-	\item Predict the cost of each symbol pair.
-	\item Minimize the sum of costs of ordered symbol pairs.
-\end{enumerate}
-
-Experimental evaluation:
 \begin{itemize}
-	\item We learned to order predicate symbols by frequency.
+	\item Trains on random precedences using preference matrices
+	\item Proposes a good precedence using a greedy algorithm
 \end{itemize}
+
+We evaluated the system on TPTP for predicate precedences.
+
+\vspace{.5cm}
 
 Future:
 \begin{itemize}
 	\item Stabilize training
-	\item Learn to propose function symbol precedences
+	\item Evaluate also for function symbol precedences
 	\item Richer symbol representation using graph neural networks
 \end{itemize}
 
