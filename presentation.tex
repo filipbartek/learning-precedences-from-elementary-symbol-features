@@ -104,16 +104,14 @@ using simple symbol features?
 
 Training:
 \begin{enumerate}
-	% TODO: Should I specify number of training problems and precedences here?
-	\item For each of 1000 training problems in isolation:
+	\item For each training problem $P$ in isolation:
 	\begin{enumerate}
-		\item Try to solve with 100 random precedences using Vampire
-		% TODO: Should I mention Vampire here?
-		\item Assign a cost to each of the precedences
-		\item Assign a cost to each symbol pair
+		\item Try to solve $P$ with 100 random precedences using Vampire
+		\item Assign a cost to each of the precedences% using normalized $\AbstractTime(P,\pi_P)$
+		\item Assign a cost to each symbol pair by
 		\begin{enumerate}
-			\item Fit a linear regressor of precedence cost
-			\item Extract feature coefficients (feature $\sim$ symbol pair)
+			\item Fitting a linear regressor of precedence cost
+			\item Extracting feature coefficients (feature $\sim$ symbol pair)
 		\end{enumerate}
 	\end{enumerate}
 	\item Train a symbol pair cost regressor
