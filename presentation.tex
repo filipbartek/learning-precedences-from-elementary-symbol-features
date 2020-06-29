@@ -183,6 +183,7 @@ For each problem $P \in \ProblemsTrain$, train a linear model:
 	We use cross-validation to set the regularization parameter of Lasso
 	to ensure the model generalizes to unseen precedences.
 	
+	Design flaw:
 	We should multiply the coefficients by number of unordered symbol pairs, that is $n \choose 2$,
 	and predict by averaging instead of summation.
 	Otherwise small problems dominate.
