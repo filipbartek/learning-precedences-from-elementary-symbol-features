@@ -212,7 +212,7 @@ Feature vector of symbol $s_i$: $\fv(s_i)$
 	\item Prediction: $M([\fv(s_i), \fv(s_j)])$
 	\item Learning method:
 	\begin{itemize}
-		\item Elastic-Net
+		\item Elastic-Net (linear regression with $L_1$ and $L_2$ penalties)
 		\item Gradient Boosting Machine
 	\end{itemize}
 	\item Training sample distribution:
@@ -259,7 +259,7 @@ Given a previously unseen problem $P$:
 	\hline
 	Best of 10 random & 501.8 & 13.85 \\
 	\texttt{invfreq} & 475.8 & 13.83 \\
-	Elastic-Net\footnote{Linear regression with l1-norm and l2-norm penalty regularization} & 471.6 & 10.21 \\
+	Elastic-Net & 471.6 & 10.21 \\
 	Gradient Boosting & 464.8 & 13.78 \\
 	Elastic-Net without weighting & 461.2 & 8.11 \\
 	Random & 450.4 & 10.25 \\
