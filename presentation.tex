@@ -211,7 +211,7 @@ Feature vector of symbol $s_i$: $\fv(s_i)$
 \begin{frame}{Symbol pair cost model $M$}{Generalizing across problems}
 \begin{itemize}
 	\item Input: symbol pair feature vector $[\fv(s_i), \fv(s_j)]$
-	\item Target: ${W_P}_{i,j}$
+	\item Target: ${W_P}_{i,j}$ (cost attributed to $\iverson{s_i\text{ is ordered before }s_j}$)
 	\item Prediction: $M([\fv(s_i), \fv(s_j)])$
 	\item Learning method:
 	\begin{itemize}
