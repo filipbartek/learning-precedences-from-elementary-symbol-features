@@ -79,7 +79,12 @@
 \end{table}
 \end{frame}
 \note{Order matrix: The element in the $i$-th row and $j$-th column is 1 iff the permutation $\pi_P$ orders $s_i$ before $s_j$, that is $\inv{\pi_P}(i) < \inv{\pi_P}(j)$.
-The element is 0 otherwise.}
+The element is 0 otherwise.
+
+Abstract solving time:
+We run Vampire with 10 seconds time limit.
+AST is the number of iterations of saturation loop in successful executions
+and undefined in failed executions (timeout etc.).}
 
 \begin{frame}{Main research question}
 
