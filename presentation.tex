@@ -381,9 +381,9 @@ Future:
 
 \begin{frame}[noframenumbering]{Experimental setup}
 \begin{itemize}
-	\item Only predicate precedences are learned.
+	\item Only predicate precedences are learned. \\
 	Function symbols are ordered by \texttt{invfreq}.
-	\item Problems from TPTP \cite{Sut17} -- FOF and CNF
+	\item Problems from TPTP \cite{Sut17} -- CNF and FOF (clausified with Vampire)
 	\begin{itemize}
 		\item $\ProblemsTrain$ (8217 problems):
 		at most 200 predicate symbols,
@@ -393,7 +393,9 @@ Future:
 	\end{itemize}
 	\item 5 evaluation iterations (splits): 1000 training problems and 1000 test problems
 	\item 100 precedences per training problem
-	\item Vampire: time limit: 10 seconds
+	\item Vampire configuration:
+	time limit: 10 seconds, memory limit: 8192~MB, literal comparison mode: predicate, function symbol
+	precedence: invfreq, saturation algorithm: discount, age-weight ratio:~1:10, AVATAR: disabled
 	\item $10^6$ symbol pair samples to train $M$
 \end{itemize}
 \end{frame}
