@@ -307,42 +307,14 @@ Given a previously unseen problem $P$:
 \end{table}
 
 The other 3 features have all zero coefficients.
-\end{frame}
-
-\begin{frame}{Elastic-Net feature coefficients}{of individual symbols}
-% TODO: Is it ok to include this slide, despite the fact that the table is not in the article?
-% Perhaps make it a bonus slide?
-
-\begin{table}
-\begin{tabular}{c|rrr}
-	Training set & Arity & Frequency & Unit frequency \\
-	\hline
-	0 & $-.98$ & $ .01$ & $-.01$ \\
-	1 &        & $ .56$ & $ .44$ \\
-	2 &        & $ .36$ & $ .64$ \\
-	3 & $-.88$ &        & $ .04$ \\
-	4 &        & $ .93$ & $ .07$ \\
-	\hline
-	\(\ProblemsTrain\) &        & $ .43$ & $ .57$ \\
-\end{tabular}
-\end{table}
-
-Symbol order: descending by predicted value
 
 \begin{itemize}
-	\item Sets 1, 2, 4, $\ProblemsTrain$:
-	\begin{itemize}
-		\item Descending by frequency: low frequency $\sim$ early inference
-		\item Similar to \texttt{invfreq} and \texttt{vampire \--\--sp frequency}
-	\end{itemize}
-	\item Sets 0, 3:
-	\begin{itemize}
-		\item Ascending by arity: high arity $\sim$ early inference
-		\item Similar to \texttt{vampire \--\--sp arity}
-	\end{itemize}
+	\item Training sets 1, 2, 4, $\ProblemsTrain$: \\
+	Similar to \texttt{invfreq} heuristic
+	(low frequency $\sim$ early inference)
+	\item Training sets 0, 3: \\
+	Similar to arity heuristic (high arity $\sim$ early inference)
 \end{itemize}
-% https://docs.google.com/spreadsheets/d/1enrsKzIjNpEbXaZ8JtKBUe29N1C-S2Yf2jDAPUsizDA
-
 \end{frame}
 
 \section{Conclusion}
@@ -401,4 +373,37 @@ Future:
 \end{itemize}
 \end{frame}
 
+\begin{frame}[noframenumbering]{Elastic-Net feature coefficients}{of individual symbols}
+
+\begin{table}
+	\begin{tabular}{c|rrr}
+		Training set & Arity & Frequency & Unit frequency \\
+		\hline
+		0 & $-.98$ & $ .01$ & $-.01$ \\
+		1 &        & $ .56$ & $ .44$ \\
+		2 &        & $ .36$ & $ .64$ \\
+		3 & $-.88$ &        & $ .04$ \\
+		4 &        & $ .93$ & $ .07$ \\
+		\hline
+		\(\ProblemsTrain\) &        & $ .43$ & $ .57$ \\
+	\end{tabular}
+\end{table}
+
+Symbol order: descending by predicted value
+
+\begin{itemize}
+	\item Sets 1, 2, 4, $\ProblemsTrain$:
+	\begin{itemize}
+		\item Descending by frequency: low frequency $\sim$ early inference
+		\item Similar to \texttt{invfreq} and \texttt{vampire \--\--sp frequency}
+	\end{itemize}
+	\item Sets 0, 3:
+	\begin{itemize}
+		\item Ascending by arity: high arity $\sim$ early inference
+		\item Similar to \texttt{vampire \--\--sp arity}
+	\end{itemize}
+\end{itemize}
+% https://docs.google.com/spreadsheets/d/1enrsKzIjNpEbXaZ8JtKBUe29N1C-S2Yf2jDAPUsizDA
+
+\end{frame}
 \end{document}
