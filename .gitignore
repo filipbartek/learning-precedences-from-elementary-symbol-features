@@ -11,6 +11,9 @@ easychair.cls
 *.out
 *.pdf
 *.synctex.gz
+*.nav
+*.snm
+*.toc
 
 # glossaries
 *.glg
@@ -24,3 +27,6 @@ easychair.cls
 *.bib.sav
 *.blg
 *.run.xml
+
+# graphviz
+*.dot
