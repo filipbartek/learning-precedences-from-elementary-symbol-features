@@ -204,7 +204,7 @@ The relationship is modeled using a linear predictor function:
 \[\hat{y}_i =  \mathbf{x}_i \cdot \mathbf{w} + b, \]
 whose unknown model parameters $\mathbf{w}\in \re^k$ and $b \in \re$ are estimated from the data.
 We call the vector $\mathbf{w}$ the \emph{coefficients} of the model and $b$ the \emph{intercept}.
-Most commonly, the parameters are picked to minimize the so called mean squared error:
+Most commonly, the parameters are picked to minimize the so-called mean squared error:
 \[\mathit{MSE} = \frac{1}{n} \sum\limits_{i=1}^n (\hat{y}_i - y_i)^2, \]
 but other norms are also possible \cite{hastie01statisticallearning}.
 
@@ -288,7 +288,7 @@ symbols maintain identity and meaning across individual problems. However, since
 is to learn general theorem proving knowledge, we do not use the assumption of aligned signatures.}
 That is why we resort to representing symbols by their \emph{features} (cf.~\Cref{sect:embeddings})
 when aggregating the learned preferences across different problems.
-This is in more details explained further below and, formally, in \Cref{sec:general-preference}.
+This is in more detail explained further below and, formally, in \Cref{sec:general-preference}.
 
 We also strive to ensure that the preference values across problems have possibly the same magnitude.
 Note that \(\AbstractTime(P,\pi_P)\) may vary a lot for a fixed problem \(P\) but all the more so across
@@ -473,7 +473,7 @@ by imposing a penalty on coefficients with large absolute value,
 effectively shrinking the coefficients that correspond to symbol pairs
 whose mutual order does not affect the \(\CostStd(\pi_P)\).
 We can use this property to interpret the absolute value of preference value
-as a measure of importance of a given symbol pair.
+as a measure of the importance of a given symbol pair.
 
 In the following sections we assume that the preference matrix \(W_P\) we find by Lasso regression
 yields \(\CostProxy\) that approximates \(\CostStd\) well.
@@ -552,7 +552,7 @@ improves the performance of the resulting model (see \Cref{sect:experimental-res
 
 \newcommand{\GeneralRegressor}{M}
 We denote the trained model as \(\GeneralRegressor\)
-and its prediction of preference value of the symbol pair \(s_i, s_j\)
+and its prediction of the preference value of the symbol pair \(s_i, s_j\)
 as \(\GeneralRegressor([\fv(s_i), \fv(s_j)])\).
 
 \subsection{Precedence construction} \label{sect:construction}
@@ -623,7 +623,7 @@ never use the symbol precedence to compare a predicate symbol with a function sy
 we can break down the symbol precedence  into a predicate precedence and a function precedence.
 In this paper, we restrict our attention to predicate precedences,
 leaving function symbols to be ordered by the \texttt{invfreq} scheme.
-More thorough evaluation of both predicate and function precedences and their interaction
+A more thorough evaluation of both predicate and function precedences and their interaction
 is left for future work.
 
 %\todo[inline,author=Filip]{Discuss more.
@@ -720,7 +720,7 @@ signifying a complete failure to learn on these training sets.
 
 Using Elastic-Net for general preference prediction on average nearly matches the performance
 of Vampire with the \texttt{invfreq} precedence scheme.
-While Elastic-Net performs significantly better than random precedence generator,
+While Elastic-Net performs significantly better than a random precedence generator,
 it still performs significantly worse than a generator
 that, given a problem, tries 10 random precedences and chooses the best of these.
 This suggests that there is space for improvement, possibly with a more sophisticated, non-linear model.
@@ -800,7 +800,7 @@ which an order matrix provides the features of a precedence understood as a perm
 In a second stage, in which symbols are abstracted by their features, the preferences themselves become regression targets.
 
 In our initial experiments reported in this paper, the performance of our system does not
-yet reach that of the human designed heuristic \texttt{invfreq}. We believe, however,
+yet reach that of the human-designed heuristic \texttt{invfreq}. We believe, however,
 that further improvements are possible by using a more advanced regression model for the second stage
 and/or by further hyper-parameter tuning (e.g.~of the Gradient Boosting model).
 Ultimately, we expect to gain the most by using a richer set of symbol features,
