@@ -9,30 +9,28 @@
 
 \usepackage{cleveref}
 
-\usepackage[numbers]{natbib}
-
 \input{glossary}
 
+% Multi-letter identifier
+\newcommand{\mli}[1]{\mathit{#1}}
+
 \DeclareMathOperator*{\argmin}{argmin}
-\DeclareMathOperator{\AbstractTime}{\mathit{ast}}
-\DeclareMathOperator{\CostBase}{\mathit{cost_{base}}}
-\DeclareMathOperator{\CostStd}{\mathit{cost_{std}}}
-\DeclareMathOperator{\CostProxy}{\mathit{cost_{proxy}}}
+\DeclareMathOperator{\AbstractTime}{\mli{ast}}
+\DeclareMathOperator{\Cost}{\mli{cost}}
+\DeclareMathOperator{\CostBase}{\mli{\Cost_{base}}}
+\DeclareMathOperator{\CostStd}{\mli{\Cost_{std}}}
+\DeclareMathOperator{\CostProxy}{\mli{\Cost_{proxy}}}
 \DeclareMathOperator{\OrderMatrix}{\mathit{O}}
-\DeclareMathOperator{\pref}{\mathit{pref}}
-\DeclareMathOperator{\prover}{prover}
 \DeclareMathOperator{\symbols}{\Sigma}
-\DeclareMathOperator{\predicates}{\mathit{Pr}}
-\DeclareMathOperator{\functions}{\mathit{Fn}}
-\DeclareMathOperator{\clauses}{\mathit{Cl}}
+\DeclareMathOperator{\clauses}{\mli{Cl}}
 \DeclareMathOperator{\re}{\mathbb{R}}
 \DeclareMathOperator{\nat}{\mathbb{N}}
 
 \newcommand{\inv}[1]{#1^{-1}}
 \newcommand{\flatten}[1]{\overrightarrow{#1}}
 \newcommand{\iverson}[1]{\left \llbracket #1 \right \rrbracket}
-\newcommand{\ProblemsTrain}{\mathcal{P}_{\mathit{train}}}
-\newcommand{\ProblemsTest}{\mathcal{P}_{\mathit{test}}}
-\newcommand{\fv}{\mathit{fv}}
-\newcommand{\SymbolsAvail}{\symbols_{\mathit{avail}}}
+\newcommand{\ProblemsTrain}{\mathcal{P}_{\mli{train}}}
+\newcommand{\ProblemsTest}{\mathcal{P}_{\mli{test}}}
+\newcommand{\fv}{\mli{fv}}
+\newcommand{\SymbolsAvail}{\mli{\symbols_{avail}}}
 \newcommand{\potential}{c}

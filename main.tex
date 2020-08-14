@@ -1,17 +1,31 @@
-\documentclass[a4paper]{easychair}
+\documentclass{ceurart}
+% https://ceurws.wordpress.com/2020/03/31/ceurws-publishes-ceurart-paper-style/
 
 \input{preamble}
 
-\title{Learning Precedences from Simple Symbol Features\thanks{Supported by the ERC Consolidator grant AI4REASON no.~649043 under the EU-H2020 programme, the Czech Science Foundation project 20-06390Y and the Grant Agency of the Czech Technical University in Prague, grant no.~SGS20/215/OHK3/3T/37.}}
-% https://sgs.cvut.cz/index.php?action=faq
-\titlerunning{Learning Precedences from Elementary Symbol Features}
-\author{Filip B\'{a}rtek \and Martin Suda}
-\authorrunning{B\'{a}rtek, Suda}
-\institute{Czech Technical University in Prague, Czech Republic}
-
 \begin{document}
 
-\maketitle
+\copyrightyear{2020}
+\copyrightclause{Copyright for this paper by its authors.
+  Use permitted under Creative Commons License Attribution 4.0
+  International (CC BY 4.0).}
+
+\conference{PAAR 2020: Seventh Workshop on Practical Aspects of Automated Reasoning, June 29--30, 2020 in Paris, France (virtual)}
+
+\title{Learning Precedences from Simple Symbol Features}
+
+\address[1]{Czech Technical University in Prague, Jugoslávských partyzánů 1580/3, 160 00 Praha 6 - Dejvice, Czech Republic}
+
+\author[1]{Filip Bártek}[%
+%prefix=Mgr.,
+%role=Researcher,
+orcid=0000-0002-1822-2651,
+email=filip.bartek@cvut.cz,
+url=http://filipbartek.github.io/,
+]
+%\todo[author=Filip]{Email and url do not work.}
+
+\author[1]{Martin Suda}
 
 \begin{abstract}
 A simplification ordering, typically specified by a symbol precedence,
@@ -28,6 +42,15 @@ with precedence generation schemes designed by prover developers.
 % \todo[author=Martin]{Let's add this when we have the results finalized:
 % Training a linear model converges to ordering the symbols by the number of their occurrences.}
 \end{abstract}
+
+\begin{keywords}
+  saturation-based theorem proving \sep
+  simplification orderings \sep
+  symbol precedences \sep
+  machine learning
+\end{keywords}
+
+\maketitle
 
 \section{Introduction}
 
@@ -205,7 +228,7 @@ The relationship is modeled using a linear predictor function:
 whose unknown model parameters $\mathbf{w}\in \re^k$ and $b \in \re$ are estimated from the data.
 We call the vector $\mathbf{w}$ the \emph{coefficients} of the model and $b$ the \emph{intercept}.
 Most commonly, the parameters are picked to minimize the so-called mean squared error:
-\[\mathit{MSE} = \frac{1}{n} \sum\limits_{i=1}^n (\hat{y}_i - y_i)^2, \]
+\[\mli{MSE} = \frac{1}{n} \sum\limits_{i=1}^n (\hat{y}_i - y_i)^2, \]
 but other norms are also possible \cite{hastie01statisticallearning}.
 
 % \todo[inline,author=Martin]{Define sufficient apparatus to be able to prove that if we use linear regression for the general preference prediction, than we can construct optimum precedence in linear time from the coefficients. Write down the proof.}
@@ -218,7 +241,6 @@ we assume a fixed %\gls{fol}
 While the practical experiments described in \Cref{sec:evaluation} use the \gls*{atp} \gls*{vampire} \cite{Kovacs2013},
 the model architecture does not assume a particular \gls*{atp}
 and is compatible with any superposition-based \gls*{atp} such as E \cite{SCV:CADE-2019}, SPASS \cite{DBLP:conf/cade/WeidenbachDFKSW09} or  \gls*{vampire}.
-% 
 Within the prover a particular saturation strategy is fixed including a time limit.
 %If the prover runs out of time before solving a problem, we record \(\AbstractTime(P,\pi_P) = \bot\).
 %\todo[author=Filip]{This sentence duplicates information given in section Performance measure. Shall we omit it?}
@@ -665,9 +687,12 @@ counting the number of successfully solved problems.
 
 A collection of scripts created for the experimental evaluation can be found in the Git repository at
 \url{https://github.com/filipbartek/vampire-ml/tree/75c693f3}.
-The script
-\href{https://github.com/filipbartek/vampire-ml/blob/75c693f3/map-reduce/paar2020/run.sh}{map-reduce/paar2020/run.sh}
-can be used to perform the measurements presented below.
+%The script
+%\href{https://github.com/filipbartek/vampire-ml/blob/75c693f3/map-reduce/paar2020/run.sh}{map-reduce/paar2020/run.sh}
+%can be used to perform the measurements presented below.
+The measurements presented below can be performed by
+running the script
+\href{https://github.com/filipbartek/vampire-ml/blob/75c693f3/map-reduce/paar2020/run.sh}{map-reduce/paar2020/run.sh}.
 
 \subsection{Experimental results}
 \label{sect:experimental-results}
@@ -690,12 +715,14 @@ for 5 random choices of training and test problem set (splits).
 %	runtime)?}
 %\todo[inline,author=Filip]{I have not measured this.}
 
-\begin{table}[ht]
-	\centering
+\begin{table*}
+    \caption{Experiment results}
+	\label{table:results}
 	\begin{tabular}{l|rrrrr|rr}
+	    \toprule
 		Case & \multicolumn{7}{c}{Successes out of 1000 per split} \\
 		& 0 & 1 & 2 & 3 & 4 & Mean & Std \\
-		\hline
+		\midrule
 		Best of 10 random & 514 & 499 & 509 & 511 & 476 & 501.8 & 13.85 \\
 		\texttt{invfreq} & 494 & 472 & 480 & 481 & 452 & 475.8 & 13.83 \\
 		Elastic-Net & 484 & 471 & 479 & 470 & 454 & 471.6 & 10.21 \\
@@ -703,11 +730,10 @@ for 5 random choices of training and test problem set (splits).
 		Gradient Boosting & 473 & 462 & 475 & 475 & 439 & 464.8 & 13.78 \\
 		Elastic-Net without sample weighting & 475 & 454 & 465 & 459 & 453 & 461.2 & 8.11 \\
 		Random & 454 & 455 & 457 & 456 & 430 & 450.4 & 10.25 \\
+		\bottomrule
 	\end{tabular}
 	% Source: https://docs.google.com/spreadsheets/d/1HSsC7piUAtWt6uwA9SYOX5vmiF0Ab3Ae4FPyGsDALIg/edit?usp=sharing
-	\caption{Experiment results}
-	\label{table:results}
-\end{table}
+\end{table*}
 
 The case ``Elastic-Net without sample weighting'' shows the effect of
 sampling the symbol pairs uniformly.
@@ -742,26 +768,27 @@ The coefficients were scaled so that their absolute values sum up to 1.
 Note that scaling the coefficients by a constant does not affect
 the precedence constructed using the greedy algorithm presented in \Cref{sect:ltot}.
 
-\begin{table}[ht]
-	\centering
+\begin{table*}
+    \caption{Elastic-Net feature coefficients after fitting on each of the 5 training sets of 1000 problems and on the whole \(\ProblemsTrain\).
+		``Frequency'' is the number of occurrences of the symbol in the problem.
+		``Unit frequency'' is the number of clauses in the problem that contain at least one occurrence of the symbol.}
+	\label{table:feature-weights}
 	\begin{tabular}{c|rrr|rrr}
+	    \toprule
 		Training set & \multicolumn{3}{c}{Left symbol} & \multicolumn{3}{c}{Right symbol} \\
 		& Arity & Frequency & Unit frequency & Arity & Frequency & Unit frequency \\
-		\hline
+		\midrule
 		0 &       &$-0.01$&       &$-0.98$&$ 0.01$&        \\
 		1 &       &$-0.48$&       &       &$ 0.08$&$ 0.44 $\\
 		2 &       &       &$-0.64$&       &$ 0.36$&        \\
 		3 &$ 0.88$&$-0.03$&$ 0.01$&       &$-0.03$&$ 0.05 $\\
 		4 &       &$-0.62$&       &       &$ 0.30$&$ 0.07 $\\
-		\hline
+		\midrule
 		\(\ProblemsTrain\) &       &       &$-0.57$&       &$ 0.43$&        \\
+		\bottomrule
 	\end{tabular}
 	% Source: https://docs.google.com/spreadsheets/d/1HSsC7piUAtWt6uwA9SYOX5vmiF0Ab3Ae4FPyGsDALIg/edit?usp=sharing
-	\caption{Elastic-Net feature coefficients after fitting on each of the 5 training sets of 1000 problems and on the whole \(\ProblemsTrain\).
-		``Frequency'' is the number of occurrences of the symbol in the problem.
-		``Unit frequency'' is the number of clauses in the problem that contain at least one occurrence of the symbol.}
-	\label{table:feature-weights}
-\end{table}
+\end{table*}
 
 %\todo[inline,author=Review 2]{The coefficient table in Sec 5.3 is very interesting. Two
 %	observations:
@@ -803,11 +830,18 @@ and/or by further hyper-parameter tuning (e.g.~of the Gradient Boosting model).
 Ultimately, we expect to gain the most by using a richer set of symbol features,
 ideally automatically extracted from the problems using graph neural networks \cite{Wu2019}. 
 
-\bibliographystyle{plainnat}
+\begin{acknowledgments}
+Supported by the ERC Consolidator grant AI4REASON no.~649043 under the EU-H2020 programme,
+the Czech Science Foundation project 20-06390Y and
+the Grant Agency of the Czech Technical University in Prague, grant no.~SGS20/215/OHK3/3T/37.
+\end{acknowledgments}
+
 \bibliography{main}
 
 %\todo[inline,author=Review 1]{Globally, the bibliography should be more uniform. For example, it is
 %	strange that [10] and [11] have such a different citation style although they
 %	come from the same book.}
+\todo[inline,author=Martin]{Remove URLs and DOIs.}
+\todo[inline,author=CEURART]{Include: complete authors' names (namely full first names), title, year, volume, number, pages, DOI.}
 
 \end{document}
