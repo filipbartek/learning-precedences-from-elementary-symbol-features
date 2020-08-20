@@ -31,15 +31,15 @@ email=martin.suda@cvut.cz,
 
 \begin{abstract}
 A simplification ordering, typically specified by a symbol precedence,
-is one of the key parameters of the superposition calculus, contributing
+is one of the key parameters of~the~superposition calculus, contributing
 to shaping the search space navigated by a saturation-based \acrlong*{atp}.
 Thus the choice of a precedence can have a great impact on the prover's performance.
 In this work, we design a system for proposing symbol precedences
 that should lead to solving a problem quickly.
-The system relies on machine learning to extract this information from
-past successful and unsuccessful runs of a theorem prover over a set of problems and randomly sampled precedences.
+The system relies on machine learning to extract this information
+from~past successful and unsuccessful runs of a theorem prover over a set of problems and randomly sampled precedences.
 It uses a small set of simple human-engineered symbol features as the sole
-basis for discriminating the symbols. This allows for a direct comparison
+basis for~discriminating the symbols. This allows for a direct comparison
 with precedence generation schemes designed by prover developers.
 % \todo[author=Martin]{Let's add this when we have the results finalized:
 % Training a linear model converges to ordering the symbols by the number of their occurrences.}
@@ -57,7 +57,7 @@ with precedence generation schemes designed by prover developers.
 \section{Introduction}
 
 Modern saturation-based \glspl*{atp} such as E \cite{SCV:CADE-2019}, SPASS \cite{DBLP:conf/cade/WeidenbachDFKSW09} 
-or \gls*{vampire} \cite{Kovacs2013}
+or \gls*{vampire}~\cite{Kovacs2013}
 use the superposition calculus \cite{DBLP:books/el/RV01/NieuwenhuisR01} as their underlying inference system.
 Superposition is built around the paramodulation inference \cite{Robinson1983} crucially
 constrained by simplification ordering on terms and literals, which is supplied as a parameter of the calculus.
@@ -84,7 +84,7 @@ The system relies on the techniques of supervised machine learning and extracts
 such theorem-proving knowledge from successful (and unsuccessful) runs of 
 the Vampire theorem prover~\cite{Kovacs2013} when run over a variety of FOL problems equipped
 with randomly sampled symbol precedences. 
-We assume that by learning to solve already solvable problems quickly,
+We~assume that by learning to solve already solvable problems quickly,
 the acquired knowledge will generalize and help solving problems previously out of reach.
 % This general assumption is shared with other projects for automatically learning theorem
 % proving strategies from previous experience, such as the MaLeS system \cite{DBLP:journals/jar/KuhlweinU15}.
@@ -92,9 +92,9 @@ As a first step in a more ambitious project,
 we focus here on representing the symbols in a problem by a fixed set of simple human-engineered features
 (such as the number of occurrences used by \texttt{invfreq} scheme mentioned above)\footnote{Automatic
 feature extraction using neural networks is planned for future work.}
-and, to simplify the experimental setup, we restrict our attention to learning precedences for predicate symbols only.\footnote{Our theoretical considerations, however, apply equally to learning function symbol precedences.}
+and, to simplify the experimental setup, we restrict our attention to~learning precedences for predicate symbols only.\footnote{Our theoretical considerations, however, apply equally to learning function symbol precedences.}
 
-Learning to predict good precedences poses several interesting challenges that we address in this work.
+Learning to predict good precedences poses several interesting challenges that we address in~this work.
 First, it is not immediately clear how to characterize a precedence, a permutation of a finite set of symbols,
 by a real-valued feature vector to serve as an input for a learning algorithm. 
 Additionally, to be able to generalize across problems
@@ -120,7 +120,7 @@ Our way of addressing the above sketched challenges lies in using \emph{pairwise
 to characterize a precedence, normalizing the target prover run times on a per problem basis,
 and in the use of ``second-order'' learning of the preferences for symbols abstracted by their features.
 These concepts are introduced in \Cref{sect:overview} and later formalized in \Cref{sec:architecture}.
-\Cref{sec:evaluation} presents the results of our experimental evaluation of the proposed technique over the TPTP \cite{Sut17} benchmark.
+\Cref{sec:evaluation} presents the results of our experimental evaluation of the proposed technique over the TPTP~\cite{Sut17} benchmark.
 We start our exposition by fixing the notation and basic concepts in \Cref{sect:prelim}.
 
 % Final paragraph, with forward reference, explains how we tackle the challenges and where it is explained
@@ -145,14 +145,14 @@ We use this section to recall and formalize the key notions relevant for our wor
 
 \paragraph{Problem}
 A \emph{(first-order) problem} is a pair \(P = (\symbols, \clauses)\),
-where \(\symbols = (s_1, s_2, \ldots, s_n)\) is a list of (predicate and function) symbols called the \emph{signature},
+where \(\symbols = (s_1, s_2, \ldots, s_n)\) is a list of~(predicate and function) symbols called the \emph{signature},
 and \(\clauses\) is a set of first-order
 clauses built over the symbols of \(\symbols\).
 % This is where we assume familiarity with FOL.
 
 The problem is either given directly by the user or 
-could be the result of clausifying a general \gls*{fol} formula \(\varphi\),
-in which case we know which of the symbols were introduced during the clausification
+could be the result of clausifying a~general \gls*{fol} formula \(\varphi\),
+in which case we know which of the symbols were introduced during the~clausification
 (namely during Tseitin transformation and skolemization; see e.g. \citet{DBLP:books/el/RV01/NonnengartW01})
 and which occurred in the conjecture (if it was present).
 % \todo[author=Filip]{Mention that we also know which clauses form the conjecture. We use this in the feature \texttt{inGoal}.}
@@ -167,14 +167,14 @@ A precedence \(\pi_P\) \emph{determines} a (total) ordering on \(\symbols\) as f
 \paragraph{Simplification Orderings} are orderings on terms used to parameterize the superposition calculus \cite{DBLP:books/el/RV01/NieuwenhuisR01}
 employed by modern saturation-based theorem provers. The two classes of simplification orderings most commonly used in practice,
 % \todo[author=Filip]{Why do we believe they are most commonly used in practice? Can we cite some source?}
-the \acrlongpl*{kbo} \cite{Knuth1983} and the \acrlongpl*{lpo} \cite{Kamin1980}, are both defined in terms 
+the \acrlongpl*{kbo} \cite{Knuth1983} and the~\acrlongpl*{lpo}~\cite{Kamin1980}, are both defined in terms 
 of a user-supplied (possibly partial) ordering $<$ %(typically also called the precedence) 
 on the given problem's signature \(\symbols\).
-In this work, we assume that the theorem prover uses a simplification ordering from one of these two classes
-relying on the ordering on \(\symbols\) determined by a precedence \(\pi_P\) to construct such a simplification ordering.
+In this work, we assume that the~theorem prover uses a simplification ordering from one of these two classes
+relying on the~ordering on \(\symbols\) determined by a precedence \(\pi_P\) to construct such a simplification ordering.
 
 \paragraph{Performance measure} A saturation-based \gls*{atp} \emph{solves} a problem \(P = (\symbols,\clauses)\)
-(under a particular fixed strategy and a determined symbol precedence \(\pi_P\))  by either
+(under a~particular fixed strategy and a determined symbol precedence \(\pi_P\))  by either
 \begin{itemize}
 \item
 	deriving from \(\clauses\) a contradiction in the form of the empty clause,
@@ -206,7 +206,7 @@ where we use \(\iverson{P}\) to denote the Iverson bracket \cite{Iverson1962} ap
 % In \citet{Iverson1962}, the expression is called "relational statement".
 evaluating to 1 if \(P\) is true, and 0 otherwise.
 In other words, for a symbol precedence \(\pi_P\), \(O(\pi_P)_{i, j} = 1\) if
-the precedence \(\pi_P\) orders the symbol \(s_i\) before the symbol \(s_j\),
+the~precedence \(\pi_P\) orders the symbol \(s_i\) before the symbol \(s_j\),
 and \(O(\pi_P)_{i, j} = 0\) otherwise.
 
 \paragraph{Flattened matrix}
@@ -228,7 +228,7 @@ and one or more \emph{input} variables $\mathbf{x}_i = (x^1_i,\ldots,x^k_i)$, $i
 The relationship is modeled using a linear predictor function:
 \[\hat{y}_i =  \mathbf{x}_i \cdot \mathbf{w} + b, \]
 whose unknown model parameters $\mathbf{w}\in \re^k$ and $b \in \re$ are estimated from the data.
-We call the vector $\mathbf{w}$ the \emph{coefficients} of the model and $b$ the \emph{intercept}.
+We call the~vector $\mathbf{w}$ the \emph{coefficients} of the model and $b$ the \emph{intercept}.
 Most commonly, the parameters are picked to minimize the so-called mean squared error:
 \[\mli{MSE} = \frac{1}{n} \sum\limits_{i=1}^n (\hat{y}_i - y_i)^2, \]
 but other norms are also possible \cite{hastie01statisticallearning}.
@@ -239,7 +239,7 @@ but other norms are also possible \cite{hastie01statisticallearning}.
 
 For the discussion that follows,
 we assume a fixed %\gls{fol} 
-\gls*{atp} that uses the superposition calculus with a simplification ordering parameterized by a symbol precedence.
+\gls*{atp} that uses the~superposition calculus with a simplification ordering parameterized by a symbol precedence.
 While the practical experiments described in \Cref{sec:evaluation} use the \gls*{atp} \gls*{vampire} \cite{Kovacs2013},
 the model architecture does not assume a particular \gls*{atp}
 and is compatible with any superposition-based \gls*{atp} such as E \cite{SCV:CADE-2019}, SPASS \cite{DBLP:conf/cade/WeidenbachDFKSW09} or  \gls*{vampire}.
@@ -261,13 +261,13 @@ Within the prover a particular saturation strategy is fixed including a time lim
 
 \section{General considerations and overview} \label{sect:overview}
 
-The aim of this work is to design a system that learns to suggest good symbol precedences to an ATP 
+The aim of this work is to design a system that learns to suggest good symbol precedences to an~ATP 
 from observations of the ATP's performance on a class \(\ProblemsTrain\) of problems with randomly sampled precedences. 
-Given a problem \(P = (\symbols,\clauses)\) with \(|\symbols|=n\), we consider a precedence \(\pi_P\) good,
+Given a problem \(P = (\symbols,\clauses)\) with \(|\symbols|=n\), we consider a~precedence \(\pi_P\) good,
 if it leads to a low \(\AbstractTime(P,\pi_P)\)
 among the $n!$ possible precedences for \(P\).
 % ze n! je super large -> almost infinite source of data (for non-trivial n)
-Note that for problems with a signature with more than a few symbols, repeatedly running the prover 
+Note that for problems with a signature with more than a few symbols, repeatedly running the~prover 
 with random precedences represents an effectively infinite source of training data.
 
 Ideally, we would like to learn general theorem proving knowledge, not too dependent on $\ProblemsTrain$,
@@ -287,9 +287,9 @@ and obtain a precedence by \emph{sorting} the symbols using that property.
 We might want our system to also learn a certain property of symbols and use sorting to generate and suggest a precedence. 
 However, it is not clear how to ``extract'' such property from the observed data, since we only have 
 access to the target values for full precedences. Our idea for ``decomposing'' these values into pieces 
-that somehow relate to individual symbols (and can thus be ``transferred'' across problems) is to take a detour using symbol pairs:
+that somehow relate to~individual symbols (and can thus be ``transferred'' across problems) is to take a detour using symbol pairs:
 we assume that the performance of the ATP on \(P\) given \(\pi_P\), i.e.~our measure $\AbstractTime(P,\pi_P)$, can be predicted 
-from a sum of individual contributions corresponding to facts of the form 
+from a sum of individual contributions corresponding to facts of~the~form 
 \[\pi_P\text{ orders the symbol }s_i\text{ before the symbol }s_j.\]
 This is in line with how a prover developer could reason about a precedence generating scheme:
 Even when it is not clear how good or bad a symbol is in absolute terms,
@@ -308,7 +308,7 @@ is that symbols themselves only appear in the context of a particular problem.\f
 symbols maintain identity and meaning across individual problems. However, since our goal in this work
 is to learn general theorem proving knowledge, we do not use the assumption of aligned signatures.}
 That is why we resort to representing symbols by their \emph{features} (cf.~\Cref{sect:embeddings})
-when aggregating the learned preferences across different problems.
+when aggregating the~learned preferences across different problems.
 This is in more detail explained further below and, formally, in \Cref{sec:general-preference}.
 
 We also strive to ensure that the preference values across problems have possibly the same magnitude.
@@ -395,11 +395,11 @@ We strive to create a system that satisfies the following properties:
 
 We define the base cost
 value \(\CostBase(P, \pi_P)\) of precedence \(\pi_P\) on problem \(P\)
-according to the outcome of the proof search configured to use this precedence:
+according to the~outcome of the proof search configured to use this precedence:
 
 \begin{itemize}
 	\item If the proof terminates successfully,
-	\(\CostBase(\pi_P)\) is the number of iterations of the saturation loop
+	\(\CostBase(\pi_P)\) is the number of iterations of the~saturation loop
 	started during the proof search: \(\CostBase(\pi_P) = \AbstractTime(P, \pi_P)\).
 	\item If the proof search fails (meaning that \(\AbstractTime(P, \pi_P) = \bot\)),
 	then \(\CostBase(\pi_P)\) is the maximum number
@@ -430,7 +430,7 @@ We further normalize the cost values by the following operations:
 	%\todo[author=Filip]{We can use the more general term "normalization" instead.
 	% Our goal is to normalize the values and standardization is the means we choose.}
 	Independently for each problem,
-	we apply an affine transformation so that the resulting cost values
+	we apply an affine transformation so~that the resulting cost values
 	have the mean 0 and standard deviation 1.
 	This ensures that the values are comparable across problems.
 	% \todo[author=Filip]{Make less handwavy.}
@@ -477,7 +477,7 @@ by linear regression.
 Minimizing the mean square error directly may lead to overfitting to the training set,
 especially in problems whose signature is relatively large in comparison to the size of the training set.
 %\todo[author=Filip]{Justify along the following lines: Feature space dimension increases quadratically with signature size. Example: with 1000 samples and ... features we can fit exactly. 3 points in 3d etc., 1000 points in 1000d}
-To improve generalization,
+To~improve generalization,
 we use the Lasso regression algorithm \cite{Tibshirani1996} instead of standard linear regression.
 %\todo[author=Filip]{I think we should use RidgeCV or ElasticNetCV instead because they minimize L2 norm, while lasso only minimizes L1 norm.
 %Martin: also worth trying out experimentally.}
@@ -513,7 +513,7 @@ and to know target preference values for pairs of symbols in a training problem 
 \label{sec:target-preference-values}
 
 For each problem \(P\) in the training problem set,
-we find a problem preference matrix by the method outlined in \Cref{sect:preferences}.
+we find a problem preference matrix by the~method outlined in \Cref{sect:preferences}.
 The target value of an arbitrary pair of symbols \(s_i, s_j\) in \(P\) is \({W_P}_{i,j}\).
 
 \subsubsection{Symbol pair embedding} \label{sect:embeddings}
@@ -521,7 +521,7 @@ The target value of an arbitrary pair of symbols \(s_i, s_j\) in \(P\) is \({W_P
 We represent each symbol by a numeric \emph{feature vector} that consists of the following components:
 symbol arity, % arity
 the number of symbol occurrences in the problem, % usageCnt
-the number of clauses in the problem that contain at least one occurrence of the symbol, % unitUsageCnt
+the number of clauses in~the~problem that contain at least one occurrence of the symbol, % unitUsageCnt
 % Filip: I have deduced the meaning of usageCnt, unitUsageCnt and inUnit
 % by manual inspection of a few problems.
 % Witness: PUZ056-1.p: predicate 'fits', function 'pin'
@@ -556,10 +556,10 @@ We sample problem \(P\) from the training problem set with uniform probability.
 Thanks to how \(W_P\) is constructed (see \Cref{sect:preferences}),
 preference values close to 0 are associated with symbol pairs whose mutual order has little effect
 on the outcome of the proof search.
-To focus the training on the symbol pairs whose order does matter,
-we weight the samples by the absolute value of the target.
+To~focus the training on the symbol pairs whose order does matter,
+we weight the samples by~the~absolute value of the target.
 More precisely, given a problem $P$,
-the probability of sampling the symbol pair $i,j$
+the probability of sampling the~symbol pair $i,j$
 is proportional to the absolute target value $|{W_P}_{i,j}|$.
 %
 Experiments have shown that using sample weighting
@@ -578,7 +578,7 @@ as \(\GeneralRegressor([\fv(s_i), \fv(s_j)])\).
 
 \subsection{Precedence construction} \label{sect:construction}
 
-When presented a new problem \(P = (\symbols, \clauses)\), we propose a symbol precedence by taking the following steps:
+When presented a new problem \(P = (\symbols, \clauses)\), we propose a symbol precedence by taking the~following steps:
 \begin{enumerate}
 	\item Estimate a preference matrix \(\widehat{W_P}\).
 	\item Construct a precedence \(\widehat{\pi_P}\) that approximately minimizes
@@ -609,14 +609,14 @@ proposed by \citet{Cohen2011}.
 %	Martin: tak napisme, ze jinak musime projit $n!$ moznosti...
 %	Martin2: v dalsim rozsireni bys mohl vyzkouset a zmerit hillclimb. Da se startovat ze seedu od Cohena,
 %	nebo i z nahodnych seedu opakovane.}
-The rest of this section provides a brief description of the algorithm.
+The rest of this section provides a~brief description of the algorithm.
 
 The algorithm maintains a partially constructed symbol precedence \(\mathbf{p} \in \nat^*\)
 (a finite sequence over \(\nat\); initially empty),
 a set of available symbols \(\SymbolsAvail \subseteq \symbols\) (initially the whole \(\symbols\))
 and a \emph{potential value} for each of the symbols \(\potential: \SymbolsAvail \to \re\).
 The potential value of a symbol corresponds to the relative increase in proxy cost
-associated with selecting the symbol as the next to append to the partial precedence:
+associated with selecting the symbol as~the~next to append to the partial precedence:
 \begin{align*}
 \potential(s_i) = \sum_{s_j \in \SymbolsAvail} \widehat{W_P}_{i, j} - \sum_{s_j \in \SymbolsAvail} \widehat{W_P}_{j, i}
 \end{align*}
@@ -641,9 +641,9 @@ yielding the final \(\mathbf{p}\) as \(\widehat{\pi_P}\).
 
 Since the simplification orderings under consideration (\acrshort*{lpo} and \acrshort*{kbo})
 never use the symbol precedence to compare a predicate symbol with a function symbol,
-we can break down the symbol precedence  into a predicate precedence and a function precedence.
+we can break down the~symbol precedence  into a predicate precedence and a function precedence.
 In this paper, we restrict our attention to predicate precedences,
-leaving function symbols to be ordered by the \texttt{invfreq} scheme.
+leaving function symbols to be ordered by~the~\texttt{invfreq} scheme.
 A more thorough evaluation of both predicate and function precedences and their interaction
 is left for future work.
 
@@ -669,15 +669,15 @@ with at most 1024 predicate symbols (\(|\ProblemsTest| = 15751\)).
 In each of 5 evaluation iterations (splits),
 we sample 1000 training problems from \(\ProblemsTrain\)
 and 1000 test problems from \(\ProblemsTest\)
-uniformly in a way that ensures that the sets do not overlap.
+uniformly in a way that ensures that the sets do~not overlap.
 We repeat the evaluation 5 times to evaluate the stability of the training.
 
 On each training problem we run %the \gls{atp} 
 Vampire with 100 uniformly random predicate precedences
 and a strategy fixed up to the predicate precedence.\footnote{Time limit: 10 seconds, memory limit: 8192 MB, literal comparison mode: predicate, function symbol precedence: \texttt{invfreq}, saturation algorithm: discount, age-weight ratio: 1:10, AVATAR: disabled.}
 % vampire --literal_comparison_mode predicate --symbol_precedence frequency --saturation_algorithm discount --age_weight_ratio 10 --avatar off --time_limit 10 --memory_limit 8192
-We limit the time to 10 seconds per execution which is in our experience with Vampire sufficient to exhibit interesting behavior.
-Note that we use a customized version of Vampire to extract a symbol table from each of the problems.\footnote{\url{https://github.com/filipbartek/vampire/tree/926154f2}}
+We limit the time to 10 seconds per~execution which is in our experience with Vampire sufficient to exhibit interesting behavior.
+Note that we use a customized version of Vampire to extract a symbol table from each of~the~problems.\footnote{\url{https://github.com/filipbartek/vampire/tree/926154f2}}
 % `git reflog` shortens the commit hashes to a prefix of length 8.
 
 After we fit a preference matrix on each of the training problems (see \Cref{sect:preferences}),
@@ -685,7 +685,7 @@ we create a batch of \(10^6\) symbol pair feature vectors with target values
 to train the general preference regressor (see \Cref{sec:general-preference}).
 We evaluate the trained model by running Vampire on the test problem set with predicate precedences
 proposed by the trained model,
-counting the number of successfully solved problems.
+counting the number of~successfully solved problems.
 
 A collection of scripts created for the experimental evaluation can be found in the Git repository at
 \url{https://github.com/filipbartek/vampire-ml/tree/75c693f3}.
@@ -741,16 +741,16 @@ The case ``Elastic-Net without sample weighting'' shows the effect of
 sampling the symbol pairs uniformly.
 Inspection of the trained feature coefficients reveals that the fitting ends up
 with an all-zero feature weight vector on splits 1 and 2,
-signifying a complete failure to learn on these training sets.
+signifying a complete failure to learn on~these training sets.
 
 Using Elastic-Net for general preference prediction on average nearly matches the performance
 of Vampire with the \texttt{invfreq} precedence scheme.
 While Elastic-Net performs significantly better than a random precedence generator,
-it still performs significantly worse than a generator
+it still performs significantly worse than a~generator
 that, given a problem, tries 10 random precedences and chooses the best of these.
 This suggests that there is space for improvement, possibly with a more sophisticated, non-linear model.
 Plugging in a Gradient Boosting regressor does not show immediate improvement
-so more elaborate feature extraction may be necessary.
+so~more elaborate feature extraction may be necessary.
 
 %The current architecture allows using arbitrary symbol feature vectors
 %and can be modified to backpropagate loss gradients.
@@ -760,9 +760,9 @@ so more elaborate feature extraction may be necessary.
 
 Since Elastic-Net is a linear regression model, we can easily inspect the coefficients it assigns
 to the input features (see \Cref{sect:embeddings}).
-In each of the five splits, the final coefficients of the three indicator features
-(namely the indicators of presence in a conjecture clause,
-presence in a unit clause and
+In each of the five splits, the final coefficients of~the~three indicator features
+(namely the indicators of presence in~a~conjecture clause,
+presence in~a~unit clause and
 being introduced during clausification)
 are 0.
 \Cref{table:feature-weights} shows the fitted non-zero coefficients of the remaining features.
@@ -771,7 +771,7 @@ Note that scaling the coefficients by a constant does not affect
 the precedence constructed using the greedy algorithm presented in \Cref{sect:ltot}.
 
 \begin{table*}
-    \caption{Elastic-Net feature coefficients after fitting on each of the 5 training sets of 1000 problems and on the whole \(\ProblemsTrain\).
+    \caption{Elastic-Net feature coefficients after fitting on each of the 5 training sets of 1000 problems and on~the~whole \(\ProblemsTrain\).
 		``Frequency'' is the number of occurrences of the symbol in the problem.
 		``Unit frequency'' is the number of clauses in the problem that contain at least one occurrence of the symbol.}
 	\label{table:feature-weights}
@@ -811,14 +811,14 @@ Since unit frequency is positively correlated with frequency,
 minimizing \(\CostProxy\) using this fitted regressor
 is consistent with the \texttt{invfreq} precedence generating scheme
 (ordering the symbols by frequency in descending order).
-Similarly, the model fitted on training sets 0 and 3 corresponds to ordering the symbols by arity in ascending order.
+Similarly, the~model fitted on training sets 0 and 3 corresponds to ordering the symbols by arity in ascending order.
 
 \section{Conclusion}
 
 This paper is, to the best of our knowledge, a first attempt to use machine learning for proposing symbol precedences for an ATP. 
-This appears to be a potentially highly rewarding task with an access to effectively unlimited amount of training data generated on demand.
-Nevertheless, the journey from evaluating the prover on random precedences to proposing a good precedence when presented 
-with a new problem is not straightforward and several conceptual gaps need to be bridged to connect these two tasks algorithmically. 
+This appears to be a potentially highly rewarding task with an~access to effectively unlimited amount of training data generated on demand.
+Nevertheless, the~journey from evaluating the prover on random precedences to proposing a good precedence when presented 
+with a new problem is not straightforward and several conceptual gaps need to~be~bridged to connect these two tasks algorithmically. 
 
 In this paper, we proposed a connection using the concept of pairwise symbol preferences that, as we have shown,
 can be learned as the coefficients of a linear regression model for 
@@ -829,7 +829,7 @@ In our initial experiments reported in this paper, the performance of our system
 yet reach that of the human-designed heuristic \texttt{invfreq}. We believe, however,
 that further improvements are possible by using a more advanced regression model for the second stage
 and/or by further hyper-parameter tuning (e.g.~of the Gradient Boosting model).
-Ultimately, we expect to gain the most by using a richer set of symbol features,
+Ultimately, we~expect to gain the most by using a richer set of symbol features,
 ideally automatically extracted from the problems using graph neural networks \cite{Wu2019}. 
 
 \begin{acknowledgments}
